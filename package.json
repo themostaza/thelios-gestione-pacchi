@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next lint --fix && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -41,6 +41,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.5.2",
+    "eslint-plugin-import": "^2.31.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.476.0",
     "next": "15.1.7",
