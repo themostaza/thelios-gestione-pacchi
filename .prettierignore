@@ -1,0 +1,22 @@
+# Ignore everything except app, component, context and lib
+.devcontainer/**
+.git/**
+.next/**
+.node_modules/**
+.public/**
+.gitignore
+src/components/ui/**
+components.json
+lib/utils.ts
+hooks/use-mobile.tsx
+eslint.config.mjs
+next.config.ts
+next-env.d.ts
+postcss.config.mjs
+tailwind.config.ts
+tsconfig.json
+tsconfig.node.json
+README.md
+.prettierrc.js
+package-lock.json
+package.json
