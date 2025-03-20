@@ -1,12 +1,11 @@
-"use server"
+'use server'
 
-import { deliverySchema, DeliveryFormData, DeliveryData, ValidationErrors } from "@/lib/validations/delivery"
-import { revalidatePath } from "next/cache"
+import { deliverySchema, DeliveryFormData, DeliveryData, ValidationErrors } from '@/lib/validations/delivery'
 
 // Define more precise return types
 type SuccessResponse = {
   message: string
-  errors: {}
+  errors: null
   success: true
   data: DeliveryData
 }
@@ -23,50 +22,50 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
   try {
     // Parse and validate the form data on the server
     const validatedFields = deliverySchema.safeParse({
-      recipient: formData.get("recipient"),
-      place: formData.get("place"),
-      notes: formData.get("notes")
+      recipient: formData.get('recipient'),
+      place: formData.get('place'),
+      notes: formData.get('notes'),
     })
 
     // Return validation errors if any
     if (!validatedFields.success) {
       return {
-        message: "Invalid data. Check the fields and try again.",
+        message: 'Invalid data. Check the fields and try again.',
         errors: validatedFields.error.flatten().fieldErrors,
         success: false,
-        data: null
+        data: null,
       }
     }
 
     const data: DeliveryFormData = validatedFields.data
-    
+
     // Simulate database operation
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     // Mock the database return object
     const mockDbData = {
-      id: "del_" + Math.random().toString(36).substring(2, 9),
+      id: 'del_' + Math.random().toString(36).substring(2, 9),
       recipientEmail: data.recipient,
       place: data.place,
       notes: data.notes,
-      status: "pending",
-      created_at: new Date().toISOString()
+      status: 'pending',
+      created_at: new Date().toISOString(),
     }
 
     return {
-      message: "Delivery registered successfully!",
-      errors: {},
+      message: 'Delivery registered successfully!',
+      errors: null,
       success: true,
-      data: mockDbData
+      data: mockDbData,
     }
   } catch (error) {
     // Handle any unexpected errors
-    console.error("Error saving delivery:", error)
+    console.error('Error saving delivery:', error)
     return {
-      message: "An error occurred while saving the delivery.",
+      message: 'An error occurred while saving the delivery.',
       errors: {},
       success: false,
-      data: null
+      data: null,
     }
   }
-} 
+}

@@ -109,3 +109,16 @@ This project includes DevContainer configuration for a consistent development en
 2. Install the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for VS Code
 3. Open the project in VS Code and select \"Reopen in Container\" when prompted
 
+## Known Issues and Workarounds
+
+### ESLint Configuration
+
+There are a few issues with the current ESLint configuration:
+
+1. **External Library Warnings**: The `use-toast` hook from the UI library triggers ESLint warnings. Currently, we're using inline ESLint directives to suppress these warnings:
+
+   ```tsx
+   // eslint-disable-next-line react-hooks/rules-of-hooks
+   import { toast } from '@/hooks/use-toast'
+   ```
+
