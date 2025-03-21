@@ -1,6 +1,8 @@
 'use server'
 
 import { deliverySchema, DeliveryFormData, DeliveryData, ValidationErrors } from '@/lib/validations/delivery'
+import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
 // Define more precise return types
 type SuccessResponse = {
@@ -38,25 +40,59 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
     }
 
     const data: DeliveryFormData = validatedFields.data
-
-    // Simulate database operation
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock the database return object
-    const mockDbData = {
-      id: 'del_' + Math.random().toString(36).substring(2, 9),
-      recipientEmail: data.recipient,
-      place: data.place,
-      notes: data.notes,
-      status: 'pending',
-      created_at: new Date().toISOString(),
+    // Initialize Supabase client
+    const supabase = createClient(cookies())
+    
+    // Get authenticated user - more secure than getSession()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return {
+        message: 'Authentication required. Please sign in to create a delivery.',
+        errors: {},
+        success: false,
+        data: null,
+      }
+    }
+    // Insert data into the delivery table with user_id
+    const { data: deliveryData, error } = await supabase
+      .from('delivery')
+      .insert({
+        recipient_email: data.recipient,
+        place: data.place,
+        notes: data.notes,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        user_id: user.id, // Use the authenticated user ID
+      })
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Supabase error:', error)
+      return {
+        message: 'Database error: ' + error.message,
+        errors: {},
+        success: false,
+        data: null,
+      }
+    }
+    
+    // Format the response data
+    const savedDelivery: DeliveryData = {
+      id: deliveryData.id,
+      recipientEmail: deliveryData.recipient_email,
+      place: deliveryData.place,
+      notes: deliveryData.notes,
+      status: deliveryData.status,
+      created_at: deliveryData.created_at,
     }
 
     return {
       message: 'Delivery registered successfully!',
       errors: null,
       success: true,
-      data: mockDbData,
+      data: savedDelivery,
     }
   } catch (error) {
     // Handle any unexpected errors
