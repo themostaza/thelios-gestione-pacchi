@@ -18,7 +18,6 @@ import { toast } from '@/hooks/use-toast'
 import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
 
 export default function DeliveryForm() {
-    
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm({
@@ -90,15 +89,11 @@ export default function DeliveryForm() {
     <Card className='w-96'>
       <Toaster />
       <CardHeader>
-        <div className="flex flex-col items-center">
-          <CardTitle className="text-2xl font-bold text-center">
-            Delivery Registration
-          </CardTitle>
-          <p className="mt-2 text-sm text-muted-foreground text-center">
-            Enter package delivery details
-          </p>
+        <div className='flex flex-col items-center'>
+          <CardTitle className='text-2xl font-bold text-center'>Delivery Registration</CardTitle>
+          <p className='mt-2 text-sm text-muted-foreground text-center'>Enter package delivery details</p>
         </div>
-        <Separator className="mt-4" />
+        <Separator className='mt-4' />
       </CardHeader>
 
       <Form {...form}>
@@ -174,19 +169,22 @@ export default function DeliveryForm() {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className='h-4 w-4 animate-spin mr-2' />
                   Registering...
                 </>
               ) : (
                 <>
-                  <Send size={20} className="mr-2" />
+                  <Send
+                    size={20}
+                    className='mr-2'
+                  />
                   Register Delivery
                 </>
               )}
             </Button>
           </CardFooter>
         </form>
-      </Form> 
+      </Form>
     </Card>
   )
 }

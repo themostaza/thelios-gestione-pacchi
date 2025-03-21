@@ -2,9 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, LogIn } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
@@ -12,9 +12,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
-import { Toaster } from '@/components/ui/toaster'
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -61,18 +61,18 @@ export default function LoginForm() {
         }
         return
       }
-      
+
       toast({
         title: 'Login successful',
         description: 'Redirecting to dashboard...',
       })
-      
+
       router.refresh()
-      
+
       router.push('/dashboard')
     } catch (error) {
       console.error('Login error:', error)
-      
+
       toast({
         title: 'Login failed',
         description: 'An unexpected error occurred during login. Please try again.',
@@ -84,36 +84,32 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="w-96">
+    <Card className='w-96'>
       <Toaster />
       <CardHeader>
-        <div className="flex flex-col items-center">
-          <CardTitle className="text-2xl font-bold text-center">
-            Sign in to your account
-          </CardTitle>
-          <p className="mt-2 text-sm text-muted-foreground text-center">
-            Enter your credentials to access the application
-          </p>
+        <div className='flex flex-col items-center'>
+          <CardTitle className='text-2xl font-bold text-center'>Sign in to your account</CardTitle>
+          <p className='mt-2 text-sm text-muted-foreground text-center'>Enter your credentials to access the application</p>
         </div>
-        <Separator className="mt-4" />
+        <Separator className='mt-4' />
       </CardHeader>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4 pt-4">
+          <CardContent className='space-y-4 pt-4'>
             <FormField
               control={form.control}
-              name="email"
+              name='email'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="email">Email address</FormLabel>
+                  <FormLabel htmlFor='email'>Email address</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      id="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      autoComplete="email"
+                      id='email'
+                      type='email'
+                      placeholder='your@email.com'
+                      autoComplete='email'
                       disabled={isSubmitting}
                     />
                   </FormControl>
@@ -124,17 +120,17 @@ export default function LoginForm() {
 
             <FormField
               control={form.control}
-              name="password"
+              name='password'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormLabel htmlFor='password'>Password</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      autoComplete="current-password"
+                      id='password'
+                      type='password'
+                      placeholder='••••••••'
+                      autoComplete='current-password'
                       disabled={isSubmitting}
                     />
                   </FormControl>
@@ -146,18 +142,21 @@ export default function LoginForm() {
 
           <CardFooter>
             <Button
-              type="submit"
+              type='submit'
               disabled={isSubmitting}
-              className="w-full"
+              className='w-full'
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className='h-4 w-4 animate-spin mr-2' />
                   Signing in...
                 </>
               ) : (
                 <>
-                  <LogIn size={20} className="mr-2" />
+                  <LogIn
+                    size={20}
+                    className='mr-2'
+                  />
                   Sign in
                 </>
               )}
@@ -167,4 +166,4 @@ export default function LoginForm() {
       </Form>
     </Card>
   )
-} 
+}
