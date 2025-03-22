@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import Link from 'next/link'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
-import RecipientSelect from '@/components/RecipientSelect'
+import RecipientSelect from '@/components/delivery/recipientSelect'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'

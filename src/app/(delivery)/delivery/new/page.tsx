@@ -1,4 +1,4 @@
-import DeliveryForm from '@/components/deliveryForm'
+import DeliveryForm from '@/components/delivery/deliveryForm'
 
 export default function DeliveryPage() {
   return (
