@@ -2,8 +2,17 @@
 
 import { User } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
-
 import { createClient } from '@/lib/supabase/client'
+import { User as UserIcon, LogOut, Loader2, LogIn } from 'lucide-react'
+import Link from 'next/link'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function AuthStatus() {
   const [user, setUser] = useState<User | null>(null)
@@ -37,22 +46,46 @@ export default function AuthStatus() {
     }
   }, [supabase])
 
-  if (loading) {
-    return <div className='fixed top-0 right-0 m-4 p-2 bg-gray-100 dark:bg-gray-800 rounded shadow'>Checking authentication...</div>
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
   }
 
   return (
-    <div className='fixed top-0 right-0 m-4 p-2 bg-gray-100 dark:bg-gray-800 rounded shadow'>
-      {user ? (
-        <div className='flex items-center gap-2'>
-          <span className='inline-block w-2 h-2 bg-green-500 rounded-full'></span>
-          <span>Logged in as: {user.email}</span>
+    <div className="fixed top-4 right-4">
+      {loading ? (
+        <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-secondary-foreground" />
         </div>
+      ) : user ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center cursor-pointer hover:opacity-90">
+              <UserIcon className="h-5 w-5 text-secondary-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel className='text-sm text-muted-foreground'>{user.email}</DropdownMenuLabel>
+            <DropdownMenuLabel className='text-sm text-muted-foreground'>
+              Role: {user.user_metadata?.role || 'User'}
+            </DropdownMenuLabel>
+            <DropdownMenuLabel className='text-sm text-muted-foreground'>
+              Status: {user.user_metadata?.is_activated ? 'Activated' : 'Not Activated'}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
-        <div className='flex items-center gap-2'>
-          <span className='inline-block w-2 h-2 bg-red-500 rounded-full'></span>
-          <span>Not logged in</span>
-        </div>
+        <Link 
+          href="/" 
+          className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 cursor-pointer"
+          aria-label="Log in"
+        >
+          <LogIn className="h-5 w-5 text-secondary-foreground" />
+        </Link>
       )}
     </div>
   )
