@@ -11,6 +11,11 @@ import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { DateRange } from "react-day-picker"
 
+// Add this interface at the top of the file
+interface DeliveryFilterPanelProps {
+  isAdmin: boolean;
+}
+
 // Status badge component for filter selection
 function StatusBadge({ status, active = true }: { status: string; active?: boolean }) {
   const getStyles = () => {
@@ -70,7 +75,7 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
   )
 }
 
-export default function DeliveryFilterPanel() {
+export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
   const { 
     form, 
     applyFilters, 
@@ -97,18 +102,20 @@ export default function DeliveryFilterPanel() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="sender"
-            render={({ field }) => (
+          {isAdmin && (
+            <FormField
+              control={form.control}
+              name="sender"
+              render={({ field }) => (
               <FormItem>
                 <FormLabel>Sender</FormLabel>
                 <FormControl>
                   <Input placeholder="Filter by sender" {...field} />
                 </FormControl>
               </FormItem>
-            )}
-          />
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}

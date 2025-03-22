@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 
 import { createClient } from '@/lib/supabase/server'
 import { deliverySchema, DeliveryFormData, ValidationErrors } from '@/lib/validations/delivery'
+import { iAmAdmin } from '@/actions/admin'
 
 // Define more precise return types
 type SuccessResponse = {
@@ -176,9 +177,36 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
     }
 
     // Start building the query
-    let query = supabase.from('delivery').select('*', { count: 'exact' }).eq('user_id', user.id)
+    let query = supabase.from('delivery').select('*', { count: 'exact' })
+    
+    // Check if user is admin
+    const isAdmin = await iAmAdmin()
+    
+    // If not admin, only show their own deliveries
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id)
+      
+      // Explicitly ignore userEmail filter for non-admins
+      if (filters.userEmail) {
+        // Remove the userEmail filter for non-admins
+        delete filters.userEmail;
+      }
+    }
 
     // Apply filters
+    if (filters.userEmail && isAdmin) {
+      // Add ability to filter by specific user's email if needed
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', filters.userEmail)
+        .single()
+      
+      if (userData) {
+        query = query.eq('user_id', userData.id)
+      }
+    }
+
     if (filters.recipientEmail) {
       query = query.ilike('recipient_email', `%${filters.recipientEmail}%`)
     }
@@ -223,17 +251,23 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
     
     // If there are user IDs to look up
     if (userIds.length > 0) {
-      // Fetch user emails for all unique user IDs
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('id, email')
-        .in('id', userIds)
-      
-      if (!userError && userData) {
-        // Create a map of user_id to email for quick lookup
-        userData.forEach(user => {
-          userEmailMap.set(user.id, user.email || 'Unknown')
-        })
+      // Look up user emails directly in the profile table
+      try {
+        const { data: profileData } = await supabase
+          .from('profile') // Using 'profile' table (singular) as indicated
+          .select('user_id, email')
+          .in('user_id', userIds)
+
+
+          console.log('profileData', profileData)
+        
+        if (profileData && profileData.length > 0) {
+          profileData.forEach(profile => {
+            userEmailMap.set(profile.user_id, profile.email || 'Unknown')
+          })
+        }
+      } catch (profileError) {
+        console.error('Error fetching profiles:', profileError)
       }
     }
 

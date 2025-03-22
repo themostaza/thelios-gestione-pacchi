@@ -1,10 +1,8 @@
-'use client'
-
-import { User } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { cookies } from 'next/headers'
 import { User as UserIcon, LogOut, Loader2, LogIn } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { iAmAdmin } from '@/actions/admin'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,79 +11,68 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { redirect } from 'next/navigation'
+import { Button } from './ui/button'
 
-export default function AuthStatus() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+// Server action for logout
+async function logout() {
+  'use server'
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
+  await supabase.auth.signOut()
+  redirect('/')
+}
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        setUser(user)
-      } catch (error) {
-        console.error('Error checking authentication:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+// Server component for logout functionality
+function LogoutButton() {
+  return (
+      <DropdownMenuItem asChild className="cursor-pointer">
+      <form action={logout}>
+        <Button type="submit" variant="ghost" className="flex items-center justify-center">
+          <LogOut />
+          <span>Log out</span>
+        </Button>
+        </form>
+      </DropdownMenuItem>
+  )
+}
 
-    checkUser()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [supabase])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-  }
+// Server component
+export default async function AuthStatus() {
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  // Use the iAmAdmin server action instead of checking directly
+  const isAdmin = user ? await iAmAdmin() : false
 
   return (
     <div className="fixed top-4 right-4">
-      {loading ? (
-        <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-secondary-foreground" />
-        </div>
-      ) : user ? (
+      {!user ? (
+        <Link 
+          href="/" 
+          className="h-10 w-10 rounded-full bg-primary flex items-center justify-center hover:bg-primary/80 cursor-pointer"
+          aria-label="Log in"
+        >
+          <LogIn className="h-5 w-5 text-primary-foreground" />
+        </Link>
+      ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center cursor-pointer hover:opacity-90">
-              <UserIcon className="h-5 w-5 text-secondary-foreground" />
+            <button className="h-10 w-10 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:opacity-90">
+              <UserIcon className="h-5 w-5 text-primary-foreground" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel className='text-sm text-muted-foreground'>{user.email}</DropdownMenuLabel>
-            <DropdownMenuLabel className='text-sm text-muted-foreground'>
-              Role: {user.user_metadata?.role || 'User'}
-            </DropdownMenuLabel>
-            <DropdownMenuLabel className='text-sm text-muted-foreground'>
-              Status: {user.user_metadata?.is_activated ? 'Activated' : 'Not Activated'}
+            <DropdownMenuLabel className='text-xs italic text-muted-foreground'>
+              Role: {isAdmin ? 'Admin' : 'User'}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
+            <LogoutButton />
           </DropdownMenuContent>
         </DropdownMenu>
-      ) : (
-        <Link 
-          href="/" 
-          className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 cursor-pointer"
-          aria-label="Log in"
-        >
-          <LogIn className="h-5 w-5 text-secondary-foreground" />
-        </Link>
       )}
     </div>
   )

@@ -26,9 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary`}>
-        <div className='flex justify-center h-screen p-6 px-20'>
-          {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary/20`}>
+        <div className='flex justify-center items-stretch h-screen p-8'>
+            {children}
           <AuthStatus />
         </div>
       </body>

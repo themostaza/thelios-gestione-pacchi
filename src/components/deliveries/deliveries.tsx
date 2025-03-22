@@ -11,7 +11,11 @@ import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
 import { DeliveriesProvider } from '@/context/deliveriesContext'
 
-export default function Deliveries() {
+interface DeliveriesProps {
+  isAdmin: boolean
+}
+
+export default function Deliveries({ isAdmin }: DeliveriesProps) {
   const [showFilters, setShowFilters] = useState(false)
 
   return (
@@ -52,7 +56,7 @@ export default function Deliveries() {
             
             {showFilters && (
               <div className='md:w-1/4 mb-4 md:mb-0 border-l pl-4'>
-                <DeliveryFilterPanel />
+                <DeliveryFilterPanel isAdmin={isAdmin} />
               </div>
             )}
           </div>
