@@ -35,6 +35,7 @@ export type DeliveryFilters = {
   startDate?: string
   endDate?: string
   searchTerm?: string
+  userEmail?: string
 }
 
 // Type for paginated response
@@ -46,7 +47,7 @@ export type PaginatedDeliveriesResponse = {
   count?: number | null
 }
 
-// Add export to the DeliveryData type
+// Update the DeliveryData type to include a user object
 export type DeliveryData = {
   id: number
   recipientEmail: string
@@ -54,6 +55,10 @@ export type DeliveryData = {
   notes: string | null
   status: string
   created_at: string
+  user: {
+    email: string
+    // Future fields can be added here (name, avatar, etc.)
+  }
 }
 
 // Server action to save delivery data
@@ -94,7 +99,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
         data: null,
       }
     }
-    // Insert data into the delivery table with user_id
+    // Insert data into the delivery table with only user_id, no user_email
     const { data: deliveryData, error } = await supabase
       .from('delivery')
       .insert({
@@ -103,7 +108,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
         notes: data.notes,
         status: 'pending',
         created_at: new Date().toISOString(),
-        user_id: user.id, // Use the authenticated user ID
+        user_id: user.id
       })
       .select()
       .single()
@@ -118,7 +123,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
       }
     }
 
-    // Format the response data
+    // Format the response data with the user object
     const savedDelivery: DeliveryData = {
       id: deliveryData.id,
       recipientEmail: deliveryData.recipient_email,
@@ -126,6 +131,9 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
       notes: deliveryData.notes,
       status: deliveryData.status,
       created_at: deliveryData.created_at,
+      user: {
+        email: user.email || 'unknown',
+      }
     }
 
     return {
@@ -209,17 +217,52 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
 
     if (error) throw error
 
-    const hasMore = Boolean(count && count > offset + data.length)
+    // Create a map to efficiently look up user emails
+    const userIds = [...new Set(data.map(delivery => delivery.user_id))].filter(Boolean)
+    const userEmailMap = new Map<string, string>()
+    
+    // If there are user IDs to look up
+    if (userIds.length > 0) {
+      // Fetch user emails for all unique user IDs
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id, email')
+        .in('id', userIds)
+      
+      if (!userError && userData) {
+        // Create a map of user_id to email for quick lookup
+        userData.forEach(user => {
+          userEmailMap.set(user.id, user.email || 'Unknown')
+        })
+      }
+    }
 
-    // Format the data
-    const deliveries: DeliveryData[] = data.map((delivery) => ({
-      id: delivery.id,
-      recipientEmail: delivery.recipient_email,
-      place: delivery.place,
-      notes: delivery.notes,
-      status: delivery.status,
-      created_at: delivery.created_at,
-    }))
+    // Map deliveries to the desired format
+    const deliveries: DeliveryData[] = data.map((delivery) => {
+      // Get user email from the map, or fallback to current user if it matches
+      let userEmail = 'Unknown'
+      
+      if (userEmailMap.has(delivery.user_id)) {
+        userEmail = userEmailMap.get(delivery.user_id) || 'Unknown'
+      } else if (delivery.user_id === user.id) {
+        // Fallback for current user
+        userEmail = user.email || 'Current user'
+      }
+      
+      return {
+        id: delivery.id,
+        recipientEmail: delivery.recipient_email,
+        place: delivery.place,
+        notes: delivery.notes,
+        status: delivery.status,
+        created_at: delivery.created_at,
+        user: {
+          email: userEmail
+        }
+      }
+    })
+
+    const hasMore = Boolean(count && count > offset + data.length)
 
     return {
       success: true,
@@ -235,6 +278,41 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
       data: null,
       message: 'An unexpected error occurred while fetching deliveries.',
       hasMore: false,
+    }
+  }
+}
+
+// Add this to your deliveryActions.ts file
+export async function getDeliveryById(id: string) {
+  try {
+    const response = await fetch(`/api/deliveries/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const data = await response.json()
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch delivery',
+        data: null,
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Delivery fetched successfully',
+      data: data,
+    }
+  } catch (error) {
+    console.error('Error fetching delivery:', error)
+    return {
+      success: false,
+      message: 'Error fetching delivery',
+      data: null,
     }
   }
 }
