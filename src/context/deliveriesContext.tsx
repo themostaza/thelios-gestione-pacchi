@@ -1,8 +1,9 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode, Dispatch, SetStateAction } from 'react'
+import { DateRange } from 'react-day-picker'
 import { useForm } from 'react-hook-form'
-import { DateRange } from "react-day-picker"
+
 import { getDeliveriesPaginated, DeliveryFilters as DeliveryFiltersType, DeliveryData } from '@/app/actions/deliveryActions'
 
 type FilterFormValues = {
@@ -21,7 +22,7 @@ type DeliveriesContextType = {
   loading: boolean
   initialLoading: boolean
   error: string | null
-  
+
   // Filter related
   filters: DeliveryFiltersType
   form: ReturnType<typeof useForm<FilterFormValues>>
@@ -45,7 +46,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<DeliveryFiltersType>({
     status: ['pending', 'completed'],
   })
-  
+
   const form = useForm<FilterFormValues>({
     defaultValues: {
       recipient: '',
@@ -71,7 +72,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
           if (page === 1) {
             setDeliveries(response.data)
           } else {
-            setDeliveries(prev => [...prev, ...response.data!])
+            setDeliveries((prev) => [...prev, ...response.data!])
           }
           setHasMore(response.hasMore)
           setError(null)
@@ -92,7 +93,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
 
   const applyFilters = (values: FilterFormValues) => {
     const selectedStatuses = Object.entries(values.statusFilters)
-      .filter(([_, isSelected]) => isSelected)
+      .filter(([, isSelected]) => isSelected)
       .map(([status]) => status)
 
     const newFilters: DeliveryFiltersType = {}
@@ -168,7 +169,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
         form,
         applyFilters,
         resetFilters,
-        toggleStatusFilter
+        toggleStatusFilter,
       }}
     >
       {children}
@@ -182,4 +183,4 @@ export const useDeliveries = () => {
     throw new Error('useDeliveries must be used within a DeliveriesProvider')
   }
   return context
-} 
+}

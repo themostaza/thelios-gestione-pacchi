@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Separator } from '@/components/ui/separator'
 import { SlidersHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+
+import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
+import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
-import DeliveriesTable from '@/components/deliveries/deliveriesTable'
-import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
+import { Separator } from '@/components/ui/separator'
 import { DeliveriesProvider } from '@/context/deliveriesContext'
 
 interface DeliveriesProps {
@@ -33,7 +33,7 @@ export default function Deliveries({ isAdmin }: DeliveriesProps) {
                 size='sm'
                 asChild
               >
-                <Link href="/delivery/new">New</Link>
+                <Link href='/delivery/new'>New</Link>
               </Button>
               <Button
                 variant='outline'
@@ -53,7 +53,7 @@ export default function Deliveries({ isAdmin }: DeliveriesProps) {
             <div className={`${showFilters ? 'md:w-3/4' : 'w-full'} flex flex-col h-full overflow-hidden`}>
               <DeliveriesTable showFilters={showFilters} />
             </div>
-            
+
             {showFilters && (
               <div className='md:w-1/4 mb-4 md:mb-0 border-l pl-4'>
                 <DeliveryFilterPanel isAdmin={isAdmin} />
@@ -64,4 +64,4 @@ export default function Deliveries({ isAdmin }: DeliveriesProps) {
       </Card>
     </DeliveriesProvider>
   )
-} 
+}

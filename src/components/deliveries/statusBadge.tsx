@@ -1,5 +1,6 @@
-import { Badge } from '@/components/ui/badge'
 import { Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+
+import { Badge } from '@/components/ui/badge'
 
 // Status badge component - now using icons with hover labels
 function StatusBadge({ status, active = true }: { status: string; active?: boolean }) {
@@ -34,25 +35,25 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
         return status
     }
   }
-  
+
   const getIcon = () => {
     switch (status) {
       case 'pending':
-        return <Clock className="h-4 w-4" />
+        return <Clock className='h-4 w-4' />
       case 'completed':
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className='h-4 w-4' />
       case 'cancelled':
-        return <XCircle className="h-4 w-4" />
+        return <XCircle className='h-4 w-4' />
       case 'error':
-        return <AlertTriangle className="h-4 w-4" />
+        return <AlertTriangle className='h-4 w-4' />
       default:
         return null
     }
   }
 
   return (
-    <Badge 
-      className={`${getStyles()} w-8 h-8 rounded-full p-1 flex items-center justify-center`} 
+    <Badge
+      className={`${getStyles()} w-8 h-8 rounded-full p-1 flex items-center justify-center`}
       title={getLabel()}
     >
       {getIcon()}
@@ -60,4 +61,4 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
   )
 }
 
-export default StatusBadge 
+export default StatusBadge

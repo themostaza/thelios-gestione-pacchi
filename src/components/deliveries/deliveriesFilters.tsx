@@ -1,19 +1,19 @@
 'use client'
 
-import { useDeliveries } from '@/context/deliveriesContext'
+import { format } from 'date-fns'
+import { X, Search, CalendarIcon, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { X, Search, CalendarIcon, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
-import { format } from 'date-fns'
-import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { DateRange } from "react-day-picker"
+import { useDeliveries } from '@/context/deliveriesContext'
 
 // Add this interface at the top of the file
 interface DeliveryFilterPanelProps {
-  isAdmin: boolean;
+  isAdmin: boolean
 }
 
 // Status badge component for filter selection
@@ -49,25 +49,25 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
         return status
     }
   }
-  
+
   const getIcon = () => {
     switch (status) {
       case 'pending':
-        return <Clock className="h-4 w-4" />
+        return <Clock className='h-4 w-4' />
       case 'completed':
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className='h-4 w-4' />
       case 'cancelled':
-        return <XCircle className="h-4 w-4" />
+        return <XCircle className='h-4 w-4' />
       case 'error':
-        return <AlertTriangle className="h-4 w-4" />
+        return <AlertTriangle className='h-4 w-4' />
       default:
         return null
     }
   }
 
   return (
-    <Badge 
-      className={`${getStyles()} w-8 h-8 rounded-full p-1 flex items-center justify-center`} 
+    <Badge
+      className={`${getStyles()} w-8 h-8 rounded-full p-1 flex items-center justify-center`}
       title={getLabel()}
     >
       {getIcon()}
@@ -76,27 +76,28 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
 }
 
 export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
-  const { 
-    form, 
-    applyFilters, 
-    resetFilters,
-    toggleStatusFilter 
-  } = useDeliveries()
+  const { form, applyFilters, resetFilters, toggleStatusFilter } = useDeliveries()
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Filters</h3>
-      
+    <div className='space-y-4'>
+      <h3 className='text-lg font-medium'>Filters</h3>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(applyFilters)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(applyFilters)}
+          className='space-y-4'
+        >
           <FormField
             control={form.control}
-            name="recipient"
+            name='recipient'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Recipient</FormLabel>
                 <FormControl>
-                  <Input placeholder="Filter by recipient" {...field} />
+                  <Input
+                    placeholder='Filter by recipient'
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -105,59 +106,62 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
           {isAdmin && (
             <FormField
               control={form.control}
-              name="sender"
+              name='sender'
               render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sender</FormLabel>
-                <FormControl>
-                  <Input placeholder="Filter by sender" {...field} />
-                </FormControl>
-              </FormItem>
+                <FormItem>
+                  <FormLabel>Sender</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Filter by sender'
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
             />
           )}
 
           <FormField
             control={form.control}
-            name="statusFilters"
+            name='statusFilters'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
                 <FormControl>
-                  <div className="flex flex-row flex-wrap gap-2">
+                  <div className='flex flex-row flex-wrap gap-2'>
                     <div
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                       onClick={() => toggleStatusFilter('pending')}
                     >
                       <StatusBadge
-                        status="pending"
+                        status='pending'
                         active={field.value.pending}
                       />
                     </div>
                     <div
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                       onClick={() => toggleStatusFilter('completed')}
                     >
                       <StatusBadge
-                        status="completed"
+                        status='completed'
                         active={field.value.completed}
                       />
                     </div>
                     <div
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                       onClick={() => toggleStatusFilter('cancelled')}
                     >
                       <StatusBadge
-                        status="cancelled"
+                        status='cancelled'
                         active={field.value.cancelled}
                       />
                     </div>
                     <div
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                       onClick={() => toggleStatusFilter('error')}
                     >
                       <StatusBadge
-                        status="error"
+                        status='error'
                         active={field.value.error}
                       />
                     </div>
@@ -169,28 +173,25 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
 
           <FormField
             control={form.control}
-            name="dateRange"
+            name='dateRange'
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem className='flex flex-col'>
                 <FormLabel>Date Range</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant={"outline"}
-                        className={`w-full justify-start text-left font-normal ${
-                          !field.value && "text-muted-foreground"
-                        }`}
+                        variant={'outline'}
+                        className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'}`}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <CalendarIcon className='mr-2 h-4 w-4' />
                         {field.value?.from ? (
                           field.value.to ? (
                             <>
-                              {format(field.value.from, "LLL dd, y")} -{" "}
-                              {format(field.value.to, "LLL dd, y")}
+                              {format(field.value.from, 'LLL dd, y')} - {format(field.value.to, 'LLL dd, y')}
                             </>
                           ) : (
-                            format(field.value.from, "LLL dd, y")
+                            format(field.value.from, 'LLL dd, y')
                           )
                         ) : (
                           <span>Select date range</span>
@@ -198,10 +199,13 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent
+                    className='w-auto p-0'
+                    align='start'
+                  >
                     <Calendar
                       initialFocus
-                      mode="range"
+                      mode='range'
                       defaultMonth={field.value?.from}
                       selected={field.value}
                       onSelect={field.onChange}
@@ -213,17 +217,17 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
             )}
           />
 
-          <div className="flex space-x-2 pt-4">
-            <Button type="submit">
-              <Search className="mr-2 h-4 w-4" />
+          <div className='flex space-x-2 pt-4'>
+            <Button type='submit'>
+              <Search className='mr-2 h-4 w-4' />
               Apply Filters
             </Button>
             <Button
-              type="button"
-              variant="outline"
+              type='button'
+              variant='outline'
               onClick={resetFilters}
             >
-              <X className="mr-2 h-4 w-4" />
+              <X className='mr-2 h-4 w-4' />
               Reset
             </Button>
           </div>
@@ -231,4 +235,4 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
       </Form>
     </div>
   )
-} 
+}

@@ -1,15 +1,16 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import Link from 'next/link'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
+
 import { DeliveryData } from '@/app/actions/deliveryActions'
+import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import StatusBadge from '@/components/deliveries/statusBadge'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
 
 // Column width constants for consistency
@@ -19,7 +20,7 @@ const COLUMN_WIDTHS = {
   sender: 'w-[30%]',
   status: 'w-[10%]',
   created: 'w-[15%]',
-  actions: 'w-[10%]'
+  actions: 'w-[10%]',
 }
 
 // Loading row component using the same column widths as the data table
@@ -59,14 +60,7 @@ type DeliveriesTableProps = {
 }
 
 function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
-  const { 
-    deliveries, 
-    error, 
-    initialLoading, 
-    loading, 
-    hasMore, 
-    setPage 
-  } = useDeliveries()
+  const { deliveries, error, initialLoading, loading, hasMore, setPage } = useDeliveries()
 
   // Sort state
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -94,28 +88,22 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
     return [...deliveries].sort((a, b) => {
       if (sortConfig.field === 'user') {
         // Gestione speciale per il campo annidato user.email
-        const emailA = a.user?.email?.toLowerCase() || '';
-        const emailB = b.user?.email?.toLowerCase() || '';
-        return sortConfig.direction === 'asc' 
-          ? emailA.localeCompare(emailB) 
-          : emailB.localeCompare(emailA);
+        const emailA = a.user?.email?.toLowerCase() || ''
+        const emailB = b.user?.email?.toLowerCase() || ''
+        return sortConfig.direction === 'asc' ? emailA.localeCompare(emailB) : emailB.localeCompare(emailA)
       }
 
       // Gestione normale per altri campi
-      const fieldA = a[sortConfig.field as keyof typeof a];
-      const fieldB = b[sortConfig.field as keyof typeof b];
-      
+      const fieldA = a[sortConfig.field as keyof typeof a]
+      const fieldB = b[sortConfig.field as keyof typeof b]
+
       if (typeof fieldA === 'string' && typeof fieldB === 'string') {
-        return sortConfig.direction === 'asc'
-          ? fieldA.localeCompare(fieldB)
-          : fieldB.localeCompare(fieldA);
+        return sortConfig.direction === 'asc' ? fieldA.localeCompare(fieldB) : fieldB.localeCompare(fieldA)
       }
-      
+
       // Add null checking for the comparison
-      return sortConfig.direction === 'asc'
-        ? ((fieldA ?? '') > (fieldB ?? '') ? 1 : -1)
-        : ((fieldA ?? '') < (fieldB ?? '') ? 1 : -1);
-    });
+      return sortConfig.direction === 'asc' ? ((fieldA ?? '') > (fieldB ?? '') ? 1 : -1) : (fieldA ?? '') < (fieldB ?? '') ? 1 : -1
+    })
   }
 
   // Get sorted and filtered data
@@ -131,7 +119,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
 
   const renderTableContent = () => {
     if (error) {
-      return <div className='text-center py-4 text-red-500'>{error}</div>;
+      return <div className='text-center py-4 text-red-500'>{error}</div>
     }
 
     if (deliveries.length === 0 && !initialLoading) {
@@ -139,16 +127,14 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
         <div className='text-center py-8 text-gray-500'>
           {showFilters ? 'No results found with the applied filters' : "You haven't created any deliveries yet. Create your first delivery from the dashboard."}
         </div>
-      );
+      )
     }
 
     return (
       <ScrollArea className='h-full flex-1 overflow-auto'>
         <div className='rounded-md'>
-          <Table className="table-fixed w-full">
-            {!initialLoading && (
-              <TableCaption>{showFilters ? 'Filtered results' : 'List of your recent deliveries'}</TableCaption>
-            )}
+          <Table className='table-fixed w-full'>
+            {!initialLoading && <TableCaption>{showFilters ? 'Filtered results' : 'List of your recent deliveries'}</TableCaption>}
             <TableHeader>
               <TableRow>
                 <TableHead
@@ -206,45 +192,41 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="relative">
-              {initialLoading ? (
-                Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <LoadingRow key={i} />
-                  ))
-              ) : (
-                sortedDeliveries.map((delivery) => (
-                  <TableRow
-                    key={delivery.id}
-                    id={`delivery-row-${delivery.id}`}
-                  >
-                    <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.status}>
-                      <StatusBadge status={delivery.status} />
-                    </TableCell>
-                    <TableCell className={COLUMN_WIDTHS.created}>
-                      {formatDistanceToNow(new Date(delivery.created_at), {
-                        addSuffix: true,
-                      })}
-                    </TableCell>
-                    <TableCell className={COLUMN_WIDTHS.actions}>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        asChild
-                      >
-                        <Link href={`/delivery/${delivery.id}`}>View</Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+            <TableBody className='relative'>
+              {initialLoading
+                ? Array(5)
+                    .fill(0)
+                    .map((_, i) => <LoadingRow key={i} />)
+                : sortedDeliveries.map((delivery) => (
+                    <TableRow
+                      key={delivery.id}
+                      id={`delivery-row-${delivery.id}`}
+                    >
+                      <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
+                      <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
+                      <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
+                      <TableCell className={COLUMN_WIDTHS.status}>
+                        <StatusBadge status={delivery.status} />
+                      </TableCell>
+                      <TableCell className={COLUMN_WIDTHS.created}>
+                        {formatDistanceToNow(new Date(delivery.created_at), {
+                          addSuffix: true,
+                        })}
+                      </TableCell>
+                      <TableCell className={COLUMN_WIDTHS.actions}>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          asChild
+                        >
+                          <Link href={`/delivery/${delivery.id}`}>View</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
-          
+
           {!initialLoading && hasMore && (
             <div className='py-4 flex justify-center'>
               <Button
@@ -257,18 +239,14 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
             </div>
           )}
 
-          {!initialLoading && !hasMore && deliveries.length > 0 && (
-            <div className='text-center text-xs italic text-muted-foreground my-4'>
-              You've reached the end of the list
-            </div>
-          )}
+          {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
         </div>
       </ScrollArea>
-    );
-  };
+    )
+  }
 
   // Main component return
-  return renderTableContent();
+  return renderTableContent()
 }
 
-export default DeliveriesTable; 
+export default DeliveriesTable

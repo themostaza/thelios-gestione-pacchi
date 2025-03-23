@@ -2,9 +2,9 @@
 
 import { cookies } from 'next/headers'
 
+import { iAmAdmin } from '@/actions/admin'
 import { createClient } from '@/lib/supabase/server'
 import { deliverySchema, DeliveryFormData, ValidationErrors } from '@/lib/validations/delivery'
-import { iAmAdmin } from '@/actions/admin'
 
 // Define more precise return types
 type SuccessResponse = {
@@ -19,13 +19,6 @@ type ErrorResponse = {
   errors: ValidationErrors
   success: false
   data: null
-}
-
-// Type for the returned deliveries
-type GetDeliveriesResponse = {
-  success: boolean
-  data: DeliveryData[] | null
-  message: string
 }
 
 // Type for filter options
@@ -109,7 +102,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
         notes: data.notes,
         status: 'pending',
         created_at: new Date().toISOString(),
-        user_id: user.id
+        user_id: user.id,
       })
       .select()
       .single()
@@ -134,7 +127,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
       created_at: deliveryData.created_at,
       user: {
         email: user.email || 'unknown',
-      }
+      },
     }
 
     return {
@@ -178,30 +171,26 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
 
     // Start building the query
     let query = supabase.from('delivery').select('*', { count: 'exact' })
-    
+
     // Check if user is admin
     const isAdmin = await iAmAdmin()
-    
+
     // If not admin, only show their own deliveries
     if (!isAdmin) {
       query = query.eq('user_id', user.id)
-      
+
       // Explicitly ignore userEmail filter for non-admins
       if (filters.userEmail) {
         // Remove the userEmail filter for non-admins
-        delete filters.userEmail;
+        delete filters.userEmail
       }
     }
 
     // Apply filters
     if (filters.userEmail && isAdmin) {
       // Add ability to filter by specific user's email if needed
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', filters.userEmail)
-        .single()
-      
+      const { data: userData } = await supabase.from('users').select('id').eq('email', filters.userEmail).single()
+
       if (userData) {
         query = query.eq('user_id', userData.id)
       }
@@ -246,9 +235,9 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
     if (error) throw error
 
     // Create a map to efficiently look up user emails
-    const userIds = [...new Set(data.map(delivery => delivery.user_id))].filter(Boolean)
+    const userIds = [...new Set(data.map((delivery) => delivery.user_id))].filter(Boolean)
     const userEmailMap = new Map<string, string>()
-    
+
     // If there are user IDs to look up
     if (userIds.length > 0) {
       // Look up user emails directly in the profile table
@@ -258,11 +247,10 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
           .select('user_id, email')
           .in('user_id', userIds)
 
+        console.log('profileData', profileData)
 
-          console.log('profileData', profileData)
-        
         if (profileData && profileData.length > 0) {
-          profileData.forEach(profile => {
+          profileData.forEach((profile) => {
             userEmailMap.set(profile.user_id, profile.email || 'Unknown')
           })
         }
@@ -275,14 +263,14 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
     const deliveries: DeliveryData[] = data.map((delivery) => {
       // Get user email from the map, or fallback to current user if it matches
       let userEmail = 'Unknown'
-      
+
       if (userEmailMap.has(delivery.user_id)) {
         userEmail = userEmailMap.get(delivery.user_id) || 'Unknown'
       } else if (delivery.user_id === user.id) {
         // Fallback for current user
         userEmail = user.email || 'Current user'
       }
-      
+
       return {
         id: delivery.id,
         recipientEmail: delivery.recipient_email,
@@ -291,8 +279,8 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
         status: delivery.status,
         created_at: delivery.created_at,
         user: {
-          email: userEmail
-        }
+          email: userEmail,
+        },
       }
     })
 
@@ -327,7 +315,7 @@ export async function getDeliveryById(id: string) {
     })
 
     const data = await response.json()
-    
+
     if (!response.ok) {
       return {
         success: false,
