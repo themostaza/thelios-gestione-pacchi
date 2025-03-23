@@ -12,14 +12,15 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
+import { cn } from '@/lib/utils'
 
 // Column width constants for consistency
 const COLUMN_WIDTHS = {
   id: 'w-[15%]',
-  recipient: 'w-[30%]',
-  sender: 'w-[30%]',
-  status: 'w-[10%]',
-  created: 'w-[15%]',
+  recipient: 'w-[25%]',
+  sender: 'w-[25%]',
+  status: 'w-[15%]',
+  created: 'w-[20%]',
   actions: 'w-[10%]',
 }
 
@@ -124,9 +125,9 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
 
     if (deliveries.length === 0 && !initialLoading) {
       return (
-        <div className='text-center py-8 text-gray-500'>
-          {showFilters ? 'No results found with the applied filters' : "You haven't created any deliveries yet. Create your first delivery from the dashboard."}
-        </div>
+        <p className='text-center py-8 text-gray-500'>
+          No results found with the applied filters
+        </p>
       )
     }
 
@@ -205,7 +206,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
                       <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
                       <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
                       <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
-                      <TableCell className={COLUMN_WIDTHS.status}>
+                      <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
                         <StatusBadge status={delivery.status} />
                       </TableCell>
                       <TableCell className={COLUMN_WIDTHS.created}>

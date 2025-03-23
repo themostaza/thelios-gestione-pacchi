@@ -3,8 +3,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Send } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { createClient } from '@/lib/supabase/client'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
 import RecipientSelect from '@/components/delivery/recipientSelect'
@@ -21,6 +22,27 @@ import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
 
 export default function DeliveryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentDateTime, setCurrentDateTime] = useState(new Date())
+  const [userEmail, setUserEmail] = useState('Loading...')
+
+  useEffect(() => {
+    // Get current user from Supabase
+    const getUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setUserEmail(user?.email || 'Not authenticated')
+    }
+    
+    getUser()
+  }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(deliverySchema),
@@ -103,13 +125,10 @@ export default function DeliveryForm() {
             <CardTitle className='text-2xl font-bold'>Delivery Registration</CardTitle>
             <CardDescription className='mt-2'>Enter package delivery details below</CardDescription>
           </div>
-          <Button
-            variant='outline'
-            size='sm'
-            asChild
-          >
-            <Link href='/deliveries'>View All Deliveries</Link>
-          </Button>
+          <div className='text-muted-foreground text-sm text-right'>
+            <div><strong>Sender:</strong> {userEmail}</div>
+            <div><strong>Creation Date:</strong> {currentDateTime.toLocaleString()}</div>
+          </div>
         </div>
         <Separator className='mt-4' />
       </CardHeader>
@@ -124,7 +143,7 @@ export default function DeliveryForm() {
               {/* Table area in a ScrollArea - now comes first */}
               <div className='w-full flex flex-col h-full overflow-hidden'>
                 <ScrollArea className='h-full flex-1 overflow-auto'>
-                  <div className='space-y-4'>
+                  <div className='space-y-4 p-2'>
                     <FormField
                       control={form.control}
                       name='recipient'

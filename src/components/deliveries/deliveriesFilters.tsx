@@ -1,11 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { format } from 'date-fns'
-import { X, Search, CalendarIcon, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import { X, Search, CalendarIcon, Clock, CheckCircle, XCircle, Eye, EyeOff, Filter } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -13,7 +15,7 @@ import { useDeliveries } from '@/context/deliveriesContext'
 
 // Add this interface at the top of the file
 interface DeliveryFilterPanelProps {
-  isAdmin: boolean
+  isAdmin: boolean;
 }
 
 // Status badge component for filter selection
@@ -28,8 +30,6 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
         return 'bg-green-500 hover:bg-green-600 text-white'
       case 'cancelled':
         return 'bg-red-500 hover:bg-red-600 text-white'
-      case 'error':
-        return 'bg-black hover:bg-gray-800 text-white'
       default:
         return 'bg-gray-500 hover:bg-gray-600 text-white'
     }
@@ -43,196 +43,165 @@ function StatusBadge({ status, active = true }: { status: string; active?: boole
         return 'Completed'
       case 'cancelled':
         return 'Cancelled'
-      case 'error':
-        return 'Error'
       default:
         return status
     }
   }
 
-  const getIcon = () => {
-    switch (status) {
-      case 'pending':
-        return <Clock className='h-4 w-4' />
-      case 'completed':
-        return <CheckCircle className='h-4 w-4' />
-      case 'cancelled':
-        return <XCircle className='h-4 w-4' />
-      case 'error':
-        return <AlertTriangle className='h-4 w-4' />
-      default:
-        return null
-    }
-  }
-
   return (
     <Badge
-      className={`${getStyles()} w-8 h-8 rounded-full p-1 flex items-center justify-center`}
-      title={getLabel()}
+      className={`${getStyles()} px-2 py-1 flex items-center justify-center`}
     >
-      {getIcon()}
+      {getLabel()}
     </Badge>
   )
 }
 
 export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
   const { form, applyFilters, resetFilters, toggleStatusFilter } = useDeliveries()
+  const [showFilterDialog, setShowFilterDialog] = useState(false)
 
-  return (
+  // Handle apply filters and close modal
+  const handleApplyFilters = (values: any) => {
+    applyFilters(values)
+    setShowFilterDialog(false)
+  }
+
+  const FilterPanelContent = () => (
     <div className='space-y-4'>
       <h3 className='text-lg font-medium'>Filters</h3>
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(applyFilters)}
+          onSubmit={form.handleSubmit(handleApplyFilters)}
           className='space-y-4'
         >
-          <FormField
-            control={form.control}
-            name='recipient'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Recipient</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='Filter by recipient'
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {isAdmin && (
+          {/* Single column layout */}
+          <div className='space-y-4'>
             <FormField
               control={form.control}
-              name='sender'
+              name='dateRange'
+              render={({ field }) => (
+                <FormItem className='flex flex-col'>
+                  <FormLabel>Date Range</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'}`}
+                        >
+                          <CalendarIcon className='mr-2 h-4 w-4' />
+                          {field.value?.from ? (
+                            field.value.to ? (
+                              <>
+                                {format(field.value.from, 'LLL dd, y')} - {format(field.value.to, 'LLL dd, y')}
+                              </>
+                            ) : (
+                              format(field.value.from, 'LLL dd, y')
+                            )
+                          ) : (
+                            <span>Select date range</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className='w-auto p-0'
+                      align='start'
+                    >
+                      <Calendar
+                        initialFocus
+                        mode='range'
+                        defaultMonth={field.value?.from}
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name='recipient'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sender</FormLabel>
+                  <FormLabel>Recipient</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Filter by sender'
+                      placeholder='Filter by recipient'
                       {...field}
+                      className='bg-white'
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
-          )}
 
-          <FormField
-            control={form.control}
-            name='statusFilters'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <FormControl>
-                  <div className='flex flex-row flex-wrap gap-2'>
-                    <div
-                      className='cursor-pointer'
-                      onClick={() => toggleStatusFilter('pending')}
-                    >
-                      <StatusBadge
-                        status='pending'
-                        active={field.value.pending}
-                      />
-                    </div>
-                    <div
-                      className='cursor-pointer'
-                      onClick={() => toggleStatusFilter('completed')}
-                    >
-                      <StatusBadge
-                        status='completed'
-                        active={field.value.completed}
-                      />
-                    </div>
-                    <div
-                      className='cursor-pointer'
-                      onClick={() => toggleStatusFilter('cancelled')}
-                    >
-                      <StatusBadge
-                        status='cancelled'
-                        active={field.value.cancelled}
-                      />
-                    </div>
-                    <div
-                      className='cursor-pointer'
-                      onClick={() => toggleStatusFilter('error')}
-                    >
-                      <StatusBadge
-                        status='error'
-                        active={field.value.error}
-                      />
-                    </div>
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name='dateRange'
-            render={({ field }) => (
-              <FormItem className='flex flex-col'>
-                <FormLabel>Date Range</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+            {isAdmin && (
+              <FormField
+                control={form.control}
+                name='sender'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sender</FormLabel>
                     <FormControl>
-                      <Button
-                        variant={'outline'}
-                        className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'}`}
-                      >
-                        <CalendarIcon className='mr-2 h-4 w-4' />
-                        {field.value?.from ? (
-                          field.value.to ? (
-                            <>
-                              {format(field.value.from, 'LLL dd, y')} - {format(field.value.to, 'LLL dd, y')}
-                            </>
-                          ) : (
-                            format(field.value.from, 'LLL dd, y')
-                          )
-                        ) : (
-                          <span>Select date range</span>
-                        )}
-                      </Button>
+                      <Input
+                        placeholder='Filter by sender'
+                        {...field}
+                        className='bg-white'
+                      />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className='w-auto p-0'
-                    align='start'
-                  >
-                    <Calendar
-                      initialFocus
-                      mode='range'
-                      defaultMonth={field.value?.from}
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormItem>
+                  </FormItem>
+                )}
+              />
             )}
-          />
+          </div>
 
-          <div className='flex space-x-2 pt-4'>
-            <Button type='submit'>
-              <Search className='mr-2 h-4 w-4' />
-              Apply Filters
-            </Button>
+          <div className='flex gap-2 justify-end'>
             <Button
               type='button'
               variant='outline'
-              onClick={resetFilters}
+              onClick={() => {
+                resetFilters();
+                setShowFilterDialog(false);
+              }}
             >
               <X className='mr-2 h-4 w-4' />
               Reset
+            </Button>
+            <Button type='submit'>
+              <Search className='mr-2 h-4 w-4' />
+              Apply Filters
             </Button>
           </div>
         </form>
       </Form>
     </div>
+  )
+
+  return (
+    <>
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={() => setShowFilterDialog(true)}
+      >
+        <Filter className='h-4 w-4 mr-2' />
+        Advanced Filters
+      </Button>
+
+      <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delivery Filters</DialogTitle>
+          </DialogHeader>
+          <FilterPanelContent />
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

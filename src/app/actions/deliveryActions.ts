@@ -55,6 +55,21 @@ export type DeliveryData = {
   }
 }
 
+// Type for status update response
+export type StatusUpdateResponse = {
+  success: boolean
+  message: string
+  data: DeliveryData | null
+}
+
+export type ReminderLog = {
+  id: string;
+  delivery_id: string;
+  ok: boolean;
+  message: string;
+  send_at: string | Date;
+}
+
 // Server action to save delivery data
 export async function saveDelivery(formData: FormData): Promise<SuccessResponse | ErrorResponse> {
   try {
@@ -304,37 +319,298 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
   }
 }
 
-// Add this to your deliveryActions.ts file
+// Replace the current getDeliveryById implementation with this:
 export async function getDeliveryById(id: string) {
   try {
-    const response = await fetch(`/api/deliveries/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    // Initialize Supabase client
+    const supabase = createClient(cookies())
 
-    const data = await response.json()
+    // Get authenticated user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-    if (!response.ok) {
+    if (userError || !user) {
       return {
         success: false,
-        message: data.message || 'Failed to fetch delivery',
+        message: 'Authentication required. Please sign in to view delivery details.',
         data: null,
       }
+    }
+
+    // Check if user is admin
+    const isAdmin = await iAmAdmin()
+
+    // Build the query - fixed to maintain proper type
+    const query = supabase.from('delivery').select('*')
+    
+    // Apply filters with proper chaining
+    if (!isAdmin) {
+      query.eq('user_id', user.id)
+    }
+    
+    // Add the id filter and execute
+    const { data: delivery, error } = await query.eq('id', id).single()
+
+    if (error) {
+      console.error('Database error:', error)
+      return {
+        success: false,
+        message: error.message || 'Failed to fetch delivery',
+        data: null,
+      }
+    }
+
+    if (!delivery) {
+      return {
+        success: false,
+        message: 'Delivery not found',
+        data: null,
+      }
+    }
+
+    // Get the user email
+    let userEmail = 'Unknown'
+    
+    try {
+      const { data: profileData } = await supabase
+        .from('profile')
+        .select('email')
+        .eq('user_id', delivery.user_id)
+        .single()
+      
+      if (profileData) {
+        userEmail = profileData.email || 'Unknown'
+      } else if (delivery.user_id === user.id) {
+        userEmail = user.email || 'Current user'
+      }
+    } catch (profileError) {
+      console.error('Error fetching user profile:', profileError)
+    }
+
+    // Format the response data
+    const deliveryData: DeliveryData = {
+      id: delivery.id,
+      recipientEmail: delivery.recipient_email,
+      place: delivery.place,
+      notes: delivery.notes,
+      status: delivery.status,
+      created_at: delivery.created_at,
+      user: {
+        email: userEmail,
+      },
     }
 
     return {
       success: true,
       message: 'Delivery fetched successfully',
-      data: data,
+      data: deliveryData,
     }
   } catch (error) {
     console.error('Error fetching delivery:', error)
     return {
       success: false,
-      message: 'Error fetching delivery',
+      message: 'An unexpected error occurred while fetching the delivery.',
       data: null,
+    }
+  }
+}
+
+export async function updateDeliveryStatus(id: string, status: string): Promise<StatusUpdateResponse> {
+  try {
+    // Initialize Supabase client
+    const supabase = createClient(cookies())
+
+    // Get authenticated user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return {
+        success: false,
+        message: 'Authentication required. Please sign in to update delivery status.',
+        data: null,
+      }
+    }
+
+    // Check if user is admin
+    const isAdmin = await iAmAdmin()
+
+    // Build the query to get the delivery first
+    const { data: delivery, error: fetchError } = await supabase
+      .from('delivery')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !delivery) {
+      return {
+        success: false,
+        message: fetchError?.message || 'Delivery not found',
+        data: null,
+      }
+    }
+
+    // Check permissions: only admin or the delivery creator can update status
+    if (!isAdmin && delivery.user_id !== user.id) {
+      return {
+        success: false,
+        message: 'You do not have permission to update this delivery',
+        data: null,
+      }
+    }
+
+    // Update the delivery status
+    const { data: updatedDelivery, error: updateError } = await supabase
+      .from('delivery')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (updateError) {
+      return {
+        success: false,
+        message: updateError.message || 'Failed to update delivery status',
+        data: null,
+      }
+    }
+
+    // Get user email for response
+    let userEmail = 'Unknown'
+    try {
+      const { data: profileData } = await supabase
+        .from('profile')
+        .select('email')
+        .eq('user_id', updatedDelivery.user_id)
+        .single()
+      
+      if (profileData) {
+        userEmail = profileData.email || 'Unknown'
+      } else if (updatedDelivery.user_id === user.id) {
+        userEmail = user.email || 'Current user'
+      }
+    } catch (profileError) {
+      console.error('Error fetching user profile:', profileError)
+    }
+
+    // Format the response data
+    const deliveryData: DeliveryData = {
+      id: updatedDelivery.id,
+      recipientEmail: updatedDelivery.recipient_email,
+      place: updatedDelivery.place,
+      notes: updatedDelivery.notes,
+      status: updatedDelivery.status,
+      created_at: updatedDelivery.created_at,
+      user: {
+        email: userEmail,
+      },
+    }
+
+    return {
+      success: true,
+      message: 'Delivery status updated successfully',
+      data: deliveryData,
+    }
+  } catch (error) {
+    console.error('Error updating delivery status:', error)
+    return {
+      success: false,
+      message: 'An unexpected error occurred while updating the delivery status.',
+      data: null,
+    }
+  }
+}
+
+export async function sendReminderEmail(deliveryId: string, recipientEmail: string) {
+  try {
+    // Initialize Supabase client
+    const supabase = createClient(cookies())
+    
+    // Simuliamo un ritardo di invio
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In un caso reale, invieresti effettivamente l'email qui
+    
+    // Salva il reminder nel database
+    const { data: reminder, error } = await supabase
+      .from('reminder')
+      .insert({
+        delivery_id: deliveryId,
+        ok: true,
+        message: `Reminder sent to ${recipientEmail}`,
+        send_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return {
+      success: true,
+      data: reminder as ReminderLog
+    }
+  } catch (error) {
+    // Salva anche gli errori nel database
+    let errorMessage = 'Unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
+    try {
+      const supabase = createClient(cookies())
+      const { data: reminder, error: logError } = await supabase
+        .from('reminder')
+        .insert({
+          delivery_id: deliveryId,
+          ok: false,
+          message: `Failed to send reminder: ${errorMessage}`,
+          send_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (logError) throw logError;
+      
+      return {
+        success: false,
+        message: errorMessage,
+        data: reminder as ReminderLog
+      }
+    } catch (dbError) {
+      console.error('Failed to log reminder error:', dbError);
+      return {
+        success: false,
+        message: errorMessage
+      }
+    }
+  }
+}
+
+export async function getDeliveryReminders(deliveryId: string) {
+  try {
+    const supabase = createClient(cookies())
+    const { data: reminders, error } = await supabase
+      .from('reminder')
+      .select('*')
+      .eq('delivery_id', deliveryId)
+      .order('send_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    return {
+      success: true,
+      data: reminders as ReminderLog[]
+    }
+  } catch (error) {
+    console.error('Failed to fetch reminders:', error);
+    return {
+      success: false,
+      message: 'Failed to load reminder history',
+      data: []
     }
   }
 }

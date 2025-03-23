@@ -44,7 +44,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
 
   // Filter states
   const [filters, setFilters] = useState<DeliveryFiltersType>({
-    status: ['pending', 'completed'],
+    status: ['pending', 'completed', 'cancelled'],
   })
 
   const form = useForm<FilterFormValues>({
@@ -54,7 +54,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       statusFilters: {
         pending: true,
         completed: true,
-        cancelled: false,
+        cancelled: true,
         error: false,
       },
       dateRange: undefined,
@@ -130,7 +130,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
     const defaultStatusFilters = {
       pending: true,
       completed: true,
-      cancelled: false,
+      cancelled: true,
       error: false,
     }
 
@@ -141,7 +141,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       dateRange: undefined,
     })
     setFilters({
-      status: ['pending', 'completed'],
+      status: ['pending', 'completed', 'cancelled'],
     })
     setPage(1)
   }
