@@ -1,13 +1,10 @@
 'use client'
 
-import { Filter, Loader2 } from 'lucide-react'
-import Link from 'next/link'
-import { useState, useContext } from 'react'
+import { Loader2 } from 'lucide-react'
 
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
 import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
@@ -17,8 +14,8 @@ interface DeliveriesProps {
 }
 
 function DeliveriesContent({ isAdmin }: DeliveriesProps) {
-  const { loading, error } = useDeliveries();
-  
+  const { loading, error } = useDeliveries()
+
   return (
     <>
       <CardHeader>
@@ -38,13 +35,13 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
       <div className='flex-1 overflow-hidden flex flex-col'>
         <CardContent className='flex-1 overflow-hidden'>
           {loading ? (
-            <div className="flex flex-col items-center justify-center gap-2 h-full py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className='flex flex-col items-center justify-center gap-2 h-full py-12'>
+              <Loader2 className='h-8 w-8 animate-spin text-primary' />
               <p>Loading deliveries...</p>
             </div>
           ) : error ? (
-            <div className="flex justify-center flex-col items-center py-12">
-              <p className="text-red-500">Error: {error}</p>
+            <div className='flex justify-center flex-col items-center py-12'>
+              <p className='text-red-500'>Error: {error}</p>
             </div>
           ) : (
             <div className='flex flex-col h-full overflow-hidden'>
@@ -54,7 +51,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
         </CardContent>
       </div>
     </>
-  );
+  )
 }
 
 export default function Deliveries({ isAdmin }: DeliveriesProps) {

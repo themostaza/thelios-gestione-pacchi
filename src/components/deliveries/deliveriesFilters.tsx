@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { format } from 'date-fns'
-import { X, Search, CalendarIcon, Clock, CheckCircle, XCircle, Eye, EyeOff, Filter } from 'lucide-react'
+import { X, Search, CalendarIcon, Filter } from 'lucide-react'
+import { useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -15,53 +14,15 @@ import { useDeliveries } from '@/context/deliveriesContext'
 
 // Add this interface at the top of the file
 interface DeliveryFilterPanelProps {
-  isAdmin: boolean;
-}
-
-// Status badge component for filter selection
-function StatusBadge({ status, active = true }: { status: string; active?: boolean }) {
-  const getStyles = () => {
-    if (!active) return 'bg-transparent border border-gray-300 text-gray-500'
-
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-500 hover:bg-yellow-600 text-white'
-      case 'completed':
-        return 'bg-green-500 hover:bg-green-600 text-white'
-      case 'cancelled':
-        return 'bg-red-500 hover:bg-red-600 text-white'
-      default:
-        return 'bg-gray-500 hover:bg-gray-600 text-white'
-    }
-  }
-
-  const getLabel = () => {
-    switch (status) {
-      case 'pending':
-        return 'Pending'
-      case 'completed':
-        return 'Completed'
-      case 'cancelled':
-        return 'Cancelled'
-      default:
-        return status
-    }
-  }
-
-  return (
-    <Badge
-      className={`${getStyles()} px-2 py-1 flex items-center justify-center`}
-    >
-      {getLabel()}
-    </Badge>
-  )
+  isAdmin: boolean
 }
 
 export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
-  const { form, applyFilters, resetFilters, toggleStatusFilter } = useDeliveries()
+  const { form, applyFilters, resetFilters } = useDeliveries()
   const [showFilterDialog, setShowFilterDialog] = useState(false)
 
   // Handle apply filters and close modal
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleApplyFilters = (values: any) => {
     applyFilters(values)
     setShowFilterDialog(false)
@@ -123,7 +84,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name='recipient'
@@ -166,8 +127,8 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
               type='button'
               variant='outline'
               onClick={() => {
-                resetFilters();
-                setShowFilterDialog(false);
+                resetFilters()
+                setShowFilterDialog(false)
               }}
             >
               <X className='mr-2 h-4 w-4' />
@@ -194,7 +155,10 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
         Advanced Filters
       </Button>
 
-      <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+      <Dialog
+        open={showFilterDialog}
+        onOpenChange={setShowFilterDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delivery Filters</DialogTitle>

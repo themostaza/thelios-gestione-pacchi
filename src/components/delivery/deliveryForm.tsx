@@ -5,7 +5,6 @@ import { Loader2, Send } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { createClient } from '@/lib/supabase/client'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
 import RecipientSelect from '@/components/delivery/recipientSelect'
@@ -18,6 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
+import { createClient } from '@/lib/supabase/client'
 import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
 
 export default function DeliveryForm() {
@@ -29,20 +29,22 @@ export default function DeliveryForm() {
     // Get current user from Supabase
     const getUser = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       setUserEmail(user?.email || 'Not authenticated')
     }
-    
+
     getUser()
   }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, []);
+      setCurrentDateTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   const form = useForm({
     resolver: zodResolver(deliverySchema),
@@ -75,13 +77,11 @@ export default function DeliveryForm() {
               </span>
               <span className='truncate'>Recipient: {result.data.recipientEmail}</span>
               <Button
-                size="sm" 
+                size='sm'
                 asChild
-                className="mt-2"
+                className='mt-2'
               >
-                <Link href={`/delivery/${result.data.id}`}>
-                  View Delivery
-                </Link>
+                <Link href={`/delivery/${result.data.id}`}>View Delivery</Link>
               </Button>
             </div>
           ),
@@ -126,8 +126,12 @@ export default function DeliveryForm() {
             <CardDescription className='mt-2'>Enter package delivery details below</CardDescription>
           </div>
           <div className='text-muted-foreground text-sm text-right'>
-            <div><strong>Sender:</strong> {userEmail}</div>
-            <div><strong>Creation Date:</strong> {currentDateTime.toLocaleString()}</div>
+            <div>
+              <strong>Sender:</strong> {userEmail}
+            </div>
+            <div>
+              <strong>Creation Date:</strong> {currentDateTime.toLocaleString()}
+            </div>
           </div>
         </div>
         <Separator className='mt-4' />

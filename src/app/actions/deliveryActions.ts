@@ -63,11 +63,11 @@ export type StatusUpdateResponse = {
 }
 
 export type ReminderLog = {
-  id: string;
-  delivery_id: string;
-  ok: boolean;
-  message: string;
-  send_at: string | Date;
+  id: string
+  delivery_id: string
+  ok: boolean
+  message: string
+  send_at: string | Date
 }
 
 // Server action to save delivery data
@@ -344,12 +344,12 @@ export async function getDeliveryById(id: string) {
 
     // Build the query - fixed to maintain proper type
     const query = supabase.from('delivery').select('*')
-    
+
     // Apply filters with proper chaining
     if (!isAdmin) {
       query.eq('user_id', user.id)
     }
-    
+
     // Add the id filter and execute
     const { data: delivery, error } = await query.eq('id', id).single()
 
@@ -372,14 +372,10 @@ export async function getDeliveryById(id: string) {
 
     // Get the user email
     let userEmail = 'Unknown'
-    
+
     try {
-      const { data: profileData } = await supabase
-        .from('profile')
-        .select('email')
-        .eq('user_id', delivery.user_id)
-        .single()
-      
+      const { data: profileData } = await supabase.from('profile').select('email').eq('user_id', delivery.user_id).single()
+
       if (profileData) {
         userEmail = profileData.email || 'Unknown'
       } else if (delivery.user_id === user.id) {
@@ -440,11 +436,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     const isAdmin = await iAmAdmin()
 
     // Build the query to get the delivery first
-    const { data: delivery, error: fetchError } = await supabase
-      .from('delivery')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data: delivery, error: fetchError } = await supabase.from('delivery').select('*').eq('id', id).single()
 
     if (fetchError || !delivery) {
       return {
@@ -464,12 +456,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     }
 
     // Update the delivery status
-    const { data: updatedDelivery, error: updateError } = await supabase
-      .from('delivery')
-      .update({ status })
-      .eq('id', id)
-      .select()
-      .single()
+    const { data: updatedDelivery, error: updateError } = await supabase.from('delivery').update({ status }).eq('id', id).select().single()
 
     if (updateError) {
       return {
@@ -482,12 +469,8 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     // Get user email for response
     let userEmail = 'Unknown'
     try {
-      const { data: profileData } = await supabase
-        .from('profile')
-        .select('email')
-        .eq('user_id', updatedDelivery.user_id)
-        .single()
-      
+      const { data: profileData } = await supabase.from('profile').select('email').eq('user_id', updatedDelivery.user_id).single()
+
       if (profileData) {
         userEmail = profileData.email || 'Unknown'
       } else if (updatedDelivery.user_id === user.id) {
@@ -529,12 +512,12 @@ export async function sendReminderEmail(deliveryId: string, recipientEmail: stri
   try {
     // Initialize Supabase client
     const supabase = createClient(cookies())
-    
+
     // Simuliamo un ritardo di invio
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     // In un caso reale, invieresti effettivamente l'email qui
-    
+
     // Salva il reminder nel database
     const { data: reminder, error } = await supabase
       .from('reminder')
@@ -542,24 +525,24 @@ export async function sendReminderEmail(deliveryId: string, recipientEmail: stri
         delivery_id: deliveryId,
         ok: true,
         message: `Reminder sent to ${recipientEmail}`,
-        send_at: new Date().toISOString()
+        send_at: new Date().toISOString(),
       })
       .select()
-      .single();
-    
-    if (error) throw error;
-    
+      .single()
+
+    if (error) throw error
+
     return {
       success: true,
-      data: reminder as ReminderLog
+      data: reminder as ReminderLog,
     }
   } catch (error) {
     // Salva anche gli errori nel database
-    let errorMessage = 'Unknown error occurred';
+    let errorMessage = 'Unknown error occurred'
     if (error instanceof Error) {
-      errorMessage = error.message;
+      errorMessage = error.message
     }
-    
+
     try {
       const supabase = createClient(cookies())
       const { data: reminder, error: logError } = await supabase
@@ -568,23 +551,23 @@ export async function sendReminderEmail(deliveryId: string, recipientEmail: stri
           delivery_id: deliveryId,
           ok: false,
           message: `Failed to send reminder: ${errorMessage}`,
-          send_at: new Date().toISOString()
+          send_at: new Date().toISOString(),
         })
         .select()
-        .single();
-      
-      if (logError) throw logError;
-      
+        .single()
+
+      if (logError) throw logError
+
       return {
         success: false,
         message: errorMessage,
-        data: reminder as ReminderLog
+        data: reminder as ReminderLog,
       }
     } catch (dbError) {
-      console.error('Failed to log reminder error:', dbError);
+      console.error('Failed to log reminder error:', dbError)
       return {
         success: false,
-        message: errorMessage
+        message: errorMessage,
       }
     }
   }
@@ -593,24 +576,20 @@ export async function sendReminderEmail(deliveryId: string, recipientEmail: stri
 export async function getDeliveryReminders(deliveryId: string) {
   try {
     const supabase = createClient(cookies())
-    const { data: reminders, error } = await supabase
-      .from('reminder')
-      .select('*')
-      .eq('delivery_id', deliveryId)
-      .order('send_at', { ascending: false });
-    
-    if (error) throw error;
-    
+    const { data: reminders, error } = await supabase.from('reminder').select('*').eq('delivery_id', deliveryId).order('send_at', { ascending: false })
+
+    if (error) throw error
+
     return {
       success: true,
-      data: reminders as ReminderLog[]
+      data: reminders as ReminderLog[],
     }
   } catch (error) {
-    console.error('Failed to fetch reminders:', error);
+    console.error('Failed to fetch reminders:', error)
     return {
       success: false,
       message: 'Failed to load reminder history',
-      data: []
+      data: [],
     }
   }
 }

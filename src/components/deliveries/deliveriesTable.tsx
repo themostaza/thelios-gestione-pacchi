@@ -124,11 +124,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
     }
 
     if (deliveries.length === 0 && !initialLoading) {
-      return (
-        <p className='text-center py-8 text-gray-500'>
-          No results found with the applied filters
-        </p>
-      )
+      return <p className='text-center py-8 text-gray-500'>No results found with the applied filters</p>
     }
 
     return (

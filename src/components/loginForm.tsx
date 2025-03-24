@@ -86,7 +86,7 @@ export default function LoginForm() {
 
       // Only proceed if we actually have auth parameters
       if (!hasAccessToken && !hasCodeParam) {
-        return;
+        return
       }
 
       console.log('Checking for magic link: URL =', window.location.href)
@@ -283,7 +283,10 @@ export default function LoginForm() {
         </CardContent>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col justify-center items-center'>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='flex flex-col justify-center items-center'
+          >
             <CardContent className='space-y-4 pt-4 w-96'>
               <FormField
                 control={form.control}
@@ -334,13 +337,16 @@ export default function LoginForm() {
                 disabled={isSubmitting}
                 className='w-full'
               >
-                {isSubmitting ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <LogIn
-                      size={20}
-                      className='mr-2'
-                    />
-                  }
-                  Sign in
-                </Button>
+                {isSubmitting ? (
+                  <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                ) : (
+                  <LogIn
+                    size={20}
+                    className='mr-2'
+                  />
+                )}
+                Sign in
+              </Button>
             </CardFooter>
           </form>
         </Form>

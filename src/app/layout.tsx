@@ -29,9 +29,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary/20`}>
         <div className='flex flex-col h-screen'>
           <TopBar />
-          <div className='flex justify-center p-2 items-stretch h-[90vh] w-full max-w-screen-xl mx-auto'>
-            {children}
-          </div>
+          <div className='flex justify-center p-2 items-stretch h-[90vh] w-full max-w-screen-xl mx-auto'>{children}</div>
         </div>
       </body>
     </html>

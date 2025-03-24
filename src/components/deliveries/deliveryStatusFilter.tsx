@@ -1,11 +1,12 @@
 'use client'
 
 import { Eye, EyeOff } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
-import { FormControl, FormField, FormItem } from '@/components/ui/form'
-import { useDeliveries } from '@/context/deliveriesContext'
-import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
+import { FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Form } from '@/components/ui/form'
+import { useDeliveries } from '@/context/deliveriesContext'
 
 // Status badge component for filter selection
 function StatusBadge({ status, active = true, eyeVisible = true }: { status: string; active?: boolean; eyeVisible?: boolean }) {
@@ -38,16 +39,9 @@ function StatusBadge({ status, active = true, eyeVisible = true }: { status: str
   }
 
   return (
-    <Badge
-      className={`${getStyles()} px-2 py-1 flex items-center gap-1.5`}
-    >
+    <Badge className={`${getStyles()} px-2 py-1 flex items-center gap-1.5`}>
       {getLabel()}
-      {eyeVisible && 
-        (active ? 
-          <Eye className='h-3.5 w-3.5' /> : 
-          <EyeOff className='h-3.5 w-3.5' />
-        )
-      }
+      {eyeVisible && (active ? <Eye className='h-3.5 w-3.5' /> : <EyeOff className='h-3.5 w-3.5' />)}
     </Badge>
   )
 }
@@ -56,9 +50,9 @@ export default function DeliveryStatusFilter() {
   const { form, toggleStatusFilter, applyFilters } = useDeliveries()
 
   const handleStatusToggle = (status: string) => {
-    toggleStatusFilter(status);
+    toggleStatusFilter(status)
     // Immediately apply filters after toggling
-    applyFilters(form.getValues());
+    applyFilters(form.getValues())
   }
 
   return (
@@ -69,50 +63,43 @@ export default function DeliveryStatusFilter() {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <div className='flex flex-row items-baseline justify-center gap-2 border rounded-md p-2'>                <Button
+              <div className='flex flex-row items-baseline justify-center gap-2 border rounded-md p-2'>
+                {' '}
+                <Button
                   onClick={() => handleStatusToggle('pending')}
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge 
-                    status='pending' 
-                    active={field.value.pending} 
-                    eyeVisible={false} 
+                  <StatusBadge
+                    status='pending'
+                    active={field.value.pending}
+                    eyeVisible={false}
                   />
-                  {field.value.pending ? 
-                    <Eye className='ml-2 h-3.5 w-3.5' /> : 
-                    <EyeOff className='ml-2 h-3.5 w-3.5' />
-                  }
+                  {field.value.pending ? <Eye className='ml-2 h-3.5 w-3.5' /> : <EyeOff className='ml-2 h-3.5 w-3.5' />}
                 </Button>
                 <Button
                   onClick={() => handleStatusToggle('completed')}
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge 
-                    status='completed' 
-                    active={field.value.completed} 
-                    eyeVisible={false} 
+                  <StatusBadge
+                    status='completed'
+                    active={field.value.completed}
+                    eyeVisible={false}
                   />
-                  {field.value.completed ? 
-                    <Eye className='ml-2 h-3.5 w-3.5' /> : 
-                    <EyeOff className='ml-2 h-3.5 w-3.5' />
-                  }
+                  {field.value.completed ? <Eye className='ml-2 h-3.5 w-3.5' /> : <EyeOff className='ml-2 h-3.5 w-3.5' />}
                 </Button>
                 <Button
                   onClick={() => handleStatusToggle('cancelled')}
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge 
-                    status='cancelled' 
-                    active={field.value.cancelled} 
-                    eyeVisible={false} 
+                  <StatusBadge
+                    status='cancelled'
+                    active={field.value.cancelled}
+                    eyeVisible={false}
                   />
-                  {field.value.cancelled ? 
-                    <Eye className='ml-2 h-3.5 w-3.5' /> : 
-                    <EyeOff className='ml-2 h-3.5 w-3.5' />
-                  }
+                  {field.value.cancelled ? <Eye className='ml-2 h-3.5 w-3.5' /> : <EyeOff className='ml-2 h-3.5 w-3.5' />}
                 </Button>
               </div>
             </FormControl>
@@ -121,4 +108,4 @@ export default function DeliveryStatusFilter() {
       />
     </Form>
   )
-} 
+}

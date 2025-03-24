@@ -1,16 +1,15 @@
 'use client'
 
+import { User } from '@supabase/supabase-js'
 import { User as UserIcon, LogOut, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { User } from '@supabase/supabase-js'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 
 import { Button } from './ui/button'
-
 
 export default function AuthStatus() {
   const [user, setUser] = useState<User | null>(null)
@@ -26,28 +25,26 @@ export default function AuthStatus() {
 
   // Check if user is admin
   const checkAdminStatus = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profile')
-      .select('is_admin')
-      .eq('user_id', userId)
-      .single()
+    const { data, error } = await supabase.from('profile').select('is_admin').eq('user_id', userId).single()
 
     console.log('checkAdminStatus', data, error)
-    
+
     if (error) {
       console.error('Error checking admin status:', error)
       return false
     }
-    
+
     return !!data?.is_admin
   }
 
   useEffect(() => {
     // Get initial user
     const getUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
       setUser(currentUser)
-      
+
       if (currentUser) {
         const adminStatus = await checkAdminStatus(currentUser.id)
         setIsAdmin(adminStatus)
@@ -55,13 +52,15 @@ export default function AuthStatus() {
         setIsAdmin(false)
       }
     }
-    
+
     getUser()
-    
+
     // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null)
-      
+
       if (session?.user) {
         // Add a small delay to ensure profile data is available
         setTimeout(async () => {
@@ -74,8 +73,9 @@ export default function AuthStatus() {
         router.refresh()
       }
     })
-    
+
     return () => subscription.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, router])
 
   return (
