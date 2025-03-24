@@ -79,130 +79,132 @@ export default function LoginForm() {
   // Handle magic link authentication on component mount
   useEffect(() => {
     const processMagicLink = async () => {
-      console.log('Checking for magic link: URL =', window.location.href)
-
       // Check specifically for the '#access_token=' hash which indicates a successful magic link auth
       // Or the code parameter in the URL which indicates OAuth/magic link flow
       const hasAccessToken = window.location.hash.includes('access_token=')
       const hasCodeParam = new URLSearchParams(window.location.search).get('code')
 
-      if (hasAccessToken || hasCodeParam) {
-        console.log('Auth parameters detected:', {
-          hasAccessToken,
-          hasCodeParam,
-          hash: window.location.hash,
-          search: window.location.search,
-        })
+      // Only proceed if we actually have auth parameters
+      if (!hasAccessToken && !hasCodeParam) {
+        return;
+      }
 
-        setIsProcessingMagicLink(true)
+      console.log('Checking for magic link: URL =', window.location.href)
+      console.log('Auth parameters detected:', {
+        hasAccessToken,
+        hasCodeParam,
+        hash: window.location.hash,
+        search: window.location.search,
+      })
 
-        try {
-          if (hasAccessToken) {
-            // Directly use the URL fragment - this is the key change
-            await supabaseRef.current.auth.signInWithPassword({
-              email: '', // These won't be used because we're providing the hash
-              password: '',
+      setIsProcessingMagicLink(true)
+
+      try {
+        if (hasAccessToken) {
+          // Directly use the URL fragment - this is the key change
+          await supabaseRef.current.auth.signInWithPassword({
+            email: '', // These won't be used because we're providing the hash
+            password: '',
+          })
+
+          // Now try to get the session after the sign-in attempt
+          const sessionResult = await supabaseRef.current.auth.getSession()
+          console.log('Session after explicit handling:', sessionResult)
+
+          if (sessionResult.data.session) {
+            console.log('User authenticated:', sessionResult.data.session.user)
+            const user = sessionResult.data.session.user
+
+            // Check/create profile for the user
+            await checkAndCreateProfile(supabaseRef.current, user.id, user.email || '')
+
+            toast({
+              title: 'Magic link login successful',
+              description: 'You have been logged in successfully',
             })
 
-            // Now try to get the session after the sign-in attempt
-            const sessionResult = await supabaseRef.current.auth.getSession()
-            console.log('Session after explicit handling:', sessionResult)
-
-            if (sessionResult.data.session) {
-              console.log('User authenticated:', sessionResult.data.session.user)
-              const user = sessionResult.data.session.user
-
-              // Check/create profile for the user
-              await checkAndCreateProfile(supabaseRef.current, user.id, user.email || '')
-
-              toast({
-                title: 'Magic link login successful',
-                description: 'You have been logged in successfully',
-              })
-
-              // Clear URL parameters for security
-              if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname)
-              }
-
-              // Navigate to dashboard
-              setTimeout(() => {
-                router.refresh()
-                router.push('/deliveries')
-              }, 1000)
-
-              return
+            // Clear URL parameters for security
+            if (window.history.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname)
             }
-          }
 
-          // Set up a listener for auth state changes as a fallback
-          console.log('Setting up auth state listener')
-          const {
-            data: { subscription },
-          } = supabaseRef.current.auth.onAuthStateChange((event, session) => {
-            console.log('Auth state changed:', event, session)
-
-            if (event === 'SIGNED_IN' && session) {
-              // Check/create profile for the user
-              checkAndCreateProfile(supabaseRef.current, session.user.id, session.user.email || '')
-
-              toast({
-                title: 'Magic link login successful',
-                description: 'You have been logged in successfully',
-              })
-
-              // Clear URL parameters
-              if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname)
-              }
-
-              // Navigate to dashboard
+            // Navigate to dashboard
+            setTimeout(() => {
               router.refresh()
               router.push('/deliveries')
+            }, 1000)
 
-              // Clean up subscription
-              subscription.unsubscribe()
+            return
+          }
+        }
+
+        // Set up a listener for auth state changes as a fallback
+        console.log('Setting up auth state listener')
+        const {
+          data: { subscription },
+        } = supabaseRef.current.auth.onAuthStateChange((event, session) => {
+          console.log('Auth state changed:', event, session)
+
+          if (event === 'SIGNED_IN' && session) {
+            // Check/create profile for the user
+            checkAndCreateProfile(supabaseRef.current, session.user.id, session.user.email || '')
+
+            toast({
+              title: 'Magic link login successful',
+              description: 'You have been logged in successfully',
+            })
+
+            // Clear URL parameters
+            if (window.history.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname)
             }
-          })
 
-          // Try to use the hash directly with Supabase's method
-          if (hasAccessToken) {
-            // This is another approach that might work
-            const hashObj = Object.fromEntries(
-              window.location.hash
-                .substring(1)
-                .split('&')
-                .map((item) => item.split('='))
-            )
+            // Navigate to dashboard
+            router.refresh()
+            router.push('/deliveries')
 
-            if (hashObj.access_token) {
-              console.log('Attempting to set session with access token')
-              const { error } = await supabaseRef.current.auth.setSession({
-                access_token: decodeURIComponent(hashObj.access_token),
-                refresh_token: decodeURIComponent(hashObj.refresh_token || ''),
-              })
+            // Clean up subscription
+            subscription.unsubscribe()
+          }
+        })
 
-              if (error) {
-                console.error('Error setting session:', error)
-              } else {
-                console.log('Session set successfully')
-              }
+        // Try to use the hash directly with Supabase's method
+        if (hasAccessToken) {
+          // This is another approach that might work
+          const hashObj = Object.fromEntries(
+            window.location.hash
+              .substring(1)
+              .split('&')
+              .map((item) => item.split('='))
+          )
+
+          if (hashObj.access_token) {
+            console.log('Attempting to set session with access token')
+            const { error } = await supabaseRef.current.auth.setSession({
+              access_token: decodeURIComponent(hashObj.access_token),
+              refresh_token: decodeURIComponent(hashObj.refresh_token || ''),
+            })
+
+            if (error) {
+              console.error('Error setting session:', error)
+            } else {
+              console.log('Session set successfully')
             }
           }
-
-          // Keep the processing state for a bit longer to allow the auth to complete
-          setTimeout(() => {
-            setIsProcessingMagicLink(false)
-          }, 5000)
-        } catch (err) {
-          console.error('Unexpected error during magic link auth:', err)
-          toast({
-            title: 'Authentication error',
-            description: 'An unexpected error occurred. Please try again.',
-            variant: 'destructive',
-          })
-          setIsProcessingMagicLink(false)
         }
+
+        // Keep the processing state for a bit longer to allow the auth to complete
+        setTimeout(() => {
+          setIsProcessingMagicLink(false)
+        }, 5000)
+      } catch (err) {
+        console.error('Unexpected error during magic link auth:', err)
+        toast({
+          title: 'Authentication error',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        })
+        setIsProcessingMagicLink(false)
       }
     }
 
@@ -245,11 +247,6 @@ export default function LoginForm() {
         await checkAndCreateProfile(supabaseRef.current, user.id, user.email || '')
       }
 
-      toast({
-        title: 'Login successful',
-        description: 'Redirecting to dashboard...',
-      })
-
       router.refresh()
 
       router.push('/deliveries')
@@ -267,7 +264,7 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className='w-96'>
+    <Card className='w-full'>
       <Toaster />
       <CardHeader>
         <div className='flex justify-between items-center'>
@@ -286,8 +283,8 @@ export default function LoginForm() {
         </CardContent>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className='space-y-4 pt-4'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col justify-center items-center'>
+            <CardContent className='space-y-4 pt-4 w-96'>
               <FormField
                 control={form.control}
                 name='email'
@@ -337,21 +334,13 @@ export default function LoginForm() {
                 disabled={isSubmitting}
                 className='w-full'
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <LogIn
+                {isSubmitting ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <LogIn
                       size={20}
                       className='mr-2'
                     />
-                    Sign in
-                  </>
-                )}
-              </Button>
+                  }
+                  Sign in
+                </Button>
             </CardFooter>
           </form>
         </Form>

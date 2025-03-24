@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { Mail, ArrowLeft, List, Check, MoreVertical, Loader2 } from 'lucide-react'
+import { Mail, ArrowLeft, List, Check, MoreVertical, Loader2, X } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -41,6 +41,7 @@ export default function DeliveryDetailsPage() {
   const [error, setError] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [statusToChange, setStatusToChange] = useState<string | null>(null)
+  const [changingStatus, setChangingStatus] = useState(false)
   const [emailLogs, setEmailLogs] = useState<ReminderLog[]>([])
   const [sendingReminder, setSendingReminder] = useState(false)
   const [logsDialogOpen, setLogsDialogOpen] = useState(false)
@@ -73,6 +74,7 @@ export default function DeliveryDetailsPage() {
   }, [id])
 
   async function handleStatusChange(newStatus: string) {
+    setChangingStatus(true);
     try {
       const result = await updateDeliveryStatus(id, newStatus);
       if (result.success) {
@@ -84,6 +86,8 @@ export default function DeliveryDetailsPage() {
     } catch (err) {
       console.error(err);
       setError('An error occurred while updating the status');
+    } finally {
+      setChangingStatus(false);
     }
   }
 
@@ -266,8 +270,11 @@ export default function DeliveryDetailsPage() {
                   </div>
                 )}
                 <Button onClick={handleSendReminder} disabled={sendingReminder}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  {sendingReminder ? 'Sending...' : 'Send Reminder to Recipient'}
+                  {sendingReminder ? 
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 
+                    <Mail className="h-4 w-4 mr-2" />
+                  }
+                  Send Reminder to Recipient
                 </Button>
               </div>
             </div>
@@ -286,9 +293,17 @@ export default function DeliveryDetailsPage() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
-            <Button onClick={() => statusToChange && handleStatusChange(statusToChange)}>
+            <Button 
+              onClick={() => statusToChange && handleStatusChange(statusToChange)}
+              disabled={changingStatus}
+            >
+              {changingStatus ? 
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 
+                <Check className="h-4 w-4 mr-2" />
+              }
               Confirm
             </Button>
           </DialogFooter>

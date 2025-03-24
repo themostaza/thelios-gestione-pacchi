@@ -71,18 +71,18 @@ export default function DeliveryForm() {
           description: (
             <div className='flex flex-col gap-2'>
               <span className='truncate'>
-                Delivery ID:{' '}
-                <Link
-                  href={`/delivery/${result.data.id}`}
-                  className='underline hover:text-primary'
-                >
-                  {result.data.id}
-                </Link>
-                , Created at: {new Date(result.data.created_at).toLocaleString()}
+                Delivery ID: {result.data.id}, Created at: {new Date(result.data.created_at).toLocaleString()}
               </span>
               <span className='truncate'>Recipient: {result.data.recipientEmail}</span>
-              <span className='truncate'>Place: {result.data.place}</span>
-              <span className='truncate'>Notes: {result.data.notes}</span>
+              <Button
+                size="sm" 
+                asChild
+                className="mt-2"
+              >
+                <Link href={`/delivery/${result.data.id}`}>
+                  View Delivery
+                </Link>
+              </Button>
             </div>
           ),
         })

@@ -11,35 +11,35 @@ import { createClient } from '@/lib/supabase/client'
 
 import { Button } from './ui/button'
 
-// Client component
+
 export default function AuthStatus() {
   const [user, setUser] = useState<User | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  // Check if user is admin
-  const checkIfAdmin = async () => {
-    if (!user) return false
-    
-    try {
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-      
-      return !!data && !error
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-      return false
-    }
-  }
-
   // Handle logout
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.refresh()
+  }
+
+  // Check if user is admin
+  const checkAdminStatus = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profile')
+      .select('is_admin')
+      .eq('user_id', userId)
+      .single()
+
+    console.log('checkAdminStatus', data, error)
+    
+    if (error) {
+      console.error('Error checking admin status:', error)
+      return false
+    }
+    
+    return !!data?.is_admin
   }
 
   useEffect(() => {
@@ -49,8 +49,10 @@ export default function AuthStatus() {
       setUser(currentUser)
       
       if (currentUser) {
-        const adminStatus = await checkIfAdmin()
+        const adminStatus = await checkAdminStatus(currentUser.id)
         setIsAdmin(adminStatus)
+      } else {
+        setIsAdmin(false)
       }
     }
     
@@ -61,13 +63,16 @@ export default function AuthStatus() {
       setUser(session?.user || null)
       
       if (session?.user) {
-        const adminStatus = await checkIfAdmin()
-        setIsAdmin(adminStatus)
+        // Add a small delay to ensure profile data is available
+        setTimeout(async () => {
+          const adminStatus = await checkAdminStatus(session.user.id)
+          setIsAdmin(adminStatus)
+        }, 500)
+        router.refresh()
       } else {
         setIsAdmin(false)
+        router.refresh()
       }
-      
-      router.refresh()
     })
     
     return () => subscription.unsubscribe()
