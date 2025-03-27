@@ -1,15 +1,19 @@
 'use client'
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
-import DeliveryDetails from './DeliveryDetails'
-import DeliveryActions from './DeliveryActions'
-import DeliveryFooter from './DeliveryFooter'
 import { DeliveryProvider } from '@/context/deliveryContext'
+
 import { Separator } from '../ui/separator'
 
-export default function DeliveryView({ id }: { id: string }) {
-  const deliveryId = id as string
+import DeliveryActions from './DeliveryActions'
+import DeliveryDetails from './DeliveryDetails'
+import DeliveryFooter from './DeliveryFooter'
 
+type DeliveryViewProps = {
+  deliveryId: string
+}
+
+export default function DeliveryView({ deliveryId }: DeliveryViewProps) {
   return (
     <DeliveryProvider deliveryId={deliveryId}>
       <Card className='w-full flex flex-col'>
@@ -32,4 +36,4 @@ export default function DeliveryView({ id }: { id: string }) {
       </Card>
     </DeliveryProvider>
   )
-} 
+}

@@ -1,8 +1,10 @@
-import { useDelivery } from '@/context/deliveryContext'
-import { useState } from 'react'
-import { Button } from '../ui/button'
 import { Mail } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+
+import { useDelivery } from '@/context/deliveryContext'
+
+import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog'
 
 export default function DeliveryFooter() {
@@ -97,4 +99,4 @@ export default function DeliveryFooter() {
       </Dialog>
     </>
   )
-} 
+}

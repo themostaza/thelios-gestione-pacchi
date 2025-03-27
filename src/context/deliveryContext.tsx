@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+
 import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail } from '@/app/actions/deliveryActions'
 import { DeliveryData, ReminderLog } from '@/app/actions/deliveryActions'
 
@@ -15,7 +16,7 @@ type DeliveryContextType = {
 
 const DeliveryContext = createContext<DeliveryContextType | undefined>(undefined)
 
-export function DeliveryProvider({ children, deliveryId }: { children: ReactNode, deliveryId: string }) {
+export function DeliveryProvider({ children, deliveryId }: { children: ReactNode; deliveryId: string }) {
   const [delivery, setDelivery] = useState<DeliveryData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -77,11 +78,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     }
   }
 
-  return (
-    <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, changeStatus, sendReminder }}>
-      {children}
-    </DeliveryContext.Provider>
-  )
+  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, changeStatus, sendReminder }}>{children}</DeliveryContext.Provider>
 }
 
 export const useDelivery = () => {
@@ -90,4 +87,4 @@ export const useDelivery = () => {
     throw new Error('useDelivery must be used within a DeliveryProvider')
   }
   return context
-} 
+}
