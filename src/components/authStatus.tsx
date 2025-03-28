@@ -1,82 +1,42 @@
 'use client'
 
-import { User } from '@supabase/supabase-js'
-import { User as UserIcon, LogOut, LogIn } from 'lucide-react'
+import { LogOut, LogIn, User as UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
+import { logoutUser } from '@/app/actions/authActions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/context/authContext'
 
 import { Button } from './ui/button'
 
 export default function AuthStatus() {
-  const [user, setUser] = useState<User | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const { user, isAdmin, updateAuthState } = useAuth()
   const router = useRouter()
-  const supabase = createClient()
 
   // Handle logout
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
-  }
-
-  // Check if user is admin
-  const checkAdminStatus = async (userId: string) => {
-    const { data, error } = await supabase.from('profile').select('is_admin').eq('user_id', userId).single()
-
-    console.log('checkAdminStatus', data, error)
-
-    if (error) {
-      console.error('Error checking admin status:', error)
-      return false
-    }
-
-    return !!data?.is_admin
-  }
-
-  useEffect(() => {
-    // Get initial user
-    const getUser = async () => {
-      const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser()
-      setUser(currentUser)
-
-      if (currentUser) {
-        const adminStatus = await checkAdminStatus(currentUser.id)
-        setIsAdmin(adminStatus)
-      } else {
-        setIsAdmin(false)
+    console.log('Starting logout process')
+    try {
+      // The logoutUser function will handle the redirect server-side
+      await logoutUser()
+      // If the redirect doesn't happen, update auth state
+      await updateAuthState()
+      console.log('Redirect failed, manually refreshing')
+      router.refresh()
+    } catch (err: unknown) {
+      // NEXT_REDIRECT is an expected "error" - it means the redirect is working
+      if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) {
+        console.log('Redirect in progress...')
+        return
       }
+
+      // Only log actual errors
+      console.error('Unexpected error during logout:', err)
+      // Update auth state on error
+      await updateAuthState()
     }
-
-    getUser()
-
-    // Subscribe to auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null)
-
-      if (session?.user) {
-        // Add a small delay to ensure profile data is available
-        setTimeout(async () => {
-          const adminStatus = await checkAdminStatus(session.user.id)
-          setIsAdmin(adminStatus)
-        }, 500)
-        router.refresh()
-      } else {
-        setIsAdmin(false)
-        router.refresh()
-      }
-    })
-
-    return () => subscription.unsubscribe()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase, router])
+  }
 
   return (
     <div className=''>

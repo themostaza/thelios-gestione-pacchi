@@ -1,75 +1,81 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, LogIn } from 'lucide-react'
+import { Loader2, UserPlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { loginUser } from '@/actions/auth' // New import for server action
+import { registerUser } from '@/app/actions/authActions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Toaster } from '@/components/ui/toaster'
-import { useAuth } from '@/context/authContext'
 import { toast } from '@/hooks/use-toast'
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-})
+const registerSchema = z
+  .object({
+    email: z.string().email({ message: 'Inserisci un indirizzo email valido' }),
+    password: z.string().min(6, { message: 'La password deve contenere almeno 6 caratteri' }),
+    confirmPassword: z.string().min(6, { message: 'La password deve contenere almeno 6 caratteri' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Le password non combaciano',
+    path: ['confirmPassword'],
+  })
 
-type LoginFormData = z.infer<typeof loginSchema>
+type RegisterFormData = z.infer<typeof registerSchema>
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-  const { updateAuthState } = useAuth()
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
     },
   })
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
+    console.log('Form submitted, calling server action')
     setIsSubmitting(true)
 
     try {
-      const result = await loginUser(data)
+      // Chiamiamo la server action invece di usare Supabase direttamente
+      const result = await registerUser(data.email, data.password)
 
-      if (!result.success) {
+      console.log('Registration result:', result)
+
+      if (result.success) {
         toast({
-          title: 'Authentication failed',
-          description: result.error || 'The email or password you entered is incorrect. Please try again.',
+          title: 'Registrazione completata',
+          description: result.message,
+        })
+        form.reset()
+
+        // Redirect dopo breve pausa
+        setTimeout(() => {
+          router.refresh()
+          router.push('/')
+        }, 2000)
+      } else {
+        toast({
+          title: 'Errore registrazione',
+          description: result.message,
           variant: 'destructive',
         })
-        setIsSubmitting(false)
-        return
       }
-
-      // Success - update auth state and redirect to dashboard
-      await updateAuthState()
-
-      toast({
-        title: 'Login successful',
-        description: 'Redirecting to dashboard...',
-      })
-
-      setTimeout(() => {
-        router.refresh()
-        router.push('/deliveries')
-      }, 800)
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Error during registration:', error)
       toast({
-        title: 'Login failed',
-        description: 'An unexpected error occurred during login. Please try again.',
+        title: 'Errore inatteso',
+        description: 'Si è verificato un errore inaspettato durante la registrazione.',
         variant: 'destructive',
       })
     } finally {
@@ -83,8 +89,8 @@ export default function LoginForm() {
       <CardHeader>
         <div className='flex justify-between items-center'>
           <div>
-            <CardTitle className='text-2xl font-bold'>Sign in to your account</CardTitle>
-            <CardDescription className='mt-2'>Enter your credentials to access the application</CardDescription>
+            <CardTitle className='text-2xl font-bold'>Registrazione nuovo utente</CardTitle>
+            <CardDescription className='mt-2'>Crea un nuovo account per accedere all&apos;applicazione</CardDescription>
           </div>
         </div>
         <Separator className='mt-4' />
@@ -101,13 +107,13 @@ export default function LoginForm() {
               name='email'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='email'>Email address</FormLabel>
+                  <FormLabel htmlFor='email'>Indirizzo email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id='email'
                       type='email'
-                      placeholder='your@email.com'
+                      placeholder='tuoemail@esempio.com'
                       autoComplete='email'
                       disabled={isSubmitting}
                     />
@@ -129,7 +135,28 @@ export default function LoginForm() {
                       id='password'
                       type='password'
                       placeholder='••••••••'
-                      autoComplete='current-password'
+                      autoComplete='new-password'
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor='confirmPassword'>Conferma password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      id='confirmPassword'
+                      type='password'
+                      placeholder='••••••••'
+                      autoComplete='new-password'
                       disabled={isSubmitting}
                     />
                   </FormControl>
@@ -148,12 +175,12 @@ export default function LoginForm() {
               {isSubmitting ? (
                 <Loader2 className='h-4 w-4 animate-spin mr-2' />
               ) : (
-                <LogIn
+                <UserPlus
                   size={20}
                   className='mr-2'
                 />
               )}
-              Sign in
+              Registrati
             </Button>
           </CardFooter>
         </form>

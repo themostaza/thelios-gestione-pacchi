@@ -4,64 +4,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/context/authContext'
 
-export default function NavigationButtons({ isAdmin: initialIsAdmin }: { isAdmin: boolean }) {
+export default function NavigationButtons() {
   const pathname = usePathname()
   const router = useRouter()
   const [loadingButton, setLoadingButton] = useState<string | null>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(initialIsAdmin)
-
-  // Check admin status function (same as in authStatus component)
-  const checkAdminStatus = async (userId: string) => {
-    const supabase = createClient()
-    const { data, error } = await supabase.from('profile').select('is_admin').eq('user_id', userId).single()
-
-    if (error) {
-      console.error('Error checking admin status in NavigationButtons:', error)
-      return false
-    }
-
-    return !!data?.is_admin
-  }
-
-  // Check authentication status when component mounts
-  useEffect(() => {
-    const supabase = createClient()
-
-    const checkAuthStatus = async () => {
-      const { data } = await supabase.auth.getSession()
-      const session = data.session
-
-      setIsLoggedIn(!!session)
-
-      if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
-      } else {
-        setIsAdmin(false)
-      }
-    }
-
-    checkAuthStatus()
-
-    // Subscribe to auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setIsLoggedIn(!!session)
-
-      if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
-      } else {
-        setIsAdmin(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const { user, isAdmin } = useAuth()
+  const isLoggedIn = !!user
 
   // Reset loading state when pathname changes (navigation completes)
   useEffect(() => {
@@ -93,10 +43,10 @@ export default function NavigationButtons({ isAdmin: initialIsAdmin }: { isAdmin
       isDisabled: pathname === '/dashboard',
     },
     {
-      href: '/users',
+      href: '/accounts',
       text: 'User Management',
       icon: <Users className='h-4 w-4 mr-2' />,
-      isDisabled: pathname === '/users',
+      isDisabled: pathname === '/accounts',
     },
   ]
 
