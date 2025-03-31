@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-import UserManagement from '@/components/user/UserManagement'
+import UserManagement from '@/components/user/accountManagement'
 
 export const metadata: Metadata = {
   title: 'Accounts',

@@ -7,7 +7,7 @@ import { searchRecipients } from '@/app/actions/recipientActions'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Recipient } from '@/lib/validations/delivery'
+import { Recipient } from '@/lib/types/delivery'
 
 interface RecipientSelectProps {
   value: string

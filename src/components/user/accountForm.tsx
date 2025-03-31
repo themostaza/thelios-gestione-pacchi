@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -12,13 +11,8 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { useUser } from '@/context/userContext'
 import { toast } from '@/hooks/use-toast'
-
-const createUserSchema = z.object({
-  email: z.string().email('Invalid email'),
-  isAdmin: z.boolean(),
-})
-
-type CreateUserFormData = z.infer<typeof createUserSchema>
+import { CreateUserFormData } from '@/lib/types/user'
+import { createUserSchema } from '@/lib/validations/user'
 
 export default function CreateUserFormWithContext() {
   const [isSubmitting, setIsSubmitting] = useState(false)

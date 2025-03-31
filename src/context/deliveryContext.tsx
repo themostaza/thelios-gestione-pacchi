@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail } from '@/app/actions/deliveryActions'
-import { DeliveryData, ReminderLog } from '@/app/actions/deliveryActions'
 import { StatusType } from '@/components/ui/statusBadge'
+import { DeliveryData, ReminderLog } from '@/lib/types/delivery'
 
 type DeliveryContextType = {
   delivery: DeliveryData | null

@@ -1,33 +1,10 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode, Dispatch, SetStateAction } from 'react'
-import { DateRange } from 'react-day-picker'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { getDeliveriesPaginated, DeliveryFilters as DeliveryFiltersType, DeliveryData } from '@/app/actions/deliveryActions'
-
-type FilterFormValues = {
-  recipient: string
-  sender: string
-  statusFilters: Record<string, boolean>
-  dateRange: DateRange | undefined
-}
-
-type DeliveriesContextType = {
-  deliveries: DeliveryData[]
-  page: number
-  setPage: Dispatch<SetStateAction<number>>
-  hasMore: boolean
-  loading: boolean
-  initialLoading: boolean
-  error: string | null
-
-  filters: DeliveryFiltersType
-  form: ReturnType<typeof useForm<FilterFormValues>>
-  applyFilters: (values: FilterFormValues) => void
-  resetFilters: () => void
-  toggleStatusFilter: (status: string) => void
-}
+import { getDeliveriesPaginated } from '@/app/actions/deliveryActions'
+import { DeliveryData, DeliveryFilters, FilterFormValues, DeliveriesContextType } from '@/lib/types/delivery'
 
 const DeliveriesContext = createContext<DeliveriesContextType | undefined>(undefined)
 
@@ -39,7 +16,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [filters, setFilters] = useState<DeliveryFiltersType>({
+  const [filters, setFilters] = useState<DeliveryFilters>({
     status: ['pending', 'completed', 'cancelled'],
   })
 
@@ -92,7 +69,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       .filter(([, isSelected]) => isSelected)
       .map(([status]) => status)
 
-    const newFilters: DeliveryFiltersType = {}
+    const newFilters: DeliveryFilters = {}
 
     if (values.recipient.trim()) {
       newFilters.recipientEmail = values.recipient

@@ -2,11 +2,7 @@ import { cookies } from 'next/headers'
 
 import { createClient } from '@/lib/supabase/server'
 
-/**
- * Utility function to check if the current user has admin privileges
- * @returns Boolean indicating if user is an admin
- */
-export async function checkAdminStatus() {
+export async function currentUserIsAdmin(): Promise<boolean> {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
 

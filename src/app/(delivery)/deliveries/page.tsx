@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-import { iAmAdmin } from '@/actions/auth'
+import { currentUserIsAdmin } from '@/app/actions/authActions'
 import Deliveries from '@/components/deliveries/deliveries'
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DeliveriesPage() {
-  const isAdmin = await iAmAdmin()
+  const isAdmin = await currentUserIsAdmin()
 
   return <Deliveries isAdmin={isAdmin} />
 }

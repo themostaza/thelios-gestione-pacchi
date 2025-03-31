@@ -26,7 +26,7 @@ function AdminBadge({ isAdmin }: { isAdmin: boolean }) {
   )
 }
 
-export default function UsersTableWithContext() {
+export default function AccountsTable() {
   const { users, loading, error, deleteUser } = useUser()
   const [deletingId, setDeletingId] = useState<string | null>(null)
 

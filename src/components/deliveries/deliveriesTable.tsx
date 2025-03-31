@@ -5,12 +5,12 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
-import { DeliveryData } from '@/app/actions/deliveryActions'
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
+import { DeliveryData } from '@/lib/types/delivery'
 import { cn } from '@/lib/utils'
 
 const COLUMN_WIDTHS = {

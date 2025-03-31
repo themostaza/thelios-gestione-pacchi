@@ -6,21 +6,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { loginUser, logoutUser, registerUser } from '@/app/actions/authActions'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
-
-type User = {
-  id: string
-  email: string
-  isAdmin: boolean
-}
-
-type AuthContextType = {
-  user: User | null
-  isLoading: boolean
-  isAdmin: boolean
-  login: (email: string, password: string) => Promise<boolean>
-  register: (email: string, password: string) => Promise<boolean>
-  logout: () => Promise<void>
-}
+import { User, AuthContextType } from '@/lib/types/user'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 

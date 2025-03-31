@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, LogIn, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import GenericCardView from '@/components/GenericCardView'
 import { Button } from '@/components/ui/button'
@@ -12,29 +11,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/context/authContext'
+import { RegisterFormData, LoginFormData } from '@/lib/types/user'
+import { registerSchema } from '@/lib/validations/delivery'
+import { loginSchema } from '@/lib/validations/user'
 
 interface AuthViewProps {
   defaultTab?: 'login' | 'register'
 }
-
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-})
-
-const registerSchema = z
-  .object({
-    email: z.string().email({ message: 'Please enter a valid email address' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-    confirmPassword: z.string().min(6),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  })
-
-type LoginFormData = z.infer<typeof loginSchema>
-type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab)

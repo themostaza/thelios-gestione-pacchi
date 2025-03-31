@@ -15,7 +15,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
-import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
+import { DeliveryFormData } from '@/lib/types/delivery'
+import { deliverySchema } from '@/lib/validations/delivery'
 
 export default function DeliveryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)

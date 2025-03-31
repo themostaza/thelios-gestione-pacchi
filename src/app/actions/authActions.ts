@@ -1,38 +1,13 @@
 'use server'
 
-import { User } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
+import { currentUserIsAdmin as isAdmin } from '@/lib/functions'
 import { createClient } from '@/lib/supabase/server'
+import { LoginData, LoginResult, LogoutResult, RegisterResult, CreateUserResult, GetProfilesResult } from '@/lib/types/user'
 
-type LoginData = {
-  email: string
-  password: string
-}
-
-type LoginResult = {
-  success: boolean
-  error?: string
-  user?: {
-    id: string
-    email: string
-  }
-}
-
-type RegisterResult = {
-  success: boolean
-  message: string
-}
-
-type LogoutResult = {
-  success: boolean
-  message: string
-}
-
-type UserSessionResult = {
-  user: User | null
-  isAdmin: boolean
-  error?: string
+export async function currentUserIsAdmin(): Promise<boolean> {
+  return await isAdmin()
 }
 
 export async function loginUser(data: LoginData): Promise<LoginResult> {
@@ -154,83 +129,6 @@ export async function logoutUser(): Promise<LogoutResult> {
   }
 }
 
-export async function getUserSession(): Promise<UserSessionResult> {
-  try {
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return {
-        user: null,
-        isAdmin: false,
-        error: userError?.message,
-      }
-    }
-
-    let profileData = null
-    let profileError = null
-
-    const userIdResult = await supabase.from('profile').select('is_admin, email, user_id').eq('user_id', user.id).maybeSingle()
-
-    profileError = userIdResult.error
-    profileData = userIdResult.data
-
-    if (!profileData && user.email) {
-      const emailResult = await supabase.from('profile').select('is_admin, email, user_id').eq('email', user.email).maybeSingle()
-
-      if (emailResult.data && !emailResult.error) {
-        profileData = emailResult.data
-        profileError = null
-
-        if (profileData && (!profileData.user_id || profileData.user_id !== user.id)) {
-          const updateResult = await supabase.from('profile').update({ user_id: user.id }).eq('email', user.email)
-
-          if (updateResult.error) {
-            console.error('[SERVER] Error updating profile with user_id:', updateResult.error)
-          } else {
-          }
-        }
-      } else {
-        profileError = emailResult.error
-      }
-    }
-
-    if (profileError) {
-      console.error('[SERVER] Error getting profile:', profileError)
-      return {
-        user,
-        isAdmin: false,
-        error: profileError.message,
-      }
-    }
-
-    return {
-      user,
-      isAdmin: !!profileData?.is_admin,
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto'
-    console.error('[SERVER] Unexpected error getting user session:', errorMessage)
-    return {
-      user: null,
-      isAdmin: false,
-      error: errorMessage,
-    }
-  }
-}
-
-type CreateUserResult = {
-  success: boolean
-  message: string
-  email?: string
-  isAdmin?: boolean
-}
-
 export async function createUser({ email, isAdmin }: { email: string; isAdmin: boolean }): Promise<CreateUserResult> {
   try {
     const cookieStore = cookies()
@@ -290,19 +188,6 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
       message: `Errore inatteso durante createUser: ${errorMessage}`,
     }
   }
-}
-
-type ProfileUser = {
-  id: string
-  email: string
-  created_at: string
-  user_id: string | null
-}
-
-type GetProfilesResult = {
-  users: ProfileUser[] | null
-  success: boolean
-  message?: string
 }
 
 export async function getAllProfiles(): Promise<GetProfilesResult> {

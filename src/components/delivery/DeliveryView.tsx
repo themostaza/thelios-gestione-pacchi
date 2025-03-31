@@ -7,7 +7,7 @@ import DeliveryActions from './DeliveryActions'
 import DeliveryDetails from './DeliveryDetails'
 import DeliveryFooter from './DeliveryFooter'
 
-type DeliveryViewProps = {
+interface DeliveryViewProps {
   deliveryId: string
 }
 

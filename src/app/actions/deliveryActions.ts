@@ -2,68 +2,10 @@
 
 import { cookies } from 'next/headers'
 
-import { iAmAdmin } from '@/actions/auth'
-import { StatusType } from '@/components/ui/statusBadge'
+import { currentUserIsAdmin } from '@/app/actions/authActions'
 import { createClient } from '@/lib/supabase/server'
-import { deliverySchema, DeliveryFormData, ValidationErrors } from '@/lib/validations/delivery'
-
-type SuccessResponse = {
-  message: string
-  errors: null
-  success: true
-  data: DeliveryData
-}
-
-type ErrorResponse = {
-  message: string
-  errors: ValidationErrors
-  success: false
-  data: null
-}
-
-export type DeliveryFilters = {
-  recipientEmail?: string
-  place?: string
-  status?: string | string[]
-  startDate?: string
-  endDate?: string
-  searchTerm?: string
-  userEmail?: string
-}
-
-export type PaginatedDeliveriesResponse = {
-  success: boolean
-  data: DeliveryData[] | null
-  message: string
-  hasMore: boolean
-  count?: number | null
-}
-
-export type DeliveryData = {
-  id: number
-  recipientEmail: string
-  place: string
-  notes: string | null
-  status: StatusType
-  created_at: string
-  user: {
-    email: string
-  }
-}
-
-export type StatusUpdateResponse = {
-  success: boolean
-  message: string
-  data: DeliveryData | null
-}
-
-export type ReminderLog = {
-  id: string
-  delivery_id: string
-  ok: boolean
-  message: string
-  send_at: string | Date
-}
+import { DeliveryFormData, SuccessResponse, ErrorResponse, DeliveryFilters, PaginatedDeliveriesResponse, DeliveryData, StatusUpdateResponse, ReminderLog } from '@/lib/types/delivery'
+import { deliverySchema } from '@/lib/validations/delivery'
 
 export async function saveDelivery(formData: FormData): Promise<SuccessResponse | ErrorResponse> {
   try {
@@ -172,7 +114,7 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
 
     let query = supabase.from('delivery').select('*', { count: 'exact' })
 
-    const isAdmin = await iAmAdmin()
+    const isAdmin = await currentUserIsAdmin()
 
     if (!isAdmin) {
       query = query.eq('user_id', user.id)
@@ -302,7 +244,7 @@ export async function getDeliveryById(id: string) {
       }
     }
 
-    const isAdmin = await iAmAdmin()
+    const isAdmin = await currentUserIsAdmin()
 
     const query = supabase.from('delivery').select('*')
 
@@ -387,7 +329,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
-    const isAdmin = await iAmAdmin()
+    const isAdmin = await currentUserIsAdmin()
 
     const { data: delivery, error: fetchError } = await supabase.from('delivery').select('*').eq('id', id).single()
 
