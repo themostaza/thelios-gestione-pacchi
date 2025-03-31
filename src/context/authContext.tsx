@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 import { loginUser, logoutUser, registerUser } from '@/app/actions/authActions'
 import { toast } from '@/hooks/use-toast'
@@ -33,25 +33,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserData = async () => {
     try {
       const supabase = createClient()
-      const { data: { user: supabaseUser } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: supabaseUser },
+      } = await supabase.auth.getUser()
+
       if (!supabaseUser) {
         setUser(null)
         setIsLoading(false)
         return
       }
-      
+
       // Get user profile data to check if admin
-      const { data: profileData } = await supabase
-        .from('profile')
-        .select('is_admin')
-        .eq('user_id', supabaseUser.id)
-        .single()
-        
+      const { data: profileData } = await supabase.from('profile').select('is_admin').eq('user_id', supabaseUser.id).single()
+
       setUser({
         id: supabaseUser.id,
         email: supabaseUser.email || '',
-        isAdmin: profileData?.is_admin || false
+        isAdmin: profileData?.is_admin || false,
       })
     } catch (error) {
       console.error('Error fetching auth state:', error)
@@ -59,12 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
     }
   }
-  
+
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const result = await loginUser({ email, password })
-      
+
       if (result.success) {
         await fetchUserData()
         router.refresh()
@@ -87,12 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false
     }
   }
-  
+
   // Register function
   const register = async (email: string, password: string): Promise<boolean> => {
     try {
       const result = await registerUser(email, password)
-      
+
       if (result.success) {
         toast({
           title: 'Registration successful',
@@ -117,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false
     }
   }
-  
+
   // Logout function
   const logout = async () => {
     try {
@@ -137,30 +135,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
   }
-  
+
   // Setup auth state listener
   useEffect(() => {
     fetchUserData()
-    
+
     const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       fetchUserData()
     })
-    
+
     return () => {
       subscription.unsubscribe()
     }
   }, [])
-  
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoading,
-      isAdmin: user?.isAdmin || false,
-      login,
-      register,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAdmin: user?.isAdmin || false,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

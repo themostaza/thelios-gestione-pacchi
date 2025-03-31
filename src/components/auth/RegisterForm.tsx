@@ -30,7 +30,7 @@ interface RegisterFormProps {
   tabName?: string
 }
 
-export default function RegisterForm({ onLoginClick, hideButtons = false, tabName = "register" }: RegisterFormProps) {
+export default function RegisterForm({ onLoginClick, hideButtons = false, tabName = 'register' }: RegisterFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { register } = useAuth()
 
@@ -46,33 +46,38 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
   const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true)
     const success = await register(data.email, data.password)
-    
+
     if (success && onLoginClick) {
       form.reset()
       setTimeout(() => {
         onLoginClick()
       }, 1000)
     }
-    
+
     setIsSubmitting(false)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} id="register-form" className="space-y-4" data-tab={tabName}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        id='register-form'
+        className='space-y-4'
+        data-tab={tabName}
+      >
         <FormField
           control={form.control}
-          name="email"
+          name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="email">Email address</FormLabel>
+              <FormLabel htmlFor='email'>Email address</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  autoComplete="email"
+                  id='email'
+                  type='email'
+                  placeholder='your@email.com'
+                  autoComplete='email'
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -83,17 +88,17 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
 
         <FormField
           control={form.control}
-          name="password"
+          name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="password">Password</FormLabel>
+              <FormLabel htmlFor='password'>Password</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
+                  id='password'
+                  type='password'
+                  placeholder='••••••••'
+                  autoComplete='new-password'
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -104,17 +109,17 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
 
         <FormField
           control={form.control}
-          name="confirmPassword"
+          name='confirmPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="confirmPassword">Confirm password</FormLabel>
+              <FormLabel htmlFor='confirmPassword'>Confirm password</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
+                  id='confirmPassword'
+                  type='password'
+                  placeholder='••••••••'
+                  autoComplete='new-password'
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -125,16 +130,19 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
 
         {/* Bottoni visibili solo se richiesto */}
         {!hideButtons && (
-          <div className="flex flex-col space-y-4 pt-4">
+          <div className='flex flex-col space-y-4 pt-4'>
             <Button
-              type="submit"
+              type='submit'
               disabled={isSubmitting}
-              className="w-full"
+              className='w-full'
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className='h-4 w-4 animate-spin mr-2' />
               ) : (
-                <UserPlus size={20} className="mr-2" />
+                <UserPlus
+                  size={20}
+                  className='mr-2'
+                />
               )}
               Register
             </Button>
@@ -143,4 +151,4 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
       </form>
     </Form>
   )
-} 
+}

@@ -20,12 +20,11 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
-  onRegisterClick?: () => void
   hideButtons?: boolean
   tabName?: string
 }
 
-export default function LoginForm({ onRegisterClick, hideButtons = false, tabName = "login" }: LoginFormProps) {
+export default function LoginForm({ hideButtons = false, tabName = 'login' }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { login } = useAuth()
 
@@ -45,20 +44,25 @@ export default function LoginForm({ onRegisterClick, hideButtons = false, tabNam
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} id="login-form" className="space-y-4" data-tab={tabName}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        id='login-form'
+        className='space-y-4'
+        data-tab={tabName}
+      >
         <FormField
           control={form.control}
-          name="email"
+          name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="email">Email address</FormLabel>
+              <FormLabel htmlFor='email'>Email address</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  autoComplete="email"
+                  id='email'
+                  type='email'
+                  placeholder='your@email.com'
+                  autoComplete='email'
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -69,17 +73,17 @@ export default function LoginForm({ onRegisterClick, hideButtons = false, tabNam
 
         <FormField
           control={form.control}
-          name="password"
+          name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="password">Password</FormLabel>
+              <FormLabel htmlFor='password'>Password</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
+                  id='password'
+                  type='password'
+                  placeholder='••••••••'
+                  autoComplete='current-password'
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -90,16 +94,19 @@ export default function LoginForm({ onRegisterClick, hideButtons = false, tabNam
 
         {/* Bottoni visibili solo se richiesto */}
         {!hideButtons && (
-          <div className="flex flex-col space-y-4 pt-4">
+          <div className='flex flex-col space-y-4 pt-4'>
             <Button
-              type="submit"
+              type='submit'
               disabled={isSubmitting}
-              className="w-full"
+              className='w-full'
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className='h-4 w-4 animate-spin mr-2' />
               ) : (
-                <LogIn size={20} className="mr-2" />
+                <LogIn
+                  size={20}
+                  className='mr-2'
+                />
               )}
               Sign in
             </Button>
@@ -108,4 +115,4 @@ export default function LoginForm({ onRegisterClick, hideButtons = false, tabNam
       </form>
     </Form>
   )
-} 
+}

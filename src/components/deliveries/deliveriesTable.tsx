@@ -9,7 +9,7 @@ import { DeliveryData } from '@/app/actions/deliveryActions'
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
 import { cn } from '@/lib/utils'
 
@@ -55,11 +55,7 @@ type SortConfig = {
   direction: 'asc' | 'desc'
 }
 
-type DeliveriesTableProps = {
-  showFilters: boolean
-}
-
-function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
+function DeliveriesTable() {
   const { deliveries, error, initialLoading, loading, hasMore, setPage } = useDeliveries()
 
   // Sort state
@@ -129,112 +125,111 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
     return (
       <div className='flex-1'>
         <Table className='table-fixed w-full'>
-            <TableHeader>
-              <TableRow>
-                <TableHead
-                  className={COLUMN_WIDTHS.id}
-                  onClick={!initialLoading ? () => handleSort('id') : undefined}
-                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                >
-                  <div className='flex items-center whitespace-nowrap'>
-                    ID
-                    {!initialLoading ? renderSortIndicator('id') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className={COLUMN_WIDTHS.recipient}
-                  onClick={!initialLoading ? () => handleSort('recipientEmail') : undefined}
-                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                >
-                  <div className='flex items-center whitespace-nowrap'>
-                    Recipient
-                    {!initialLoading ? renderSortIndicator('recipientEmail') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className={COLUMN_WIDTHS.sender}
-                  onClick={!initialLoading ? () => handleSort('user') : undefined}
-                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                >
-                  <div className='flex items-center whitespace-nowrap'>
-                    Sender
-                    {!initialLoading ? renderSortIndicator('user') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className={COLUMN_WIDTHS.status}
-                  onClick={!initialLoading ? () => handleSort('status') : undefined}
-                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                >
-                  <div className='flex items-center whitespace-nowrap'>
-                    Status
-                    {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className={COLUMN_WIDTHS.created}
-                  onClick={!initialLoading ? () => handleSort('created_at') : undefined}
-                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                >
-                  <div className='flex items-center whitespace-nowrap'>
-                    Created
-                    {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                  </div>
-                </TableHead>
-                <TableHead className={COLUMN_WIDTHS.actions}>
-                  <div className='whitespace-nowrap'>Actions</div>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {initialLoading
-                ? Array(5)
-                    .fill(0)
-                    .map((_, i) => <LoadingRow key={i} />)
-                : sortedDeliveries.map((delivery) => (
-                    <TableRow
-                      key={delivery.id}
-                      id={`delivery-row-${delivery.id}`}
-                    >
-                      <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
-                      <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
-                      <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
-                      <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
-                        <StatusBadge status={delivery.status} />
-                      </TableCell>
-                      <TableCell className={COLUMN_WIDTHS.created}>
-                        {formatDistanceToNow(new Date(delivery.created_at), {
-                          addSuffix: true,
-                        })}
-                      </TableCell>
-                      <TableCell className={COLUMN_WIDTHS.actions}>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          asChild
-                        >
-                          <Link href={`/delivery/${delivery.id}`}>View</Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
-
-          {!initialLoading && hasMore && (
-            <div className='py-4 flex justify-center'>
-              <Button
-                variant='outline'
-                onClick={() => setPage((p) => p + 1)}
-                disabled={loading}
+          <TableHeader>
+            <TableRow>
+              <TableHead
+                className={COLUMN_WIDTHS.id}
+                onClick={!initialLoading ? () => handleSort('id') : undefined}
+                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
-                {loading ? 'Loading...' : 'Load More'}
-              </Button>
-            </div>
-          )}
+                <div className='flex items-center whitespace-nowrap'>
+                  ID
+                  {!initialLoading ? renderSortIndicator('id') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                </div>
+              </TableHead>
+              <TableHead
+                className={COLUMN_WIDTHS.recipient}
+                onClick={!initialLoading ? () => handleSort('recipientEmail') : undefined}
+                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+              >
+                <div className='flex items-center whitespace-nowrap'>
+                  Recipient
+                  {!initialLoading ? renderSortIndicator('recipientEmail') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                </div>
+              </TableHead>
+              <TableHead
+                className={COLUMN_WIDTHS.sender}
+                onClick={!initialLoading ? () => handleSort('user') : undefined}
+                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+              >
+                <div className='flex items-center whitespace-nowrap'>
+                  Sender
+                  {!initialLoading ? renderSortIndicator('user') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                </div>
+              </TableHead>
+              <TableHead
+                className={COLUMN_WIDTHS.status}
+                onClick={!initialLoading ? () => handleSort('status') : undefined}
+                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+              >
+                <div className='flex items-center whitespace-nowrap'>
+                  Status
+                  {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                </div>
+              </TableHead>
+              <TableHead
+                className={COLUMN_WIDTHS.created}
+                onClick={!initialLoading ? () => handleSort('created_at') : undefined}
+                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+              >
+                <div className='flex items-center whitespace-nowrap'>
+                  Created
+                  {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                </div>
+              </TableHead>
+              <TableHead className={COLUMN_WIDTHS.actions}>
+                <div className='whitespace-nowrap'>Actions</div>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {initialLoading
+              ? Array(5)
+                  .fill(0)
+                  .map((_, i) => <LoadingRow key={i} />)
+              : sortedDeliveries.map((delivery) => (
+                  <TableRow
+                    key={delivery.id}
+                    id={`delivery-row-${delivery.id}`}
+                  >
+                    <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
+                    <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
+                    <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
+                    <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
+                      <StatusBadge status={delivery.status} />
+                    </TableCell>
+                    <TableCell className={COLUMN_WIDTHS.created}>
+                      {formatDistanceToNow(new Date(delivery.created_at), {
+                        addSuffix: true,
+                      })}
+                    </TableCell>
+                    <TableCell className={COLUMN_WIDTHS.actions}>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        asChild
+                      >
+                        <Link href={`/delivery/${delivery.id}`}>View</Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
 
-          {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
+        {!initialLoading && hasMore && (
+          <div className='py-4 flex justify-center'>
+            <Button
+              variant='outline'
+              onClick={() => setPage((p) => p + 1)}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Load More'}
+            </Button>
+          </div>
+        )}
 
+        {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
       </div>
     )
   }

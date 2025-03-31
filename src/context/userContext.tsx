@@ -89,7 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Error during deletion: ' + err
-        alert("Error during deletion: " + errorMessage)
+        alert('Error during deletion: ' + errorMessage)
       }
     }
   }

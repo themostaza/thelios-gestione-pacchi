@@ -14,7 +14,7 @@ interface AuthTabsProps {
 
 export default function AuthTabs({ defaultTab, onTabChange, hideButtons = false }: AuthTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab)
-  
+
   const handleValueChange = (value: string) => {
     setActiveTab(value)
     if (onTabChange) {
@@ -34,28 +34,27 @@ export default function AuthTabs({ defaultTab, onTabChange, hideButtons = false 
       defaultValue={defaultTab}
       value={activeTab}
       onValueChange={handleValueChange}
-      className="w-full md:w-1/3 m-auto"
+      className='w-full md:w-1/3 m-auto'
     >
-      <TabsList className="grid grid-cols-2 mb-4">
-        <TabsTrigger value="login">Login</TabsTrigger>
-        <TabsTrigger value="register">Register</TabsTrigger>
+      <TabsList className='grid grid-cols-2 mb-4'>
+        <TabsTrigger value='login'>Login</TabsTrigger>
+        <TabsTrigger value='register'>Register</TabsTrigger>
       </TabsList>
-      
-      <TabsContent value="login">
-        <LoginForm 
-          onRegisterClick={() => handleValueChange('register')} 
+
+      <TabsContent value='login'>
+        <LoginForm
           hideButtons={hideButtons}
-          tabName="login"
+          tabName='login'
         />
       </TabsContent>
-      
-      <TabsContent value="register">
-        <RegisterForm 
-          onLoginClick={() => handleValueChange('login')} 
+
+      <TabsContent value='register'>
+        <RegisterForm
+          onLoginClick={() => handleValueChange('login')}
           hideButtons={hideButtons}
-          tabName="register"
+          tabName='register'
         />
       </TabsContent>
     </Tabs>
   )
-} 
+}

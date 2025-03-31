@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+
 import { createClient } from '@/lib/supabase/server'
 
 /**
@@ -22,4 +23,4 @@ export async function checkAdminStatus() {
   const { data: adminData } = await supabase.from('profile').select('user_id, is_admin').eq('user_id', user.id).single()
 
   return adminData?.is_admin || false
-} 
+}

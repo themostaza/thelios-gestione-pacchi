@@ -49,7 +49,7 @@ export default function UsersTable() {
         }
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Unexpected error'
-        alert("Error during deletion: " + errorMessage)
+        alert('Error during deletion: ' + errorMessage)
       }
     }
   }

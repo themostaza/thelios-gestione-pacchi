@@ -35,14 +35,11 @@ export default function CreateUserForm() {
   })
 
   const onSubmit = async (data: CreateUserFormData) => {
-    
     setIsSubmitting(true)
     setFormError(null)
 
     try {
-      
       const result = await createUser(data)
-      
 
       if (result.success) {
         toast({
@@ -54,7 +51,7 @@ export default function CreateUserForm() {
         // Mostra il messaggio di errore sia nel form che in un toast
         setFormError(result.message)
         toast({
-          title: "Unable to pre-register user",
+          title: 'Unable to pre-register user',
           description: result.message,
           variant: 'destructive',
         })

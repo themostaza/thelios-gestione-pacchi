@@ -31,7 +31,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
         </div>
       )
     }
-    
+
     if (error) {
       return (
         <div className='flex justify-center flex-col items-center py-12'>
@@ -39,21 +39,23 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
         </div>
       )
     }
-    
-    return <div className='h-full'>
-      <DeliveriesTable showFilters={false} />
-    </div>
+
+    return (
+      <div className='h-full'>
+        <DeliveriesTable />
+      </div>
+    )
   }
 
   return (
     <GenericCardView
-      title="Your Deliveries"
-      description="Manage and monitor all your delivery requests"
+      title='Your Deliveries'
+      description='Manage and monitor all your delivery requests'
       headerRight={headerRight}
       useScrollArea={true}
-      className="w-full flex flex-col h-full"
-      contentClassName="flex-1 overflow-hidden"
-      footerClassName="p-6"
+      className='w-full flex flex-col h-full'
+      contentClassName='flex-1 overflow-hidden'
+      footerClassName='p-6'
     >
       {renderContent()}
     </GenericCardView>

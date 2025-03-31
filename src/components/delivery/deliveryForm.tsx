@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
 import RecipientSelect from '@/components/delivery/recipientSelect'
+import GenericCardView from '@/components/GenericCardView'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -15,11 +16,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
 import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
-import GenericCardView from '@/components/GenericCardView'
 
 export default function DeliveryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentDateTime, setCurrentDateTime] = useState(new Date())
   const [userEmail, setUserEmail] = useState('Loading...')
 
   useEffect(() => {
@@ -33,14 +32,6 @@ export default function DeliveryForm() {
     }
 
     getUser()
-  }, [])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(new Date())
-    }, 1000)
-
-    return () => clearInterval(timer)
   }, [])
 
   const form = useForm({
@@ -125,7 +116,7 @@ export default function DeliveryForm() {
     <div className='flex justify-end items-center w-full'>
       <Button
         type='submit'
-        form="delivery-form"
+        form='delivery-form'
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -148,18 +139,18 @@ export default function DeliveryForm() {
 
   return (
     <>
-          <GenericCardView
-            title="Delivery Registration"
-            description="Enter package delivery details below"
-            headerRight={headerRight}
-            footer={footerContent}
+      <GenericCardView
+        title='Delivery Registration'
+        description='Enter package delivery details below'
+        headerRight={headerRight}
+        footer={footerContent}
+      >
+        <Form {...form}>
+          <form
+            id='delivery-form'
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='w-full h-full'
           >
-          <Form {...form}>
-            <form
-              id="delivery-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className='w-full h-full'
-            >
             <div className='space-y-4 p-2'>
               <FormField
                 control={form.control}
@@ -222,10 +213,9 @@ export default function DeliveryForm() {
                 )}
               />
             </div>
-            </form>
-      </Form>
-          </GenericCardView>
-        
+          </form>
+        </Form>
+      </GenericCardView>
     </>
   )
 }

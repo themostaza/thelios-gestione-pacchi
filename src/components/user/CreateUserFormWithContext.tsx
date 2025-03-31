@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -24,7 +23,6 @@ type CreateUserFormData = z.infer<typeof createUserSchema>
 
 export default function CreateUserFormWithContext() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
   const { addUser } = useUser()
 
   const form = useForm<CreateUserFormData>({
@@ -37,7 +35,6 @@ export default function CreateUserFormWithContext() {
 
   const onSubmit = async (data: CreateUserFormData) => {
     setIsSubmitting(true)
-    setFormError(null)
 
     try {
       const result = await addUser(data)
@@ -49,9 +46,8 @@ export default function CreateUserFormWithContext() {
         })
         form.reset()
       } else {
-        setFormError(result.message)
         toast({
-          title: "Unable to pre-register user",
+          title: 'Unable to pre-register user',
           description: result.message,
           variant: 'destructive',
         })
@@ -60,7 +56,6 @@ export default function CreateUserFormWithContext() {
       console.error('Unexpected error in onSubmit:', error)
       const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'An unexpected error occurred.'
 
-      setFormError(errorMessage)
       toast({
         title: 'Unexpected error',
         description: errorMessage,
@@ -96,7 +91,7 @@ export default function CreateUserFormWithContext() {
             )}
           />
 
-          <Separator className="my-4" />
+          <Separator className='my-4' />
 
           <FormField
             control={form.control}
@@ -115,7 +110,7 @@ export default function CreateUserFormWithContext() {
             )}
           />
         </div>
-        <div className="flex justify-end">
+        <div className='flex justify-end'>
           <Button
             type='submit'
             disabled={isSubmitting}
