@@ -129,9 +129,8 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
 
     return (
       <ScrollArea className='h-full flex-1 overflow-auto'>
-        <div className='rounded-md'>
-          <Table className='table-fixed w-full'>
-            {!initialLoading && <TableCaption>{showFilters ? 'Filtered results' : 'List of your recent deliveries'}</TableCaption>}
+        <Table className='table-fixed w-full'>
+            {/* {!initialLoading && <TableCaption>{showFilters ? 'Filtered results' : 'List of your recent deliveries'}</TableCaption>} */}
             <TableHeader>
               <TableRow>
                 <TableHead
@@ -237,7 +236,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
           )}
 
           {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
-        </div>
+
       </ScrollArea>
     )
   }

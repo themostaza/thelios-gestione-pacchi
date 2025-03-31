@@ -25,9 +25,11 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
   onRegisterClick?: () => void
+  hideButtons?: boolean
+  tabName?: string
 }
 
-export default function LoginForm({ onRegisterClick }: LoginFormProps) {
+export default function LoginForm({ onRegisterClick, hideButtons = false, tabName = "login" }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { updateAuthState } = useAuth()
@@ -84,7 +86,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
     <>
       <Toaster />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" data-tab={tabName}>
           <FormField
             control={form.control}
             name="email"
@@ -127,31 +129,37 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
             )}
           />
 
-          <div className="flex flex-col space-y-4 pt-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full"
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <LogIn size={20} className="mr-2" />
-              )}
-              Sign in
-            </Button>
-            
-            {onRegisterClick && (
+          {/* Hidden submit button for triggering from parent */}
+          <button type="submit" style={{ display: 'none' }}></button>
+
+          {/* Only show buttons if not hidden */}
+          {!hideButtons && (
+            <div className="flex flex-col space-y-4 pt-4">
               <Button
-                type="button"
-                variant="outline"
-                onClick={onRegisterClick}
+                type="submit"
+                disabled={isSubmitting}
                 className="w-full"
               >
-                Don't have an account? Register
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <LogIn size={20} className="mr-2" />
+                )}
+                Sign in
               </Button>
-            )}
-          </div>
+              
+              {onRegisterClick && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onRegisterClick}
+                  className="w-full"
+                >
+                  Don't have an account? Register
+                </Button>
+              )}
+            </div>
+          )}
         </form>
       </Form>
     </>

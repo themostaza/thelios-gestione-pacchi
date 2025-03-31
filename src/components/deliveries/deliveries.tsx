@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react'
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
 import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
 
@@ -44,11 +44,10 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
               <p className='text-red-500'>Error: {error}</p>
             </div>
           ) : (
-            <div className='flex flex-col h-full overflow-hidden'>
               <DeliveriesTable showFilters={false} />
-            </div>
           )}
         </CardContent>
+        <CardFooter>aa</CardFooter>
       </div>
     </>
   )

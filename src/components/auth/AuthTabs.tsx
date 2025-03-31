@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import LoginForm from '@/components/auth/LoginForm'
 import RegisterForm from '@/components/auth/RegisterForm'
@@ -8,16 +8,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface AuthTabsProps {
   defaultTab: 'login' | 'register'
+  onTabChange?: (value: string) => void
+  hideButtons?: boolean
 }
 
-export default function AuthTabs({ defaultTab }: AuthTabsProps) {
+export default function AuthTabs({ defaultTab, onTabChange, hideButtons = false }: AuthTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab)
+  
+  const handleValueChange = (value: string) => {
+    setActiveTab(value)
+    if (onTabChange) {
+      onTabChange(value)
+    }
+  }
+
+  // Ensure parent component knows the initial active tab
+  useEffect(() => {
+    if (onTabChange) {
+      onTabChange(defaultTab)
+    }
+  }, [defaultTab, onTabChange])
 
   return (
     <Tabs
       defaultValue={defaultTab}
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={handleValueChange}
       className="w-full"
     >
       <TabsList className="grid grid-cols-2 mb-4">
@@ -26,11 +42,19 @@ export default function AuthTabs({ defaultTab }: AuthTabsProps) {
       </TabsList>
       
       <TabsContent value="login">
-        <LoginForm onRegisterClick={() => setActiveTab('register')} />
+        <LoginForm 
+          onRegisterClick={() => handleValueChange('register')} 
+          hideButtons={hideButtons}
+          tabName="login"
+        />
       </TabsContent>
       
       <TabsContent value="register">
-        <RegisterForm onLoginClick={() => setActiveTab('login')} />
+        <RegisterForm 
+          onLoginClick={() => handleValueChange('login')} 
+          hideButtons={hideButtons}
+          tabName="register"
+        />
       </TabsContent>
     </Tabs>
   )
