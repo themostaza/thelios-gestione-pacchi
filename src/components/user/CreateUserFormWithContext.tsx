@@ -16,7 +16,7 @@ import { toast } from '@/hooks/use-toast'
 
 // Schema di validazione
 const createUserSchema = z.object({
-  email: z.string().email('Email non valida'),
+  email: z.string().email('Invalid email'),
   isAdmin: z.boolean(),
 })
 
@@ -44,25 +44,25 @@ export default function CreateUserFormWithContext() {
 
       if (result.success) {
         toast({
-          title: 'Utente pre-registrato con successo',
-          description: `Email: ${data.email} - isAdmin: ${data.isAdmin ? 'Sì' : 'No'}`,
+          title: 'User pre-registered successfully',
+          description: `Email: ${data.email} - isAdmin: ${data.isAdmin ? 'Yes' : 'No'}`,
         })
         form.reset()
       } else {
         setFormError(result.message)
         toast({
-          title: "Impossibile pre-registrare l'utente",
+          title: "Unable to pre-register user",
           description: result.message,
           variant: 'destructive',
         })
       }
     } catch (error) {
       console.error('Unexpected error in onSubmit:', error)
-      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'Si è verificato un errore inaspettato.'
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'An unexpected error occurred.'
 
       setFormError(errorMessage)
       toast({
-        title: 'Errore inatteso',
+        title: 'Unexpected error',
         description: errorMessage,
         variant: 'destructive',
       })
@@ -120,7 +120,7 @@ export default function CreateUserFormWithContext() {
             type='submit'
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Sto registrando...' : 'Pre-registra utente'}
+            {isSubmitting ? 'Registering...' : 'Pre-register user'}
           </Button>
         </div>
       </form>

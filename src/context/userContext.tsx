@@ -45,12 +45,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setUsers(result.users as unknown as ProfileUser[])
         setError(null)
       } else {
-        setError(result.message || 'Errore nel caricamento degli utenti')
+        setError(result.message || 'Error loading users')
         setUsers([])
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto'
-      setError('Errore inaspettato: ' + errorMessage)
+      const errorMessage = err instanceof Error ? err.message : 'Unexpected error: ' + err
+      setError('Unexpected error: ' + errorMessage)
       setUsers([])
     } finally {
       setLoading(false)
@@ -67,8 +67,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
       return result
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Errore inaspettato durante la creazione utente'
-      console.error('Errore nella creazione utente:', errorMessage)
+      const errorMessage = error instanceof Error ? error.message : 'Error creating user: ' + error
+      console.error('Error creating user:', errorMessage)
       return {
         success: false,
         message: errorMessage,
@@ -78,7 +78,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Elimina un utente
   const deleteUser = async (id: string, userId: string | null) => {
-    if (confirm('Sei sicuro di voler eliminare questo utente?')) {
+    if (confirm('Are you sure you want to delete this user?')) {
       try {
         const result = await deleteProfileUser(id, userId)
         if (result.success) {
@@ -88,8 +88,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
           alert(result.message)
         }
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto'
-        alert("Errore durante l'eliminazione: " + errorMessage)
+        const errorMessage = err instanceof Error ? err.message : 'Error during deletion: ' + err
+        alert("Error during deletion: " + errorMessage)
       }
     }
   }

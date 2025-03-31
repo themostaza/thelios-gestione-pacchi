@@ -18,12 +18,12 @@ import { toast } from '@/hooks/use-toast'
 
 const registerSchema = z
   .object({
-    email: z.string().email({ message: 'Inserisci un indirizzo email valido' }),
-    password: z.string().min(6, { message: 'La password deve contenere almeno 6 caratteri' }),
-    confirmPassword: z.string().min(6, { message: 'La password deve contenere almeno 6 caratteri' }),
+    email: z.string().email({ message: 'Enter a valid email address' }),
+    password: z.string().min(6, { message: 'Password must contain at least 6 characters' }),
+    confirmPassword: z.string().min(6, { message: 'Password must contain at least 6 characters' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Le password non combaciano',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
 
@@ -54,7 +54,7 @@ export default function RegisterForm() {
 
       if (result.success) {
         toast({
-          title: 'Registrazione completata',
+          title: 'Registration completed',
           description: result.message,
         })
         form.reset()
@@ -66,16 +66,16 @@ export default function RegisterForm() {
         }, 2000)
       } else {
         toast({
-          title: 'Errore registrazione',
+          title: 'Registration error',
           description: result.message,
           variant: 'destructive',
         })
       }
     } catch (error) {
-      console.error('Error during registration:', error)
+      console.error('Unexpected error', error)
       toast({
-        title: 'Errore inatteso',
-        description: 'Si è verificato un errore inaspettato durante la registrazione.',
+        title: 'Unexpected error',
+        description: 'An unexpected error occurred during registration.',
         variant: 'destructive',
       })
     } finally {
@@ -89,8 +89,8 @@ export default function RegisterForm() {
       <CardHeader>
         <div className='flex justify-between items-center'>
           <div>
-            <CardTitle className='text-2xl font-bold'>Registrazione nuovo utente</CardTitle>
-            <CardDescription className='mt-2'>Crea un nuovo account per accedere all&apos;applicazione</CardDescription>
+            <CardTitle className='text-2xl font-bold'>New User Registration</CardTitle>
+            <CardDescription className='mt-2'>Create a new account to access the application</CardDescription>
           </div>
         </div>
         <Separator className='mt-4' />
@@ -107,7 +107,7 @@ export default function RegisterForm() {
               name='email'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='email'>Indirizzo email</FormLabel>
+                  <FormLabel htmlFor='email'>Email address</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -149,7 +149,7 @@ export default function RegisterForm() {
               name='confirmPassword'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='confirmPassword'>Conferma password</FormLabel>
+                  <FormLabel htmlFor='confirmPassword'>Confirm password</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -180,7 +180,7 @@ export default function RegisterForm() {
                   className='mr-2'
                 />
               )}
-              Registrati
+              Register
             </Button>
           </CardFooter>
         </form>

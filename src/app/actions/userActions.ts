@@ -44,7 +44,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
       console.error('[SERVER] Error checking profile existence:', existingError)
       return {
         success: false,
-        message: `Errore nel controllare esistenza email: ${existingError.message}`,
+        message: `Error checking email existence: ${existingError.message}`,
       }
     }
 
@@ -52,7 +52,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
       console.log('[SERVER] Profile already exists:', existingProfile)
       return {
         success: false,
-        message: 'Esiste già un profilo con questa email.',
+        message: 'A profile with this email already exists.',
       }
     }
 
@@ -87,14 +87,14 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
       console.error('[SERVER] Error inserting profile:', error)
       return {
         success: false,
-        message: `Errore durante insert in profile: ${error.message}`,
+        message: `Error during profile insert: ${error.message}`,
       }
     }
 
     console.log('[SERVER] Profile created successfully:', data)
     return {
       success: true,
-      message: 'Utente pre-registrato correttamente',
+      message: 'User pre-registered successfully',
       email: data.email,
       isAdmin: data.is_admin,
     }
@@ -140,7 +140,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       return {
         users: null,
         success: false,
-        message: 'Devi essere autenticato per accedere a questa funzionalità',
+        message: 'You must be authenticated to access this feature',
       }
     }
 
@@ -152,7 +152,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       return {
         users: null,
         success: false,
-        message: 'Non hai i permessi necessari per accedere a questa funzionalità',
+        message: 'You do not have the necessary permissions to access this feature',
       }
     }
 
@@ -201,7 +201,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
     if (authError || !user) {
       return {
         success: false,
-        message: 'Devi essere autenticato per eseguire questa operazione',
+        message: 'You must be authenticated to perform this operation',
       }
     }
 
@@ -211,7 +211,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
     if (profileError || !profileData?.is_admin) {
       return {
         success: false,
-        message: 'Non hai i permessi necessari per eseguire questa operazione',
+        message: 'You do not have the necessary permissions to perform this operation',
       }
     }
 
@@ -223,7 +223,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
       console.error('[SERVER] Error deleting profile:', deleteProfileError)
       return {
         success: false,
-        message: `Errore nell'eliminazione del profilo: ${deleteProfileError.message}`,
+        message: `Error deleting profile: ${deleteProfileError.message}`,
       }
     }
 
@@ -249,7 +249,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
 
     return {
       success: true,
-      message: 'Utente e profilo eliminati con successo',
+      message: 'User and profile successfully deleted',
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto'

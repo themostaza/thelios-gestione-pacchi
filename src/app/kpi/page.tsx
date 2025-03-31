@@ -96,9 +96,9 @@ const generateMockData = () => {
     { name: 'IT', value: 78, color: '#0088FE' },
     { name: 'HR', value: 45, color: '#00C49F' },
     { name: 'Marketing', value: 63, color: '#FFBB28' },
-    { name: 'Vendite', value: 91, color: '#FF8042' },
+    { name: 'Sales', value: 91, color: '#FF8042' },
     { name: 'R&D', value: 38, color: '#8884d8' },
-    { name: 'Amministrazione', value: 52, color: '#82ca9d' },
+    { name: 'Administration', value: 52, color: '#82ca9d' },
   ]
 
   return {
@@ -201,17 +201,17 @@ const PackageKpiDashboard: React.FC = () => {
 
   // Opzioni per i filtri
   const timeFrameOptions: FilterOption[] = [
-    { id: '7d', name: 'Ultimi 7 giorni' },
-    { id: '30d', name: 'Ultimi 30 giorni' },
-    { id: '90d', name: 'Ultimi 90 giorni' },
-    { id: '12m', name: 'Ultimi 12 mesi' },
-    { id: 'all', name: 'Tutto' },
+    { id: '7d', name: 'Last 7 days' },
+    { id: '30d', name: 'Last 30 days' },
+    { id: '90d', name: 'Last 90 days' },
+    { id: '12m', name: 'Last 12 months' },
+    { id: 'all', name: 'All time' },
   ]
 
   const chartTypeOptions: FilterOption[] = [
-    { id: 'bar', name: 'Barre' },
-    { id: 'line', name: 'Linea' },
-    { id: 'pie', name: 'Torta' },
+    { id: 'bar', name: 'Bar' },
+    { id: 'line', name: 'Line' },
+    { id: 'pie', name: 'Pie' },
   ]
 
   // Effect per marcare quando il componente è montato lato client
@@ -240,11 +240,11 @@ const PackageKpiDashboard: React.FC = () => {
   if (!isClient || !data) {
     return (
       <div className='container mx-auto px-4 py-8 bg-white'>
-        <h1 className='text-2xl font-bold mb-6 text-gray-800'>Dashboard KPI</h1>
+        <h1 className='text-2xl font-bold mb-6 text-gray-800'>KPI Dashboard</h1>
         <div className='flex justify-center items-center h-96'>
           <div className='animate-pulse flex flex-col items-center'>
             <div className='h-12 w-12 rounded-full border-4 border-t-blue-500 border-b-blue-700 border-l-blue-500 border-r-blue-700 animate-spin'></div>
-            <p className='mt-4 text-gray-600'>Caricamento dashboard...</p>
+            <p className='mt-4 text-gray-600'>Loading dashboard...</p>
           </div>
         </div>
       </div>
@@ -253,7 +253,7 @@ const PackageKpiDashboard: React.FC = () => {
 
   return (
     <div className='container mx-auto px-4 py-8 bg-white'>
-      <h1 className='text-2xl font-bold mb-6 text-gray-800'>Dashboard KPI</h1>
+      <h1 className='text-2xl font-bold mb-6 text-gray-800'>KPI Dashboard</h1>
 
       {/* Filtri */}
       <div className='flex flex-wrap gap-4 mb-8 justify-between items-center'>
@@ -262,7 +262,7 @@ const PackageKpiDashboard: React.FC = () => {
             size={20}
             className='text-gray-500'
           />
-          <span className='text-gray-700 font-medium'>Filtri:</span>
+          <span className='text-gray-700 font-medium'>Filters:</span>
         </div>
 
         <div className='flex flex-wrap gap-4'>
@@ -270,7 +270,7 @@ const PackageKpiDashboard: React.FC = () => {
             options={timeFrameOptions}
             value={timeFrame}
             onChange={(value) => setTimeFrame(value as TimeFrame)}
-            label='Periodo'
+            label='Period'
           />
         </div>
       </div>
@@ -278,7 +278,7 @@ const PackageKpiDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         <KpiCard
-          title='Pacchi Totali'
+          title='Total Packages'
           value={formatNumber(data.totalPackages)}
           change={12.5}
           icon={
@@ -289,8 +289,8 @@ const PackageKpiDashboard: React.FC = () => {
           }
         />
         <KpiCard
-          title='Tempo Medio di Giacenza'
-          value={`${data.avgTimeToCompletion.toFixed(1)} giorni`}
+          title='Average Storage Time'
+          value={`${data.avgTimeToCompletion.toFixed(1)} days`}
           change={-8.3}
           icon={
             <Clock
@@ -301,7 +301,7 @@ const PackageKpiDashboard: React.FC = () => {
           positive={false}
         />
         <KpiCard
-          title='Tasso di Completamento'
+          title='Completion Rate'
           value={`${data.completionRate}%`}
           change={3.7}
           icon={
@@ -312,7 +312,7 @@ const PackageKpiDashboard: React.FC = () => {
           }
         />
         <KpiCard
-          title='Dipendenti Serviti'
+          title='Employees Served'
           value={formatNumber(data.employeesServed)}
           change={5.2}
           icon={
@@ -329,12 +329,12 @@ const PackageKpiDashboard: React.FC = () => {
         {/* Stato dei Pacchi */}
         <div className='bg-white rounded-lg shadow p-6'>
           <div className='flex justify-between items-center mb-6'>
-            <h3 className='text-lg font-medium text-gray-800'>Stato dei Pacchi</h3>
+            <h3 className='text-lg font-medium text-gray-800'>Status Distribution</h3>
             <DropdownMenu
               options={chartTypeOptions}
               value={chartTypes.status}
               onChange={(value) => setChartTypes((prev) => ({ ...prev, status: value as ChartType }))}
-              label='Grafico'
+              label='Chart'
             />
           </div>
 
@@ -363,7 +363,7 @@ const PackageKpiDashboard: React.FC = () => {
                       />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} pacchi`, 'Quantità']} />
+                  <Tooltip formatter={(value) => [`${value} packages`, 'Quantity']} />
                   <Legend formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} />
                 </PieChart>
               ) : chartTypes.status === 'bar' ? (
@@ -371,11 +371,11 @@ const PackageKpiDashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray='3 3' />
                   <XAxis dataKey='status' />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} pacchi`, 'Quantità']} />
+                  <Tooltip formatter={(value) => [`${value} packages`, 'Quantity']} />
                   <Legend />
                   <Bar
                     dataKey='count'
-                    name='Pacchi'
+                    name='Packages'
                     fill='#0088FE'
                   />
                 </BarChart>
@@ -384,12 +384,12 @@ const PackageKpiDashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray='3 3' />
                   <XAxis dataKey='status' />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} pacchi`, 'Quantità']} />
+                  <Tooltip formatter={(value) => [`${value} packages`, 'Quantity']} />
                   <Legend />
                   <Line
                     type='monotone'
                     dataKey='count'
-                    name='Pacchi'
+                    name='Packages'
                     stroke='#0088FE'
                   />
                 </LineChart>
@@ -401,12 +401,12 @@ const PackageKpiDashboard: React.FC = () => {
         {/* Timeline Pacchi */}
         <div className='bg-white rounded-lg shadow p-6'>
           <div className='flex justify-between items-center mb-6'>
-            <h3 className='text-lg font-medium text-gray-800'>Andamento Pacchi</h3>
+            <h3 className='text-lg font-medium text-gray-800'>Packages Timeline</h3>
             <DropdownMenu
               options={chartTypeOptions.filter((option) => option.id !== 'pie')}
               value={chartTypes.timeline}
               onChange={(value) => setChartTypes((prev) => ({ ...prev, timeline: value as ChartType }))}
-              label='Grafico'
+              label='Chart'
             />
           </div>
 
@@ -429,14 +429,14 @@ const PackageKpiDashboard: React.FC = () => {
                   <Tooltip
                     labelFormatter={(value) => {
                       const date = new Date(value)
-                      return `Data: ${date.toLocaleDateString('it-IT')}`
+                      return `Date: ${date.toLocaleDateString('en-US')}`
                     }}
-                    formatter={(value) => [`${value} pacchi`, 'Quantità']}
+                    formatter={(value) => [`${value} packages`, 'Quantity']}
                   />
                   <Legend />
                   <Bar
                     dataKey='count'
-                    name='Pacchi Ricevuti'
+                    name='Packages Received'
                     fill='#0088FE'
                   />
                 </BarChart>
@@ -454,15 +454,15 @@ const PackageKpiDashboard: React.FC = () => {
                   <Tooltip
                     labelFormatter={(value) => {
                       const date = new Date(value)
-                      return `Data: ${date.toLocaleDateString('it-IT')}`
+                      return `Date: ${date.toLocaleDateString('en-US')}`
                     }}
-                    formatter={(value) => [`${value} pacchi`, 'Quantità']}
+                    formatter={(value) => [`${value} packages`, 'Quantity']}
                   />
                   <Legend />
                   <Line
                     type='monotone'
                     dataKey='count'
-                    name='Pacchi Ricevuti'
+                    name='Packages Received'
                     stroke='#0088FE'
                     strokeWidth={2}
                   />
@@ -478,12 +478,12 @@ const PackageKpiDashboard: React.FC = () => {
         {/* Tempo Medio di Giacenza */}
         <div className='bg-white rounded-lg shadow p-6'>
           <div className='flex justify-between items-center mb-6'>
-            <h3 className='text-lg font-medium text-gray-800'>Tempo Medio di Giacenza (giorni)</h3>
+            <h3 className='text-lg font-medium text-gray-800'>Average Storage Time</h3>
             <DropdownMenu
               options={chartTypeOptions.filter((option) => option.id !== 'pie')}
               value={chartTypes.avgTime}
               onChange={(value) => setChartTypes((prev) => ({ ...prev, avgTime: value as ChartType }))}
-              label='Grafico'
+              label='Chart'
             />
           </div>
 
@@ -497,11 +497,11 @@ const PackageKpiDashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray='3 3' />
                   <XAxis dataKey='month' />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} giorni`, 'Tempo medio']} />
+                  <Tooltip formatter={(value) => [`${value} days`, 'Average storage days']} />
                   <Legend />
                   <Bar
                     dataKey='days'
-                    name='Giorni medi di giacenza'
+                    name='Average storage days'
                     fill='#FFBB28'
                   />
                 </BarChart>
@@ -510,12 +510,12 @@ const PackageKpiDashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray='3 3' />
                   <XAxis dataKey='month' />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} giorni`, 'Tempo medio']} />
+                  <Tooltip formatter={(value) => [`${value} days`, 'Average storage days']} />
                   <Legend />
                   <Line
                     type='monotone'
                     dataKey='days'
-                    name='Giorni medi di giacenza'
+                    name='Average storage days'
                     stroke='#FFBB28'
                     strokeWidth={2}
                   />
@@ -528,7 +528,7 @@ const PackageKpiDashboard: React.FC = () => {
         {/* Distribuzione per Dipartimento */}
         <div className='bg-white rounded-lg shadow p-6'>
           <div className='flex justify-between items-center mb-6'>
-            <h3 className='text-lg font-medium text-gray-800'>Distribuzione per Dipartimento</h3>
+            <h3 className='text-lg font-medium text-gray-800'>Department Distribution</h3>
           </div>
 
           <div className='h-80'>
@@ -555,7 +555,7 @@ const PackageKpiDashboard: React.FC = () => {
                     />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value} pacchi`, 'Quantità']} />
+                <Tooltip formatter={(value) => [`${value} packages`, 'Quantity']} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -565,12 +565,12 @@ const PackageKpiDashboard: React.FC = () => {
 
       {/* Sezione statistiche dettagliate */}
       <div className='mt-12'>
-        <h2 className='text-xl font-bold mb-6 text-gray-800'>Metriche Avanzate</h2>
+        <h2 className='text-xl font-bold mb-6 text-gray-800'>Advanced Metrics</h2>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center justify-between mb-4'>
-              <h3 className='text-sm font-medium text-gray-500'>Tasso di Ritiro Stesso Giorno</h3>
+              <h3 className='text-sm font-medium text-gray-500'>Same Day Pickup Rate</h3>
               <div className='p-2 rounded-full bg-green-50'>
                 <Clock
                   size={20}
@@ -591,7 +591,7 @@ const PackageKpiDashboard: React.FC = () => {
 
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center justify-between mb-4'>
-              <h3 className='text-sm font-medium text-gray-500'>Efficienza dei Remind</h3>
+              <h3 className='text-sm font-medium text-gray-500'>Reminder Efficiency</h3>
               <div className='p-2 rounded-full bg-blue-50'>
                 <RefreshCw
                   size={20}
@@ -612,7 +612,7 @@ const PackageKpiDashboard: React.FC = () => {
 
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center justify-between mb-4'>
-              <h3 className='text-sm font-medium text-gray-500'>Tasso di Cancellazione</h3>
+              <h3 className='text-sm font-medium text-gray-500'>Cancellation Rate</h3>
               <div className='p-2 rounded-full bg-red-50'>
                 <AlertCircle
                   size={20}
@@ -635,7 +635,7 @@ const PackageKpiDashboard: React.FC = () => {
 
       {/* Sezione statistiche mensili */}
       <div className='mt-12'>
-        <h2 className='text-xl font-bold mb-6 text-gray-800'>Riepilogo Mensile</h2>
+        <h2 className='text-xl font-bold mb-6 text-gray-800'>Monthly Summary</h2>
 
         <div className='bg-white rounded-lg shadow overflow-hidden'>
           <table className='min-w-full divide-y divide-gray-200'>
@@ -645,31 +645,31 @@ const PackageKpiDashboard: React.FC = () => {
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                 >
-                  Mese
+                  Month
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                 >
-                  Pacchi Ricevuti
+                  Packages Received
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                 >
-                  Pacchi Consegnati
+                  Packages Delivered
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                 >
-                  Tempo Medio (giorni)
+                  Average Time (days)
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                 >
-                  Tasso di Completamento
+                  Completion Rate
                 </th>
               </tr>
             </thead>

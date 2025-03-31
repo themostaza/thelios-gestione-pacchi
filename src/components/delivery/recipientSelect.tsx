@@ -179,7 +179,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
                 </div>
               ))
             ) : (
-              <div className='p-4 text-center text-muted-foreground'>Nessun risultato trovato</div>
+              <div className='p-4 text-center text-muted-foreground'>No results found</div>
             )}
           </div>
         )}

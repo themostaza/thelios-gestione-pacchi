@@ -58,10 +58,10 @@ export default function UsersTableWithContext() {
       <TableHeader>
         <TableRow>
           <TableHead>Email</TableHead>
-          <TableHead>Data creazione</TableHead>
-          <TableHead>Stato</TableHead>
+          <TableHead>Creation Date</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Admin</TableHead>
-          <TableHead className="text-right">Azioni</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -88,7 +88,7 @@ export default function UsersTableWithContext() {
                   ) : (
                     <Trash className="h-4 w-4 mr-1" />
                   )}
-                  <span>Elimina</span>
+                  <span>Delete</span>
                 </Button>
               </TableCell>
             </TableRow>
@@ -96,7 +96,7 @@ export default function UsersTableWithContext() {
         ) : (
           <TableRow>
             <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
-              Nessun utente trovato
+              No users found
             </TableCell>
           </TableRow>
         )}

@@ -16,7 +16,7 @@ import { toast } from '@/hooks/use-toast'
 
 // Schema di validazione semplificato (solo email e isAdmin)
 const createUserSchema = z.object({
-  email: z.string().email('Email non valida'),
+  email: z.string().email('Invalid email'),
   isAdmin: z.boolean(),
 })
 
@@ -46,15 +46,15 @@ export default function CreateUserForm() {
 
       if (result.success) {
         toast({
-          title: 'Utente pre-registrato con successo',
-          description: `Email: ${result.email} - isAdmin: ${result.isAdmin ? 'Sì' : 'No'}`,
+          title: 'User pre-registered successfully',
+          description: `Email: ${result.email} - isAdmin: ${result.isAdmin ? 'Yes' : 'No'}`,
         })
         form.reset()
       } else {
         // Mostra il messaggio di errore sia nel form che in un toast
         setFormError(result.message)
         toast({
-          title: "Impossibile pre-registrare l'utente",
+          title: "Unable to pre-register user",
           description: result.message,
           variant: 'destructive',
         })
@@ -62,11 +62,11 @@ export default function CreateUserForm() {
     } catch (error) {
       // Qui gestiamo solo gli errori tecnici imprevisti
       console.error('[CLIENT] Unexpected error in onSubmit:', error)
-      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'Si è verificato un errore inaspettato.'
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'An unexpected error occurred.'
 
       setFormError(errorMessage)
       toast({
-        title: 'Errore inatteso',
+        title: 'Unexpected error',
         description: errorMessage,
         variant: 'destructive',
       })
@@ -130,7 +130,7 @@ export default function CreateUserForm() {
               type='submit'
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Sto registrando...' : 'Pre-registra utente'}
+              {isSubmitting ? 'Registering...' : 'Pre-register user'}
             </Button>
           </CardFooter>
         </form>
