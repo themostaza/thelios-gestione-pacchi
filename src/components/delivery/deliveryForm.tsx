@@ -9,16 +9,13 @@ import { useForm } from 'react-hook-form'
 import { saveDelivery } from '@/app/actions/deliveryActions'
 import RecipientSelect from '@/components/delivery/recipientSelect'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
 import { deliverySchema, DeliveryFormData } from '@/lib/validations/delivery'
+import GenericCardView from '@/components/GenericCardView'
 
 export default function DeliveryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -116,127 +113,119 @@ export default function DeliveryForm() {
     }
   }
 
+  const headerRight = (
+    <div className='text-muted-foreground text-sm text-right'>
+      <div>
+        <strong>From:</strong> {userEmail}
+      </div>
+    </div>
+  )
+
+  const footerContent = (
+    <div className='flex justify-end items-center w-full'>
+      <Button
+        type='submit'
+        form="delivery-form"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className='h-4 w-4 animate-spin mr-2' />
+            Registering...
+          </>
+        ) : (
+          <>
+            <Send
+              size={20}
+              className='mr-2'
+            />
+            Register Delivery
+          </>
+        )}
+      </Button>
+    </div>
+  )
+
   return (
-    <Card className='w-full flex flex-col'>
-      <Toaster />
-      <CardHeader>
-        <div className='flex justify-between items-center'>
-          <div>
-            <CardTitle className='text-2xl font-bold'>Delivery Registration</CardTitle>
-            <CardDescription className='mt-2'>Enter package delivery details below</CardDescription>
-          </div>
-          <div className='text-muted-foreground text-sm text-right'>
-            <div>
-              <strong>Sender:</strong> {userEmail}
-            </div>
-            <div>
-              <strong>Creation Date:</strong> {currentDateTime.toLocaleString()}
-            </div>
-          </div>
-        </div>
-        <Separator className='mt-4' />
-      </CardHeader>
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='flex-1 overflow-hidden flex flex-col'
-        >
-          <CardContent className='flex-1 overflow-hidden'>
-            <div className='flex flex-col md:flex-row gap-4 h-full'>
-              {/* Table area in a ScrollArea - now comes first */}
-              <div className='w-full flex flex-col h-full overflow-hidden'>
-                <ScrollArea className='h-full flex-1 overflow-auto'>
-                  <div className='space-y-4 p-2'>
-                    <FormField
-                      control={form.control}
-                      name='recipient'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel htmlFor='recipient-search'>Recipient</FormLabel>
-                          <FormControl>
-                            <RecipientSelect
-                              value={field.value}
-                              onChange={field.onChange}
-                              id='recipient'
-                              name='recipient'
-                              disabled={isSubmitting}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name='place'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel htmlFor='place'>Place</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              id='place'
-                              placeholder='Enter delivery place'
-                              disabled={isSubmitting}
-                              autoComplete='off'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name='notes'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel htmlFor='notes'>Notes</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              {...field}
-                              id='notes'
-                              placeholder='Add package information, special instructions, etc.'
-                              rows={4}
-                              disabled={isSubmitting}
-                              autoComplete='off'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className='flex justify-end items-center'>
-            <Button
-              type='submit'
-              disabled={isSubmitting}
+    <>
+          <GenericCardView
+            title="Delivery Registration"
+            description="Enter package delivery details below"
+            headerRight={headerRight}
+            footer={footerContent}
+          >
+          <Form {...form}>
+            <form
+              id="delivery-form"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className='w-full h-full'
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                  Registering...
-                </>
-              ) : (
-                <>
-                  <Send
-                    size={20}
-                    className='mr-2'
-                  />
-                  Register Delivery
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </form>
+            <div className='space-y-4 p-2'>
+              <FormField
+                control={form.control}
+                name='recipient'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='recipient-search'>Recipient</FormLabel>
+                    <FormControl>
+                      <RecipientSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        id='recipient'
+                        name='recipient'
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='place'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='place'>Place</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        id='place'
+                        placeholder='Enter delivery place'
+                        disabled={isSubmitting}
+                        autoComplete='off'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='notes'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='notes'>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        id='notes'
+                        placeholder='Add package information, special instructions, etc.'
+                        rows={4}
+                        disabled={isSubmitting}
+                        autoComplete='off'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            </form>
       </Form>
-    </Card>
+          </GenericCardView>
+        
+    </>
   )
 }

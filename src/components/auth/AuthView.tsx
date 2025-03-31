@@ -99,7 +99,7 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
       <Tabs 
         defaultValue={defaultTab} 
         onValueChange={setActiveTab} 
-        className="w-full"
+      className='w-full md:w-1/3 m-auto'
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>

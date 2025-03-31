@@ -72,65 +72,58 @@ export default function CreateUserFormWithContext() {
   }
 
   return (
-    <Card>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-4'
-        >
-          {formError && (
-            <div className='px-6 pt-6'>
-              <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded'>{formError}</div>
-            </div>
-          )}
-          <CardContent className='space-y-4'>
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder='user@example.com'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className='space-y-6'
+      >
+        <div className='space-y-4'>
+          <FormField
+            control={form.control}
+            name='email'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isSubmitting}
+                    placeholder='user@example.com'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <Separator />
+          <Separator className="my-4" />
 
-            <FormField
-              control={form.control}
-              name='isAdmin'
-              render={({ field }) => (
-                <FormItem className='flex flex-row items-center justify-between space-x-2 space-y-0'>
-                  <FormLabel>Admin?</FormLabel>
-                  <FormControl>
-                    <Switch
-                      disabled={isSubmitting}
-                      checked={field.value}
-                      onCheckedChange={(checked) => field.onChange(checked)}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </CardContent>
-          <CardFooter>
-            <Button
-              type='submit'
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Sto registrando...' : 'Pre-registra utente'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+          <FormField
+            control={form.control}
+            name='isAdmin'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-center justify-between space-x-2 space-y-0'>
+                <FormLabel>Admin?</FormLabel>
+                <FormControl>
+                  <Switch
+                    disabled={isSubmitting}
+                    checked={field.value}
+                    onCheckedChange={(checked) => field.onChange(checked)}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type='submit'
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sto registrando...' : 'Pre-registra utente'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }
