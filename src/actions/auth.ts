@@ -103,7 +103,7 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
       }
     }
 
-    revalidatePath('/', 'layout') // Revalidate the entire app from the root layout
+    revalidatePath('/auth', 'layout') // Revalidate the entire app from the root layout
 
     return { success: true }
   } catch (error) {

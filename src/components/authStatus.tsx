@@ -42,7 +42,7 @@ export default function AuthStatus() {
     <div className=''>
       {!user ? (
         <Link
-          href='/'
+          href='/auth'
           className='h-8 w-8 rounded-full bg-primary flex items-center justify-center hover:bg-primary/80 cursor-pointer'
           aria-label='Log in'
         >

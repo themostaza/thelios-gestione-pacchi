@@ -62,7 +62,7 @@ export default function RegisterForm() {
         // Redirect dopo breve pausa
         setTimeout(() => {
           router.refresh()
-          router.push('/')
+          router.push('/auth')
         }, 2000)
       } else {
         toast({

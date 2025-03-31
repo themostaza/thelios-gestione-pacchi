@@ -7,6 +7,20 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/server'
 
+type LoginData = {
+  email: string
+  password: string
+}
+
+type LoginResult = {
+  success: boolean
+  error?: string
+  user?: {
+    id: string
+    email: string
+  }
+}
+
 type RegisterResult = {
   success: boolean
   message: string
@@ -23,16 +37,51 @@ type UserSessionResult = {
   error?: string
 }
 
-export async function registerUser(email: string, password: string): Promise<RegisterResult> {
+export async function loginUser(data: LoginData): Promise<LoginResult> {
   try {
-    console.log('[SERVER] registerUser - Starting with email:', email)
-
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    // 1. Verifica se esiste un profilo con questa email
-    console.log('[SERVER] Checking if profile exists')
-    const { data: profileData, error: profileError } = await supabase.from('profile').select('*').eq('email', email)
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    })
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+
+    return {
+      success: true,
+      user: {
+        id: authData.user.id,
+        email: authData.user.email!
+      }
+    }
+  } catch (error) {
+    console.error('Login error:', error)
+    return {
+      success: false,
+      error: 'An unexpected error occurred during login'
+    }
+  }
+}
+
+export async function registerUser(email: string, password: string): Promise<RegisterResult> {
+  try {
+    console.log('[SERVER] Starting user registration')
+    const cookieStore = cookies()
+    const supabase = createClient(cookieStore)
+
+    // 1. First check if the user is pre-authorized
+    const { data: profileData, error: profileError } = await supabase
+      .from('profile')
+      .select('*')
+      .eq('email', email)
+      .is('user_id', null)
 
     console.log('[SERVER] Profile check result:', {
       profileFound: !!profileData && profileData.length > 0,
@@ -42,18 +91,18 @@ export async function registerUser(email: string, password: string): Promise<Reg
     if (profileError) {
       return {
         success: false,
-        message: `Errore nel verificare il profilo: ${profileError.message}`,
+        message: `Error checking profile: ${profileError.message}`,
       }
     }
 
     if (!profileData || profileData.length === 0) {
       return {
         success: false,
-        message: "L'indirizzo email non è stato pre-autorizzato. Contatta l'amministratore.",
+        message: "Email not pre-authorized. Please contact administrator.",
       }
     }
 
-    // 2. Se esiste un profilo, procedi con la registrazione
+    // 2. If profile exists, proceed with registration
     console.log('[SERVER] Proceeding with auth signup')
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -71,18 +120,21 @@ export async function registerUser(email: string, password: string): Promise<Reg
     if (authError) {
       return {
         success: false,
-        message: authError.message || 'Si è verificato un errore durante la registrazione.',
+        message: authError.message || 'An error occurred during registration.',
       }
     }
 
-    // 3. Aggiorna il profilo con l'user_id del nuovo utente registrato
+    // 3. Update profile with the new user_id
     if (authData?.user?.id) {
       console.log('[SERVER] Updating profile with new user_id:', authData.user.id)
-      const { error: updateError } = await supabase.from('profile').update({ user_id: authData.user.id }).eq('email', email)
+      const { error: updateError } = await supabase
+        .from('profile')
+        .update({ user_id: authData.user.id })
+        .eq('email', email)
 
       if (updateError) {
         console.error('[SERVER] Error updating profile with user_id:', updateError)
-        // Non facciamo fallire la registrazione, ma logghiamo l'errore
+        // Don't fail registration, but log the error
       } else {
         console.log('[SERVER] Profile successfully updated with user_id')
       }
@@ -90,14 +142,14 @@ export async function registerUser(email: string, password: string): Promise<Reg
 
     return {
       success: true,
-      message: "Registrazione completata. Ti abbiamo inviato un'email di conferma.",
+      message: "Registration complete. We've sent you a confirmation email.",
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto'
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('[SERVER] Unexpected error during registration:', errorMessage)
     return {
       success: false,
-      message: `Errore durante la registrazione: ${errorMessage}`,
+      message: `Error during registration: ${errorMessage}`,
     }
   }
 }
@@ -120,21 +172,20 @@ export async function logoutUser(): Promise<LogoutResult> {
       }
     }
 
-    revalidatePath('/')
+    revalidatePath('/auth')
     // Perform server-side redirect
-    redirect('/')
+    redirect('/auth')
 
     // This code will not be reached due to the redirect
     return {
       success: true,
-      message: 'Logged out successfully',
+      message: 'Logout successful',
     }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto'
-    console.error('[SERVER] Unexpected error during logout:', errorMessage)
+  } catch (error) {
+    console.error('Error during logout:', error)
     return {
       success: false,
-      message: `Error during logout: ${errorMessage}`,
+      message: 'An unexpected error occurred during logout',
     }
   }
 }
