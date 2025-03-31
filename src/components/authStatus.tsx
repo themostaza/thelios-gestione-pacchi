@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/context/authContext'
 
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 
 export default function AuthStatus() {
   const { user, isAdmin, logout } = useAuth()

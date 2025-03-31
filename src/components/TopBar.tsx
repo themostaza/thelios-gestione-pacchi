@@ -1,5 +1,5 @@
-import AuthStatus from './authStatus'
-import NavigationButtons from './NavigationButtons'
+import AuthStatus from '@/components/authStatus'
+import NavigationButtons from '@/components/NavigationButtons'
 
 export default async function TopBar() {
   return (

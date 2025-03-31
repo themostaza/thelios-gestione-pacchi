@@ -7,9 +7,9 @@ import { useState } from 'react'
 
 import { useDelivery } from '@/context/deliveryContext'
 
-import { Button } from '../ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { StatusType } from '../ui/statusBadge'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { StatusType } from '@/components/ui/statusBadge'
 
 export default function DeliveryActions() {
   const { delivery, changeStatus } = useDelivery()

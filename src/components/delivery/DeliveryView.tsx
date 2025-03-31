@@ -3,9 +3,9 @@
 import GenericCardView from '@/components/GenericCardView'
 import { DeliveryProvider } from '@/context/deliveryContext'
 
-import DeliveryActions from './DeliveryActions'
-import DeliveryDetails from './DeliveryDetails'
-import DeliveryFooter from './DeliveryFooter'
+import DeliveryActions from '@/components/delivery/DeliveryActions'
+import DeliveryDetails from '@/components/delivery/DeliveryDetails'
+import DeliveryFooter from '@/components/delivery/DeliveryFooter'
 
 interface DeliveryViewProps {
   deliveryId: string
