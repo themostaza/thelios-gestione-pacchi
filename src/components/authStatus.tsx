@@ -15,7 +15,6 @@ export default function AuthStatus() {
 
   // Handle logout
   const handleLogout = async () => {
-    console.log('Starting logout process')
     try {
       await logout()
       router.refresh()

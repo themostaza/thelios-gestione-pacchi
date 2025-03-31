@@ -13,31 +13,20 @@ type CreateUserResult = {
 
 export async function createUser({ email, isAdmin }: { email: string; isAdmin: boolean }): Promise<CreateUserResult> {
   try {
-    console.log('[SERVER] createUser - Starting with params:', { email, isAdmin })
+    
 
     // Create cookie store explicitly within the server action
     const cookieStore = cookies()
-    console.log('[SERVER] Cookie store created')
+    
 
     const supabase = createClient(cookieStore)
-    console.log('[SERVER] Supabase client created')
+    
 
     // Verifica se in profile esiste già questa email
-    console.log('[SERVER] Checking if profile exists with email:', email)
+    
     const profileCheck = await supabase.from('profile').select('*').eq('email', email).single()
 
     const { data: existingProfile, error: existingError } = profileCheck
-
-    console.log('[SERVER] Profile check result:', {
-      exists: !!existingProfile,
-      error: existingError
-        ? {
-            code: existingError.code,
-            message: existingError.message,
-            details: existingError.details,
-          }
-        : null,
-    })
 
     if (existingError && existingError.code !== 'PGRST116') {
       // Se l'errore non è "record not found" (codice supabase), ritornare errore
@@ -49,7 +38,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
     }
 
     if (existingProfile) {
-      console.log('[SERVER] Profile already exists:', existingProfile)
+      
       return {
         success: false,
         message: 'A profile with this email already exists.',
@@ -57,7 +46,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
     }
 
     // Ora inseriamo un nuovo record in profile con user_id = null
-    console.log('[SERVER] Inserting new profile with:', { email, is_admin: isAdmin, user_id: null })
+    
 
     const insertResult = await supabase
       .from('profile')
@@ -71,18 +60,6 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
 
     const { data, error } = insertResult
 
-    console.log('[SERVER] Insert result:', {
-      success: !!data && !error,
-      data: data || null,
-      error: error
-        ? {
-            code: error.code,
-            message: error.message,
-            details: error.details,
-          }
-        : null,
-    })
-
     if (error) {
       console.error('[SERVER] Error inserting profile:', error)
       return {
@@ -91,7 +68,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
       }
     }
 
-    console.log('[SERVER] Profile created successfully:', data)
+    
     return {
       success: true,
       message: 'User pre-registered successfully',
@@ -124,7 +101,7 @@ type GetProfilesResult = {
 
 export async function getAllProfiles(): Promise<GetProfilesResult> {
   try {
-    console.log('[SERVER] getAllProfiles - Fetching all profile users')
+    
 
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
@@ -136,7 +113,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.log('[SERVER] Authentication error or no user logged in')
+      
       return {
         users: null,
         success: false,
@@ -148,7 +125,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
     const { data: profileData, error: profileError } = await supabase.from('profile').select('is_admin').eq('user_id', user.id).single()
 
     if (profileError || !profileData?.is_admin) {
-      console.log('[SERVER] User is not admin or profile error')
+      
       return {
         users: null,
         success: false,
@@ -168,7 +145,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       }
     }
 
-    console.log('[SERVER] Successfully fetched profiles:', allProfiles.length)
+    
 
     return {
       users: allProfiles,
@@ -187,7 +164,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
 
 export async function deleteProfileUser(id: string, userId: string | null): Promise<{ success: boolean; message: string }> {
   try {
-    console.log('[SERVER] deleteProfileUser - Deleting profile with ID:', id, 'and user_id:', userId)
+    
 
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
@@ -216,7 +193,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
     }
 
     // PASSO 1: Prima eliminiamo il profilo per rimuovere il riferimento al user_id
-    console.log('[SERVER] First deleting profile to remove user_id reference')
+    
     const { error: deleteProfileError } = await supabase.from('profile').delete().eq('id', id)
 
     if (deleteProfileError) {
@@ -227,11 +204,11 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
       }
     }
 
-    console.log('[SERVER] Successfully deleted profile')
+    
 
     // PASSO 2: Se c'è un user_id associato, ora possiamo eliminare l'utente in auth
     if (userId) {
-      console.log('[SERVER] Now deleting auth user with ID:', userId)
+      
 
       // Chiama una funzione PostgreSQL per eliminare l'utente
       const { error: rpcError } = await supabase.rpc('delete_user', { user_id: userId })
@@ -244,7 +221,7 @@ export async function deleteProfileUser(id: string, userId: string | null): Prom
         }
       }
 
-      console.log('[SERVER] Successfully deleted auth user')
+      
     }
 
     return {

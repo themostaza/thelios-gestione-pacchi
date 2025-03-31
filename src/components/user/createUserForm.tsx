@@ -35,14 +35,14 @@ export default function CreateUserForm() {
   })
 
   const onSubmit = async (data: CreateUserFormData) => {
-    console.log('[CLIENT] Form submitted with:', data)
+    
     setIsSubmitting(true)
     setFormError(null)
 
     try {
-      console.log('[CLIENT] Calling createUser with:', data)
+      
       const result = await createUser(data)
-      console.log('[CLIENT] createUser result:', result)
+      
 
       if (result.success) {
         toast({

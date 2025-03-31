@@ -262,7 +262,7 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
           .select('user_id, email')
           .in('user_id', userIds)
 
-        console.log('profileData', profileData)
+        
 
         if (profileData && profileData.length > 0) {
           profileData.forEach((profile) => {

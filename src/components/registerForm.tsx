@@ -43,14 +43,14 @@ export default function RegisterForm() {
   })
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log('Form submitted, calling server action')
+    
     setIsSubmitting(true)
 
     try {
       // Chiamiamo la server action invece di usare Supabase direttamente
       const result = await registerUser(data.email, data.password)
 
-      console.log('Registration result:', result)
+      
 
       if (result.success) {
         toast({
