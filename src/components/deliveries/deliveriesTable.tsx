@@ -1,7 +1,7 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { ArrowUpDown, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -198,7 +198,7 @@ function DeliveriesTable() {
                         size='sm'
                         asChild
                       >
-                        <Link href={`/delivery/${delivery.id}`}>View</Link>
+                        <Link href={`/delivery/${delivery.id}`}>Open<ArrowRight className='ml-2 h-4 w-4' /></Link>
                       </Button>
                     </TableCell>
                   </TableRow>

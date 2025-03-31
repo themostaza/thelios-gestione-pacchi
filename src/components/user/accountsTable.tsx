@@ -50,7 +50,7 @@ export default function AccountsTable() {
       <TableHeader>
         <TableRow>
           <TableHead>Email</TableHead>
-          <TableHead>Creation Date</TableHead>
+          {/* <TableHead>Creation Date</TableHead> */}
           <TableHead>Status</TableHead>
           <TableHead>Admin</TableHead>
           <TableHead className='text-right'>Actions</TableHead>
@@ -61,7 +61,7 @@ export default function AccountsTable() {
           [...users].reverse().map((user) => (
             <TableRow key={user.id}>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{new Date(user.created_at).toLocaleDateString('it-IT')}</TableCell>
+              {/* <TableCell>{new Date(user.created_at).toLocaleDateString('it-IT')}</TableCell> */}
               <TableCell>
                 <UserStatusBadge registered={!!user.user_id} />
               </TableCell>
