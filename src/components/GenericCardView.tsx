@@ -6,17 +6,11 @@ import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button, ButtonProps } from '@/components/ui/button'
 
-export interface FooterButton extends ButtonProps {
-  label: string
-  icon?: ReactNode
-}
-
 interface GenericCardViewProps {
   title: string
   description?: string
   children: ReactNode
-  footerButtons?: FooterButton[]
-  secondaryFooterButtons?: FooterButton[]
+  footer?: ReactNode
   useScrollArea?: boolean
   headerRight?: ReactNode
   className?: string
@@ -28,8 +22,7 @@ export default function GenericCardView({
   title,
   description,
   children,
-  footerButtons = [],
-  secondaryFooterButtons = [],
+  footer,
   useScrollArea = true,
   headerRight,
   className = 'w-full',
@@ -65,36 +58,9 @@ export default function GenericCardView({
         </CardContent>
       </div>
 
-      {(footerButtons.length > 0 || secondaryFooterButtons.length > 0) && (
-        <CardFooter className={`flex flex-col space-y-4 pt-4 ${footerClassName}`}>
-          {footerButtons.map((button, index) => {
-            const { label, icon, ...buttonProps } = button
-            return (
-              <Button
-                key={index}
-                className="w-full"
-                {...buttonProps}
-              >
-                {icon && <span className="mr-2">{icon}</span>}
-                {label}
-              </Button>
-            )
-          })}
-          
-          {secondaryFooterButtons.map((button, index) => {
-            const { label, icon, ...buttonProps } = button
-            return (
-              <Button
-                key={index}
-                className="w-full"
-                variant="outline"
-                {...buttonProps}
-              >
-                {icon && <span className="mr-2">{icon}</span>}
-                {label}
-              </Button>
-            )
-          })}
+      {footer && (
+        <CardFooter className={`pt-4 ${footerClassName}`}>
+          {footer}
         </CardFooter>
       )}
     </Card>

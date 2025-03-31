@@ -172,10 +172,6 @@ export async function logoutUser(): Promise<LogoutResult> {
       }
     }
 
-    revalidatePath('/auth')
-    // Perform server-side redirect
-    redirect('/auth')
-
     // This code will not be reached due to the redirect
     return {
       success: true,

@@ -4,37 +4,23 @@ import { LogOut, LogIn, User as UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { logoutUser } from '@/app/actions/authActions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/context/authContext'
 
 import { Button } from './ui/button'
 
 export default function AuthStatus() {
-  const { user, isAdmin, updateAuthState } = useAuth()
+  const { user, isAdmin, logout } = useAuth()
   const router = useRouter()
 
   // Handle logout
   const handleLogout = async () => {
     console.log('Starting logout process')
     try {
-      // The logoutUser function will handle the redirect server-side
-      await logoutUser()
-      // If the redirect doesn't happen, update auth state
-      await updateAuthState()
-      console.log('Redirect failed, manually refreshing')
-      router.refresh()
+      await logout()
     } catch (err: unknown) {
-      // NEXT_REDIRECT is an expected "error" - it means the redirect is working
-      if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) {
-        console.log('Redirect in progress...')
-        return
-      }
-
       // Only log actual errors
       console.error('Unexpected error during logout:', err)
-      // Update auth state on error
-      await updateAuthState()
     }
   }
 

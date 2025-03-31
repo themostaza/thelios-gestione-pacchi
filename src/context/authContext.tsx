@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { logoutUser } from '@/app/actions/authActions'
+import { loginUser, logoutUser, registerUser } from '@/app/actions/authActions'
 import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
 
@@ -17,7 +17,8 @@ type AuthContextType = {
   user: User | null
   isLoading: boolean
   isAdmin: boolean
-  updateAuthState: () => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
+  register: (email: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
 }
 
@@ -28,7 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  const updateAuthState = async () => {
+  // Fetch current user data
+  const fetchUserData = async () => {
     try {
       const supabase = createClient()
       const { data: { user: supabaseUser } } = await supabase.auth.getUser()
@@ -58,37 +60,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
   
-  const logout = async () => {
+  // Login function
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const result = await logoutUser()
+      const result = await loginUser({ email, password })
+      
       if (result.success) {
-        setUser(null)
+        await fetchUserData()
         router.refresh()
-        router.push('/auth')
+        return true
       } else {
         toast({
-          title: 'Logout failed',
-          description: result.message,
+          title: 'Login failed',
+          description: result.error || 'Invalid credentials',
           variant: 'destructive',
         })
+        return false
       }
     } catch (error) {
-      console.error('Error during logout:', error)
+      console.error('Login error:', error)
       toast({
-        title: 'Logout error',
-        description: 'An unexpected error occurred during logout',
+        title: 'Login error',
+        description: 'An unexpected error occurred',
         variant: 'destructive',
       })
+      return false
     }
   }
   
+  // Register function
+  const register = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const result = await registerUser(email, password)
+      
+      if (result.success) {
+        toast({
+          title: 'Registration successful',
+          description: 'Your account has been created',
+        })
+        return true
+      } else {
+        toast({
+          title: 'Registration failed',
+          description: result.message || 'Could not create account',
+          variant: 'destructive',
+        })
+        return false
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      toast({
+        title: 'Registration error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      })
+      return false
+    }
+  }
+  
+  // Logout function
+  const logout = async () => {
+    try {
+      // Call the server action and let Next.js handle any redirects
+      await logoutUser()
+      // If we reach here (no redirect), update local state
+      setUser(null)
+    } catch (error) {
+      // Only catch and show toast for actual errors, not redirect "errors"
+      if (!(error instanceof Error && error.message.includes('NEXT_REDIRECT'))) {
+        console.error('Error during logout:', error)
+        toast({
+          title: 'Logout failed',
+          description: error instanceof Error ? error.message : 'An unexpected error occurred',
+          variant: 'destructive',
+        })
+      }
+    }
+  }
+  
+  // Setup auth state listener
   useEffect(() => {
-    updateAuthState()
+    fetchUserData()
     
-    // Set up auth state change listener
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      updateAuthState()
+      fetchUserData()
     })
     
     return () => {
@@ -101,7 +157,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       isAdmin: user?.isAdmin || false,
-      updateAuthState,
+      login,
+      register,
       logout
     }}>
       {children}
