@@ -8,7 +8,6 @@ import { useState } from 'react'
 import { DeliveryData } from '@/app/actions/deliveryActions'
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
@@ -128,9 +127,8 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
     }
 
     return (
-      <ScrollArea className='h-full flex-1 overflow-auto'>
+      <div className='flex-1'>
         <Table className='table-fixed w-full'>
-            {/* {!initialLoading && <TableCaption>{showFilters ? 'Filtered results' : 'List of your recent deliveries'}</TableCaption>} */}
             <TableHeader>
               <TableRow>
                 <TableHead
@@ -188,7 +186,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className='relative'>
+            <TableBody>
               {initialLoading
                 ? Array(5)
                     .fill(0)
@@ -237,7 +235,7 @@ function DeliveriesTable({ showFilters }: DeliveriesTableProps) {
 
           {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
 
-      </ScrollArea>
+      </div>
     )
   }
 

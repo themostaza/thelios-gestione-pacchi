@@ -34,7 +34,7 @@ export default function AuthTabs({ defaultTab, onTabChange, hideButtons = false 
       defaultValue={defaultTab}
       value={activeTab}
       onValueChange={handleValueChange}
-      className="w-full"
+      className="w-full md:w-1/3 m-auto"
     >
       <TabsList className="grid grid-cols-2 mb-4">
         <TabsTrigger value="login">Login</TabsTrigger>
