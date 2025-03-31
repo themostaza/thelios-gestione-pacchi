@@ -13,7 +13,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useDeliveries } from '@/context/deliveriesContext'
 import { cn } from '@/lib/utils'
 
-// Column width constants for consistency
 const COLUMN_WIDTHS = {
   id: 'w-[15%]',
   recipient: 'w-[25%]',
@@ -23,7 +22,6 @@ const COLUMN_WIDTHS = {
   actions: 'w-[10%]',
 }
 
-// Loading row component using the same column widths as the data table
 function LoadingRow() {
   return (
     <TableRow>
@@ -49,7 +47,6 @@ function LoadingRow() {
   )
 }
 
-// Sort configuration type
 type SortConfig = {
   field: keyof DeliveryData | null
   direction: 'asc' | 'desc'
@@ -58,13 +55,11 @@ type SortConfig = {
 function DeliveriesTable() {
   const { deliveries, error, initialLoading, loading, hasMore, setPage } = useDeliveries()
 
-  // Sort state
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: null,
     direction: 'asc',
   })
 
-  // Handle column sorting
   const handleSort = (field: keyof DeliveryData) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.field === field) {
@@ -77,19 +72,16 @@ function DeliveriesTable() {
     })
   }
 
-  // Get sorted deliveries
   const getSortedDeliveries = () => {
     if (!sortConfig.field) return deliveries
 
     return [...deliveries].sort((a, b) => {
       if (sortConfig.field === 'user') {
-        // Gestione speciale per il campo annidato user.email
         const emailA = a.user?.email?.toLowerCase() || ''
         const emailB = b.user?.email?.toLowerCase() || ''
         return sortConfig.direction === 'asc' ? emailA.localeCompare(emailB) : emailB.localeCompare(emailA)
       }
 
-      // Gestione normale per altri campi
       const fieldA = a[sortConfig.field as keyof typeof a]
       const fieldB = b[sortConfig.field as keyof typeof b]
 
@@ -97,15 +89,12 @@ function DeliveriesTable() {
         return sortConfig.direction === 'asc' ? fieldA.localeCompare(fieldB) : fieldB.localeCompare(fieldA)
       }
 
-      // Add null checking for the comparison
       return sortConfig.direction === 'asc' ? ((fieldA ?? '') > (fieldB ?? '') ? 1 : -1) : (fieldA ?? '') < (fieldB ?? '') ? 1 : -1
     })
   }
 
-  // Get sorted and filtered data
   const sortedDeliveries = getSortedDeliveries()
 
-  // Render sort indicator based on current sort status
   const renderSortIndicator = (field: keyof DeliveryData) => {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className='ml-2 h-4 w-4' />
@@ -234,7 +223,6 @@ function DeliveriesTable() {
     )
   }
 
-  // Main component return
   return renderTableContent()
 }
 

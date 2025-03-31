@@ -20,11 +20,9 @@ async function checkProfileExists(userId: string, userEmail: string): Promise<bo
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    // First check if profile exists with user_id
     const { data: profile, error: fetchError } = await supabase.from('profile').select('*').eq('user_id', userId).single()
 
     if (profile) {
-      // Profile exists with this user_id
       return true
     }
 
@@ -33,7 +31,6 @@ async function checkProfileExists(userId: string, userEmail: string): Promise<bo
       return false
     }
 
-    // If no profile with user_id, check for profile with matching email and no user_id
     const { data: emailProfile, error: emailFetchError } = await supabase.from('profile').select('*').eq('email', userEmail).is('user_id', null).single()
 
     if (emailFetchError && emailFetchError.code !== 'PGRST116') {
@@ -42,7 +39,6 @@ async function checkProfileExists(userId: string, userEmail: string): Promise<bo
     }
 
     if (emailProfile) {
-      // Found a profile with matching email and no user_id, update it
       const { error: updateError } = await supabase.from('profile').update({ user_id: userId }).eq('id', emailProfile.id)
 
       if (updateError) {
@@ -50,10 +46,9 @@ async function checkProfileExists(userId: string, userEmail: string): Promise<bo
         return false
       }
 
-      return true // Successfully updated profile
+      return true
     }
 
-    // No matching profile found
     return false
   } catch (error) {
     console.error('Profile check error:', error)
@@ -66,7 +61,6 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    // Attempt to sign in
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
@@ -79,7 +73,6 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
       }
     }
 
-    // Get the current user after successful login
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -91,11 +84,9 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
       }
     }
 
-    // Check if profile exists with user ID or email
     const profileExists = await checkProfileExists(user.id, user.email || '')
 
     if (!profileExists) {
-      // Profile doesn't exist, prevent login
       await supabase.auth.signOut()
       return {
         success: false,
@@ -103,7 +94,7 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
       }
     }
 
-    revalidatePath('/auth', 'layout') // Revalidate the entire app from the root layout
+    revalidatePath('/auth', 'layout')
 
     return { success: true }
   } catch (error) {

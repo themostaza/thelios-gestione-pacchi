@@ -10,7 +10,6 @@ export async function checkAdminStatus() {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
 
-  // Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -19,7 +18,6 @@ export async function checkAdminStatus() {
     return false
   }
 
-  // Check if user is admin
   const { data: adminData } = await supabase.from('profile').select('user_id, is_admin').eq('user_id', user.id).single()
 
   return adminData?.is_admin || false

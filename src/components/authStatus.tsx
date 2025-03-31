@@ -13,14 +13,12 @@ export default function AuthStatus() {
   const { user, isAdmin, logout } = useAuth()
   const router = useRouter()
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await logout()
       router.refresh()
       return true
     } catch (err: unknown) {
-      // Only log actual errors
       console.error('Unexpected error during logout:', err)
     }
   }

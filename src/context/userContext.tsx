@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 import { getAllProfiles, createUser, deleteProfileUser } from '@/app/actions/userActions'
 
-// Tipo per i profili utente
 type ProfileUser = {
   id: string
   email: string
@@ -13,13 +12,11 @@ type ProfileUser = {
   is_admin: boolean
 }
 
-// Tipo per i dati del form di creazione
 type CreateUserData = {
   email: string
   isAdmin: boolean
 }
 
-// Tipo per il context
 type UserContextType = {
   users: ProfileUser[]
   loading: boolean
@@ -36,7 +33,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Carica tutti gli utenti
   const refreshUsers = async () => {
     setLoading(true)
     try {
@@ -57,12 +53,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Aggiungi un nuovo utente
   const addUser = async (userData: CreateUserData) => {
     try {
       const result = await createUser(userData)
       if (result.success) {
-        // Aggiorna la lista utenti dopo la creazione
         refreshUsers()
       }
       return result
@@ -76,13 +70,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Elimina un utente
   const deleteUser = async (id: string, userId: string | null) => {
     if (confirm('Are you sure you want to delete this user?')) {
       try {
         const result = await deleteProfileUser(id, userId)
         if (result.success) {
-          // Aggiorna la lista dopo l'eliminazione
           refreshUsers()
         } else {
           alert(result.message)
@@ -94,7 +86,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Carica gli utenti all'avvio
   useEffect(() => {
     refreshUsers()
   }, [])
@@ -102,7 +93,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   return <UserContext.Provider value={{ users, loading, error, refreshUsers, addUser, deleteUser }}>{children}</UserContext.Provider>
 }
 
-// Hook per usare il context
 export const useUser = () => {
   const context = useContext(UserContext)
   if (context === undefined) {

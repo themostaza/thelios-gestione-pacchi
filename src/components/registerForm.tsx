@@ -46,7 +46,6 @@ export default function RegisterForm() {
     setIsSubmitting(true)
 
     try {
-      // Chiamiamo la server action invece di usare Supabase direttamente
       const result = await registerUser(data.email, data.password)
 
       if (result.success) {
@@ -56,7 +55,6 @@ export default function RegisterForm() {
         })
         form.reset()
 
-        // Redirect dopo breve pausa
         setTimeout(() => {
           router.refresh()
           router.push('/auth')

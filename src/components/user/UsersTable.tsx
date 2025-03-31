@@ -42,7 +42,6 @@ export default function UsersTable() {
       try {
         const result = await deleteProfileUser(id, userId)
         if (result.success) {
-          // Aggiorna la lista dopo l'eliminazione
           loadUsers()
         } else {
           alert(result.message)

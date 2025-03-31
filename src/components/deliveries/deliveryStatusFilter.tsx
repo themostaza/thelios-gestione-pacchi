@@ -8,7 +8,6 @@ import { FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Form } from '@/components/ui/form'
 import { useDeliveries } from '@/context/deliveriesContext'
 
-// Status badge component for filter selection
 function StatusBadge({ status, active = true, eyeVisible = true }: { status: string; active?: boolean; eyeVisible?: boolean }) {
   const getStyles = () => {
     if (!active) return 'bg-transparent border border-gray-300 text-gray-500'
@@ -51,7 +50,7 @@ export default function DeliveryStatusFilter() {
 
   const handleStatusToggle = (status: string) => {
     toggleStatusFilter(status)
-    // Immediately apply filters after toggling
+
     applyFilters(form.getValues())
   }
 

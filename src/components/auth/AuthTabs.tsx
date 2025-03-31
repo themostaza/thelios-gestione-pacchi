@@ -22,7 +22,6 @@ export default function AuthTabs({ defaultTab, onTabChange, hideButtons = false 
     }
   }
 
-  // Ensure parent component knows the initial active tab
   useEffect(() => {
     if (onTabChange) {
       onTabChange(defaultTab)

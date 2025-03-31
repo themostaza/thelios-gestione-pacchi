@@ -17,7 +17,6 @@ interface AuthViewProps {
   defaultTab?: 'login' | 'register'
 }
 
-// Schemas
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
@@ -42,7 +41,6 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { login, register } = useAuth()
 
-  // Forms
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
@@ -53,7 +51,6 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
     defaultValues: { email: '', password: '', confirmPassword: '' },
   })
 
-  // Login submission
   const onLoginSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true)
     const success = await login(data.email, data.password)
@@ -62,12 +59,10 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
     }
   }
 
-  // Register submission
   const onRegisterSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true)
     const success = await register(data.email, data.password)
     if (success) {
-      // Reset form and switch to login tab
       registerForm.reset()
       setActiveTab('login')
     }

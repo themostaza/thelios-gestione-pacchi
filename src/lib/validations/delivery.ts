@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-// Shared schema definition
 export const deliverySchema = z.object({
   recipient: z
     .string()
@@ -17,10 +16,8 @@ export const deliverySchema = z.object({
   notes: z.string(),
 })
 
-// Explicit type definition derived from schema
 export type DeliveryFormData = z.infer<typeof deliverySchema>
 
-// Database response type
 export type DeliveryData = {
   id: string
   recipientEmail: string
@@ -30,14 +27,12 @@ export type DeliveryData = {
   created_at: string
 }
 
-// Better error type definition - restrict to form field names
 export type ValidationErrors = {
   [K in keyof DeliveryFormData]?: string[] | string
 } & {
   form?: string[]
 }
 
-// Action state type
 export type DeliveryActionState = {
   message: string
   errors: ValidationErrors
@@ -45,20 +40,17 @@ export type DeliveryActionState = {
   data: DeliveryData | null
 }
 
-// Recipient type definition
 export type Recipient = {
   name: string
   surname: string
   email: string
 }
 
-// Validation result type
 export type ValidationResult = {
   valid: boolean
   errors: ValidationErrors
 }
 
-// Shared validation function
 export const validateDeliveryForm = (data: Partial<DeliveryFormData>): ValidationResult => {
   try {
     deliverySchema.parse(data)

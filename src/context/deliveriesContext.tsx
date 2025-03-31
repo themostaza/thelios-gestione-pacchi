@@ -14,7 +14,6 @@ type FilterFormValues = {
 }
 
 type DeliveriesContextType = {
-  // Table related
   deliveries: DeliveryData[]
   page: number
   setPage: Dispatch<SetStateAction<number>>
@@ -23,7 +22,6 @@ type DeliveriesContextType = {
   initialLoading: boolean
   error: string | null
 
-  // Filter related
   filters: DeliveryFiltersType
   form: ReturnType<typeof useForm<FilterFormValues>>
   applyFilters: (values: FilterFormValues) => void
@@ -34,7 +32,6 @@ type DeliveriesContextType = {
 const DeliveriesContext = createContext<DeliveriesContextType | undefined>(undefined)
 
 export function DeliveriesProvider({ children }: { children: ReactNode }) {
-  // Table states
   const [deliveries, setDeliveries] = useState<DeliveryData[]>([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
@@ -42,7 +39,6 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Filter states
   const [filters, setFilters] = useState<DeliveryFiltersType>({
     status: ['pending', 'completed', 'cancelled'],
   })

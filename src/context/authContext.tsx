@@ -29,7 +29,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // Fetch current user data
   const fetchUserData = async () => {
     try {
       const supabase = createClient()
@@ -43,7 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      // Get user profile data to check if admin
       const { data: profileData } = await supabase.from('profile').select('is_admin').eq('user_id', supabaseUser.id).single()
 
       setUser({
@@ -58,7 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const result = await loginUser({ email, password })
@@ -86,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Register function
   const register = async (email: string, password: string): Promise<boolean> => {
     try {
       const result = await registerUser(email, password)
@@ -116,15 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Logout function
   const logout = async () => {
     try {
-      // Call the server action and let Next.js handle any redirects
       await logoutUser()
-      // If we reach here (no redirect), update local state
+
       setUser(null)
     } catch (error) {
-      // Only catch and show toast for actual errors, not redirect "errors"
       if (!(error instanceof Error && error.message.includes('NEXT_REDIRECT'))) {
         console.error('Error during logout:', error)
         toast({
@@ -136,7 +129,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Setup auth state listener
   useEffect(() => {
     fetchUserData()
 

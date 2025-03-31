@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useDeliveries } from '@/context/deliveriesContext'
 
-// Add this interface at the top of the file
 interface DeliveryFilterPanelProps {
   isAdmin: boolean
 }
@@ -21,7 +20,6 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
   const { form, applyFilters, resetFilters } = useDeliveries()
   const [showFilterDialog, setShowFilterDialog] = useState(false)
 
-  // Handle apply filters and close modal
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleApplyFilters = (values: any) => {
     applyFilters(values)

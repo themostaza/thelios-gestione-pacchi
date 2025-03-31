@@ -22,7 +22,6 @@ export default function DeliveryForm() {
   const [userEmail, setUserEmail] = useState('Loading...')
 
   useEffect(() => {
-    // Get current user from Supabase
     const getUser = async () => {
       const supabase = createClient()
       const {

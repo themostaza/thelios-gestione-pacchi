@@ -73,7 +73,6 @@ export async function registerUser(email: string, password: string): Promise<Reg
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    // 1. First check if the user is pre-authorized
     const { data: profileData, error: profileError } = await supabase.from('profile').select('*').eq('email', email).is('user_id', null)
 
     if (profileError) {
@@ -90,12 +89,11 @@ export async function registerUser(email: string, password: string): Promise<Reg
       }
     }
 
-    // 2. If profile exists, proceed with registration
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth`,
       },
     })
 
@@ -106,13 +104,11 @@ export async function registerUser(email: string, password: string): Promise<Reg
       }
     }
 
-    // 3. Update profile with the new user_id
     if (authData?.user?.id) {
       const { error: updateError } = await supabase.from('profile').update({ user_id: authData.user.id }).eq('email', email)
 
       if (updateError) {
         console.error('[SERVER] Error updating profile with user_id:', updateError)
-        // Don't fail registration, but log the error
       } else {
       }
     }
@@ -145,7 +141,6 @@ export async function logoutUser(): Promise<LogoutResult> {
       }
     }
 
-    // This code will not be reached due to the redirect
     return {
       success: true,
       message: 'Logout successful',
@@ -164,7 +159,6 @@ export async function getUserSession(): Promise<UserSessionResult> {
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    // Get current user
     const {
       data: { user },
       error: userError,
@@ -178,17 +172,14 @@ export async function getUserSession(): Promise<UserSessionResult> {
       }
     }
 
-    // Get profile data including admin status
     let profileData = null
     let profileError = null
 
-    // First attempt: try to find profile by user_id
-    const userIdResult = await supabase.from('profile').select('is_admin, email, user_id').eq('user_id', user.id).maybeSingle() // Use maybeSingle instead of single to handle 0 rows gracefully
+    const userIdResult = await supabase.from('profile').select('is_admin, email, user_id').eq('user_id', user.id).maybeSingle()
 
     profileError = userIdResult.error
     profileData = userIdResult.data
 
-    // If no profile found by user_id, try by email
     if (!profileData && user.email) {
       const emailResult = await supabase.from('profile').select('is_admin, email, user_id').eq('email', user.email).maybeSingle()
 
@@ -196,7 +187,6 @@ export async function getUserSession(): Promise<UserSessionResult> {
         profileData = emailResult.data
         profileError = null
 
-        // Update the profile with the correct user_id if it's missing
         if (profileData && (!profileData.user_id || profileData.user_id !== user.id)) {
           const updateResult = await supabase.from('profile').update({ user_id: user.id }).eq('email', user.email)
 

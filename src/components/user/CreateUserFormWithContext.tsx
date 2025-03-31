@@ -13,7 +13,6 @@ import { Switch } from '@/components/ui/switch'
 import { useUser } from '@/context/userContext'
 import { toast } from '@/hooks/use-toast'
 
-// Schema di validazione
 const createUserSchema = z.object({
   email: z.string().email('Invalid email'),
   isAdmin: z.boolean(),

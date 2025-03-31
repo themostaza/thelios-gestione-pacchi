@@ -14,7 +14,6 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { toast } from '@/hooks/use-toast'
 
-// Schema di validazione semplificato (solo email e isAdmin)
 const createUserSchema = z.object({
   email: z.string().email('Invalid email'),
   isAdmin: z.boolean(),
@@ -48,7 +47,6 @@ export default function CreateUserForm() {
         })
         form.reset()
       } else {
-        // Mostra il messaggio di errore sia nel form che in un toast
         setFormError(result.message)
         toast({
           title: 'Unable to pre-register user',
@@ -57,7 +55,6 @@ export default function CreateUserForm() {
         })
       }
     } catch (error) {
-      // Qui gestiamo solo gli errori tecnici imprevisti
       console.error('[CLIENT] Unexpected error in onSubmit:', error)
       const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'An unexpected error occurred.'
 

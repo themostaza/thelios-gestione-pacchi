@@ -1,6 +1,5 @@
 'use server'
 
-// Mock database of users
 const recipients = [
   {
     name: 'Francesco',
@@ -35,10 +34,8 @@ const recipients = [
 ]
 
 export async function searchRecipients(query: string) {
-  // Simulate a delay (500ms)
   await new Promise((resolve) => setTimeout(resolve, 500))
 
-  // Filter recipients based on the query
   const normalizedQuery = query.toLowerCase()
   const filteredRecipients = !normalizedQuery
     ? []

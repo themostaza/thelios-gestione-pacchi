@@ -13,12 +13,10 @@ export default function NavigationButtons() {
   const { user, isAdmin } = useAuth()
   const isLoggedIn = !!user
 
-  // Reset loading state when pathname changes (navigation completes)
   useEffect(() => {
     setLoadingButton(null)
   }, [pathname])
 
-  // Regular navigation buttons - visible to all users
   const navigationButtons = [
     {
       href: '/deliveries',
@@ -34,7 +32,6 @@ export default function NavigationButtons() {
     },
   ]
 
-  // Admin-only navigation buttons
   const adminButtons = [
     {
       href: '/dashboard',

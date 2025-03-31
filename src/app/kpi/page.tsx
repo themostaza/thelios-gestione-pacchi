@@ -4,7 +4,6 @@ import { Package, Clock, TrendingUp, Users, CheckCircle, AlertCircle, RefreshCw,
 import React, { useState, useEffect } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-// Definizione dei tipi
 type TimeFrame = '7d' | '30d' | '90d' | '12m' | 'all'
 type ChartType = 'bar' | 'line' | 'pie'
 
@@ -42,7 +41,6 @@ interface FilterOption {
   name: string
 }
 
-// Colori per i grafici
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d']
 const STATUS_COLORS = {
   arrivato: '#0088FE',
@@ -51,10 +49,7 @@ const STATUS_COLORS = {
   cancellato: '#FF8042',
 }
 
-// Dati di esempio - resi deterministici per evitare errori di hydration
 const generateMockData = () => {
-  // Usiamo valori fissi invece di random per evitare differenze tra server e client
-  // Dati di conteggio stato
   const statusData: PackageStatusCount[] = [
     { status: 'arrivato', count: 45 },
     { status: 'in consegna', count: 28 },
@@ -62,12 +57,11 @@ const generateMockData = () => {
     { status: 'cancellato', count: 12 },
   ]
 
-  // Date fisse per evitare problemi di hydration
   const baseDate = new Date('2025-02-01')
   const thirtyDaysData: TimeSeriesData[] = Array.from({ length: 30 }, (_, i) => {
     const date = new Date(baseDate)
     date.setDate(date.getDate() + i)
-    // Usiamo valori fissi basati sull'indice invece di Math.random()
+
     const countValues = [7, 12, 9, 15, 8, 11, 14, 10, 6, 13, 8, 9, 12, 14, 7, 11, 13, 10, 8, 12, 9, 15, 7, 14, 9, 11, 8, 12, 10, 13]
     return {
       date: date.toISOString().slice(0, 10),
@@ -75,7 +69,6 @@ const generateMockData = () => {
     }
   })
 
-  // Dati per il tempo medio di giacenza
   const averageTimeData: AverageTimeData[] = [
     { month: 'Gen', days: 2.8 },
     { month: 'Feb', days: 3.2 },
@@ -91,7 +84,6 @@ const generateMockData = () => {
     { month: 'Dic', days: 3.3 },
   ]
 
-  // Dati per dipartimenti
   const departmentData: DepartmentData[] = [
     { name: 'IT', value: 78, color: '#0088FE' },
     { name: 'HR', value: 45, color: '#00C49F' },
@@ -113,7 +105,6 @@ const generateMockData = () => {
   }
 }
 
-// Componente KPI Card
 const KpiCard: React.FC<KpiCardProps> = ({ title, value, change, icon, positive = true }) => {
   return (
     <div className='bg-white rounded-lg shadow p-6'>
@@ -138,7 +129,6 @@ const KpiCard: React.FC<KpiCardProps> = ({ title, value, change, icon, positive 
   )
 }
 
-// Componente Menu a tendina
 const DropdownMenu: React.FC<{
   options: FilterOption[]
   value: string
@@ -189,7 +179,6 @@ const DropdownMenu: React.FC<{
 }
 
 const PackageKpiDashboard: React.FC = () => {
-  // Stati
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('30d')
   const [data, setData] = useState<ReturnType<typeof generateMockData> | null>(null)
   const [isClient, setIsClient] = useState(false)
@@ -199,7 +188,6 @@ const PackageKpiDashboard: React.FC = () => {
     avgTime: 'bar' as ChartType,
   })
 
-  // Opzioni per i filtri
   const timeFrameOptions: FilterOption[] = [
     { id: '7d', name: 'Last 7 days' },
     { id: '30d', name: 'Last 30 days' },
@@ -214,29 +202,23 @@ const PackageKpiDashboard: React.FC = () => {
     { id: 'pie', name: 'Pie' },
   ]
 
-  // Effect per marcare quando il componente è montato lato client
   useEffect(() => {
     setIsClient(true)
     const mockData = generateMockData()
     setData(mockData)
   }, [])
 
-  // Formatta numero con separatori di migliaia
   const formatNumber = (num: number): string => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   }
 
-  // Simulazione di caricamento dei dati quando cambia il timeframe
   useEffect(() => {
-    // In un'app reale, qui faremo una chiamata API
-    // Utilizziamo useEffect per assicurarci che questo codice venga eseguito solo lato client
     if (typeof window !== 'undefined') {
       const mockData = generateMockData()
       setData(mockData)
     }
   }, [timeFrame])
 
-  // Evita il rendering dei grafici fino a quando non siamo sul client
   if (!isClient || !data) {
     return (
       <div className='container mx-auto px-4 py-8 bg-white'>
@@ -675,7 +657,6 @@ const PackageKpiDashboard: React.FC = () => {
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
               {data.averageTimeData.slice(0, 6).map((item, index) => {
-                // Valori fissi invece che casuali
                 const receivedValues = [78, 92, 65, 84, 71, 88]
                 const deliveredValues = [72, 85, 59, 76, 64, 81]
                 const completionRates = [92.3, 89.5, 90.8, 87.6, 93.2, 91.4]
