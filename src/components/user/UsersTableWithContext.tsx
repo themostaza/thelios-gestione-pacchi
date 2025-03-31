@@ -3,44 +3,26 @@
 import { Loader2, Trash } from 'lucide-react'
 import { useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { StatusBadge } from '@/components/ui/statusBadge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUser } from '@/context/userContext'
 
 function UserStatusBadge({ registered }: { registered: boolean }) {
-  return registered ? (
-    <Badge
+  return (
+    <StatusBadge
+      status={registered ? 'registered' : 'not-registered'}
       variant='outline'
-      className='bg-white hover:bg-white text-gray-800 border border-gray-200 font-medium'
-    >
-      Registrato
-    </Badge>
-  ) : (
-    <Badge
-      variant='outline'
-      className='bg-yellow-100 hover:bg-yellow-100 text-yellow-800 font-medium'
-    >
-      Non registrato
-    </Badge>
+    />
   )
 }
 
 function AdminBadge({ isAdmin }: { isAdmin: boolean }) {
-  return isAdmin ? (
-    <Badge
+  return (
+    <StatusBadge
+      status={isAdmin ? 'admin' : 'not-admin'}
       variant='outline'
-      className='bg-black hover:bg-black text-white font-medium'
-    >
-      Sì
-    </Badge>
-  ) : (
-    <Badge
-      variant='outline'
-      className='bg-white hover:bg-white text-gray-800 border border-gray-200 font-medium'
-    >
-      No
-    </Badge>
+    />
   )
 }
 

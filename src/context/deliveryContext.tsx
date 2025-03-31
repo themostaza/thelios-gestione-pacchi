@@ -4,13 +4,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail } from '@/app/actions/deliveryActions'
 import { DeliveryData, ReminderLog } from '@/app/actions/deliveryActions'
+import { StatusType } from '@/components/ui/statusBadge'
 
 type DeliveryContextType = {
   delivery: DeliveryData | null
   loading: boolean
   error: string | null
   emailLogs: ReminderLog[]
-  changeStatus: (newStatus: string) => Promise<void>
+  changeStatus: (newStatus: StatusType) => Promise<void>
   sendReminder: () => Promise<void>
 }
 
@@ -48,7 +49,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     loadDelivery()
   }, [deliveryId])
 
-  const changeStatus = async (newStatus: string) => {
+  const changeStatus = async (newStatus: StatusType) => {
     try {
       const result = await updateDeliveryStatus(deliveryId, newStatus)
       if (result.success) {

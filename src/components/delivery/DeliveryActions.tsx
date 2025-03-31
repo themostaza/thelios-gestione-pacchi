@@ -9,6 +9,7 @@ import { useDelivery } from '@/context/deliveryContext'
 
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { StatusType } from '../ui/statusBadge'
 
 export default function DeliveryActions() {
   const { delivery, changeStatus } = useDelivery()
@@ -16,7 +17,7 @@ export default function DeliveryActions() {
 
   if (!delivery) return null
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: StatusType) => {
     setChangingStatus(true)
     await changeStatus(newStatus)
     setChangingStatus(false)

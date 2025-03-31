@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 
-import { getAllProfiles, deleteProfileUser } from '@/app/actions/userActions'
+import { getAllProfiles, deleteProfileUser } from '@/app/actions/authActions'
 
 type ProfileUser = {
   id: string

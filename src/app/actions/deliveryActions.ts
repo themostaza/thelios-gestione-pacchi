@@ -2,7 +2,8 @@
 
 import { cookies } from 'next/headers'
 
-import { iAmAdmin } from '@/actions/admin'
+import { iAmAdmin } from '@/actions/auth'
+import { StatusType } from '@/components/ui/statusBadge'
 import { createClient } from '@/lib/supabase/server'
 import { deliverySchema, DeliveryFormData, ValidationErrors } from '@/lib/validations/delivery'
 
@@ -43,7 +44,7 @@ export type DeliveryData = {
   recipientEmail: string
   place: string
   notes: string | null
-  status: string
+  status: StatusType
   created_at: string
   user: {
     email: string

@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 
+import { checkAdminStatus } from '@/lib/admin-utils'
 import { createClient } from '@/lib/supabase/server'
+
+export async function iAmAdmin() {
+  return await checkAdminStatus()
+}
 
 type LoginFormData = {
   email: string

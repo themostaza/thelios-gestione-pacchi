@@ -2,46 +2,26 @@
 
 import { Eye, EyeOff } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Form } from '@/components/ui/form'
+import { StatusBadge, StatusType } from '@/components/ui/statusBadge'
 import { useDeliveries } from '@/context/deliveriesContext'
 
-function StatusBadge({ status, active = true, eyeVisible = true }: { status: string; active?: boolean; eyeVisible?: boolean }) {
-  const getStyles = () => {
-    if (!active) return 'bg-transparent border border-gray-300 text-gray-500'
+interface FilterStatusBadgeProps {
+  status: StatusType
+  active?: boolean
+  eyeVisible?: boolean
+}
 
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-500 hover:bg-yellow-600 text-white'
-      case 'completed':
-        return 'bg-green-500 hover:bg-green-600 text-white'
-      case 'cancelled':
-        return 'bg-red-500 hover:bg-red-600 text-white'
-      default:
-        return 'bg-gray-500 hover:bg-gray-600 text-white'
-    }
-  }
-
-  const getLabel = () => {
-    switch (status) {
-      case 'pending':
-        return 'Pending'
-      case 'completed':
-        return 'Completed'
-      case 'cancelled':
-        return 'Cancelled'
-      default:
-        return status
-    }
-  }
-
+function FilterStatusBadge({ status, active = true, eyeVisible = true }: FilterStatusBadgeProps) {
   return (
-    <Badge className={`${getStyles()} px-2 py-1 flex items-center gap-1.5`}>
-      {getLabel()}
-      {eyeVisible && (active ? <Eye className='h-3.5 w-3.5' /> : <EyeOff className='h-3.5 w-3.5' />)}
-    </Badge>
+    <StatusBadge
+      status={status}
+      variant={active ? 'filled' : 'outline'}
+      className={!active ? 'bg-transparent border border-gray-300 text-gray-500' : ''}
+      icon={eyeVisible ? active ? <Eye className='h-3.5 w-3.5' /> : <EyeOff className='h-3.5 w-3.5' /> : undefined}
+    />
   )
 }
 
@@ -69,7 +49,7 @@ export default function DeliveryStatusFilter() {
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge
+                  <FilterStatusBadge
                     status='pending'
                     active={field.value.pending}
                     eyeVisible={false}
@@ -81,7 +61,7 @@ export default function DeliveryStatusFilter() {
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge
+                  <FilterStatusBadge
                     status='completed'
                     active={field.value.completed}
                     eyeVisible={false}
@@ -93,7 +73,7 @@ export default function DeliveryStatusFilter() {
                   variant='ghost'
                   size='sm'
                 >
-                  <StatusBadge
+                  <FilterStatusBadge
                     status='cancelled'
                     active={field.value.cancelled}
                     eyeVisible={false}
