@@ -18,6 +18,8 @@ export default function AuthStatus() {
     console.log('Starting logout process')
     try {
       await logout()
+      router.refresh()
+      return true
     } catch (err: unknown) {
       // Only log actual errors
       console.error('Unexpected error during logout:', err)
