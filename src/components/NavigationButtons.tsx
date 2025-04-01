@@ -2,8 +2,8 @@
 import { Clipboard, PlusCircle, LayoutDashboard, Users, Loader2 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-
-import { Button } from '@/components/ui/button'
+import { useTranslation } from '@/i18n/I18nProvider'
+import { cn } from "@/lib/utils"
 import { useAuth } from '@/context/authContext'
 
 export default function NavigationButtons() {
@@ -12,6 +12,7 @@ export default function NavigationButtons() {
   const [loadingButton, setLoadingButton] = useState<string | null>(null)
   const { user, isAdmin } = useAuth()
   const isLoggedIn = !!user
+  const { t } = useTranslation()
 
   useEffect(() => {
     setLoadingButton(null)
@@ -20,13 +21,13 @@ export default function NavigationButtons() {
   const navigationButtons = [
     {
       href: '/deliveries',
-      text: 'All Deliveries',
+      text: t('deliveries.title'),
       icon: <Clipboard className='h-4 w-4 mr-2' />,
       isDisabled: pathname === '/deliveries',
     },
     {
       href: '/delivery/new',
-      text: 'New Delivery',
+      text: t('deliveries.newDelivery'),
       icon: <PlusCircle className='h-4 w-4 mr-2' />,
       isDisabled: false,
     },
@@ -35,13 +36,13 @@ export default function NavigationButtons() {
   const adminButtons = [
     {
       href: '/dashboard',
-      text: 'Dashboard',
+      text: t('navigation.dashboard'),
       icon: <LayoutDashboard className='h-4 w-4 mr-2' />,
       isDisabled: pathname === '/dashboard',
     },
     {
       href: '/accounts',
-      text: 'User Management',
+      text: t('navigation.userManagement'),
       icon: <Users className='h-4 w-4 mr-2' />,
       isDisabled: pathname === '/accounts',
     },
@@ -56,42 +57,46 @@ export default function NavigationButtons() {
   }
 
   return (
-    <div className='flex flex-row w-full justify-between items-center'>
-      {/* Admin buttons displayed first (on the left) */}
-      <div className='flex space-x-2'>
-        {isLoggedIn &&
-          isAdmin &&
-          adminButtons.map((button, index) => (
-            <Button
-              key={index}
-              className='justify-start'
-              size='sm'
-              disabled={button.isDisabled}
+    <div className="w-full">
+      <ul className="flex flex-col space-y-2 w-full">
+        {navigationButtons.map((button, index) => (
+          <li key={`nav-${index}`} className="w-full">
+            <a
+              href={button.href}
+              className={cn(
+                "flex items-center p-2 rounded-md w-full",
+                pathname === button.href ? "bg-accent" : "bg-background",
+                !isLoggedIn ? "opacity-50 pointer-events-none" : "hover:bg-accent"
+              )}
               onClick={(e) => handleNavigate(button.href, e)}
             >
-              {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
-              {button.text}
-            </Button>
-          ))}
-      </div>
-
-      {/* Regular navigation buttons on the right */}
-      <div className='flex space-x-2'>
-        {isLoggedIn &&
-          navigationButtons.map((button, index) => (
-            <Button
-              key={index}
-              variant='ghost'
-              className='justify-start'
-              size='sm'
-              disabled={button.isDisabled}
+              {loadingButton === button.href ? 
+                <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : 
+                button.icon}
+              <span>{button.text}</span>
+            </a>
+          </li>
+        ))}
+        
+        {adminButtons.map((button, index) => (
+          <li key={`admin-${index}`} className="w-full">
+            <a
+              href={button.href}
+              className={cn(
+                "flex items-center p-2 rounded-md w-full",
+                pathname === button.href ? "bg-accent" : "bg-background",
+                (!isLoggedIn || !isAdmin) ? "opacity-50 pointer-events-none" : "hover:bg-accent"
+              )}
               onClick={(e) => handleNavigate(button.href, e)}
             >
-              {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
-              {button.text}
-            </Button>
-          ))}
-      </div>
+              {loadingButton === button.href ? 
+                <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : 
+                button.icon}
+              <span>{button.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

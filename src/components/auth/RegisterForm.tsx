@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/authContext'
 import { RegisterFormData } from '@/lib/types/user'
 import { registerSchema } from '@/lib/validations/user'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 interface RegisterFormProps {
   onLoginClick?: () => void
@@ -19,6 +20,7 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm({ onLoginClick, hideButtons = false, tabName = 'register' }: RegisterFormProps) {
+  const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { register } = useAuth()
 
@@ -58,13 +60,13 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor='email'>Email address</FormLabel>
+              <FormLabel htmlFor='email'>{t('auth.email')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   id='email'
                   type='email'
-                  placeholder='your@email.com'
+                  placeholder={t('auth.emailPlaceholder')}
                   autoComplete='email'
                   disabled={isSubmitting}
                 />
@@ -79,13 +81,13 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
           name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor='password'>Password</FormLabel>
+              <FormLabel htmlFor='password'>{t('auth.password')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   id='password'
                   type='password'
-                  placeholder='••••••••'
+                  placeholder={t('auth.passwordPlaceholder')}
                   autoComplete='new-password'
                   disabled={isSubmitting}
                 />
@@ -100,13 +102,13 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
           name='confirmPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor='confirmPassword'>Confirm password</FormLabel>
+              <FormLabel htmlFor='confirmPassword'>{t('auth.confirmPassword')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   id='confirmPassword'
                   type='password'
-                  placeholder='••••••••'
+                  placeholder={t('auth.passwordPlaceholder')}
                   autoComplete='new-password'
                   disabled={isSubmitting}
                 />
@@ -132,7 +134,7 @@ export default function RegisterForm({ onLoginClick, hideButtons = false, tabNam
                   className='mr-2'
                 />
               )}
-              Register
+              {t('auth.registerButton')}
             </Button>
           </div>
         )}

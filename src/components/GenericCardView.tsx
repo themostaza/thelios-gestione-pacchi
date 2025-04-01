@@ -34,7 +34,7 @@ export default function GenericCardView({
   return (
     <Card className={`flex flex-col ${className}`}>
       <CardHeader>
-        <div className='flex justify-between items-center'>
+        <div className='flex flex-col md:flex-row justify-between items-center'>
           <div>
             <CardTitle className='text-2xl font-bold'>{title}</CardTitle>
             {description && <CardDescription className='mt-2'>{description}</CardDescription>}

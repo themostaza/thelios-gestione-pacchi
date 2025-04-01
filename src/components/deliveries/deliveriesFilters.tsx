@@ -11,12 +11,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useDeliveries } from '@/context/deliveriesContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 interface DeliveryFilterPanelProps {
   isAdmin: boolean
 }
 
 export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
+  const { t } = useTranslation()
   const { form, applyFilters, resetFilters } = useDeliveries()
   const [showFilterDialog, setShowFilterDialog] = useState(false)
 
@@ -28,7 +30,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
 
   const FilterPanelContent = () => (
     <div className='space-y-4'>
-      <h3 className='text-lg font-medium'>Filters</h3>
+      <h3 className='text-lg font-medium'>{t('common.filters')}</h3>
 
       <Form {...form}>
         <form
@@ -42,7 +44,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
               name='dateRange'
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
-                  <FormLabel>Date Range</FormLabel>
+                  <FormLabel>{t('deliveries.dateRange')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -60,7 +62,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
                               format(field.value.from, 'LLL dd, y')
                             )
                           ) : (
-                            <span>Select date range</span>
+                            <span>{t('deliveries.selectDateRange')}</span>
                           )}
                         </Button>
                       </FormControl>
@@ -88,10 +90,10 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
               name='recipient'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Recipient</FormLabel>
+                  <FormLabel>{t('deliveries.recipient')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Filter by recipient'
+                      placeholder={`${t('common.filters')} ${t('deliveries.recipient').toLowerCase()}`}
                       {...field}
                       className='bg-white'
                     />
@@ -106,10 +108,10 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
                 name='sender'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sender</FormLabel>
+                    <FormLabel>{t('deliveries.sender')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Filter by sender'
+                        placeholder={`${t('common.filters')} ${t('deliveries.sender').toLowerCase()}`}
                         {...field}
                         className='bg-white'
                       />
@@ -130,11 +132,11 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
               }}
             >
               <X className='mr-2 h-4 w-4' />
-              Reset
+              {t('common.cancel')}
             </Button>
             <Button type='submit'>
               <Search className='mr-2 h-4 w-4' />
-              Apply Filters
+              {t('common.filters')}
             </Button>
           </div>
         </form>
@@ -150,7 +152,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
         onClick={() => setShowFilterDialog(true)}
       >
         <Filter className='h-4 w-4 mr-2' />
-        Advanced Filters
+        {t('common.filters')}
       </Button>
 
       <Dialog
@@ -159,7 +161,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delivery Filters</DialogTitle>
+            <DialogTitle>{t('deliveries.title')} {t('common.filters')}</DialogTitle>
           </DialogHeader>
           <FilterPanelContent />
         </DialogContent>

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/authContext'
 import { LoginFormData } from '@/lib/types/user'
 import { loginSchema } from '@/lib/validations/user'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 interface LoginFormProps {
   hideButtons?: boolean
@@ -20,6 +21,7 @@ interface LoginFormProps {
 export default function LoginForm({ hideButtons = false, tabName = 'login' }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { login } = useAuth()
+  const { t } = useTranslation()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -48,13 +50,13 @@ export default function LoginForm({ hideButtons = false, tabName = 'login' }: Lo
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor='email'>Email address</FormLabel>
+              <FormLabel htmlFor='email'>{t('auth.email')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   id='email'
                   type='email'
-                  placeholder='your@email.com'
+                  placeholder={t('auth.emailPlaceholder')}
                   autoComplete='email'
                   disabled={isSubmitting}
                 />
@@ -69,13 +71,13 @@ export default function LoginForm({ hideButtons = false, tabName = 'login' }: Lo
           name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor='password'>Password</FormLabel>
+              <FormLabel htmlFor='password'>{t('auth.password')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   id='password'
                   type='password'
-                  placeholder='••••••••'
+                  placeholder={t('auth.passwordPlaceholder')}
                   autoComplete='current-password'
                   disabled={isSubmitting}
                 />

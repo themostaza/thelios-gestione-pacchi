@@ -14,12 +14,14 @@ import { useAuth } from '@/context/authContext'
 import { RegisterFormData, LoginFormData } from '@/lib/types/user'
 import { registerSchema } from '@/lib/validations/delivery'
 import { loginSchema } from '@/lib/validations/user'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 interface AuthViewProps {
   defaultTab?: 'login' | 'register'
 }
 
 export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<string>(defaultTab)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { login, register } = useAuth()
@@ -54,8 +56,8 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
 
   return (
     <GenericCardView
-      title='Authentication'
-      description='Sign in or create a new account'
+      title={t('auth.login')}
+      description={activeTab === 'login' ? t('auth.login') : t('auth.register')}
       footer={
         <div className='flex justify-end w-full'>
           <Button
@@ -66,17 +68,10 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
             {isSubmitting ? (
               <Loader2 className='h-4 w-4 animate-spin mr-2' />
             ) : activeTab === 'login' ? (
-              <LogIn
-                size={20}
-                className='mr-2'
-              />
+              t('auth.loginButton')
             ) : (
-              <UserPlus
-                size={20}
-                className='mr-2'
-              />
+              t('auth.registerButton')
             )}
-            {activeTab === 'login' ? 'Sign in' : 'Register'}
           </Button>
         </div>
       }
@@ -88,8 +83,8 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
         className='w-full md:w-1/3 m-auto'
       >
         <TabsList className='grid w-full grid-cols-2'>
-          <TabsTrigger value='login'>Login</TabsTrigger>
-          <TabsTrigger value='register'>Register</TabsTrigger>
+          <TabsTrigger value='login'>{t('auth.login')}</TabsTrigger>
+          <TabsTrigger value='register'>{t('auth.register')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value='login'>
@@ -104,10 +99,10 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
                 name='email'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='your@email.com'
+                        placeholder={t('auth.emailPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -121,11 +116,11 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
                 name='password'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('auth.password')}</FormLabel>
                     <FormControl>
                       <Input
                         type='password'
-                        placeholder='••••••'
+                        placeholder={t('auth.passwordPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -149,10 +144,10 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
                 name='email'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='your@email.com'
+                        placeholder={t('auth.emailPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -166,11 +161,11 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
                 name='password'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('auth.password')}</FormLabel>
                     <FormControl>
                       <Input
                         type='password'
-                        placeholder='••••••'
+                        placeholder={t('auth.passwordPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -184,11 +179,11 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
                 name='confirmPassword'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>{t('auth.confirmPassword')}</FormLabel>
                     <FormControl>
                       <Input
                         type='password'
-                        placeholder='••••••'
+                        placeholder={t('auth.passwordPlaceholder')}
                         {...field}
                       />
                     </FormControl>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/statusBadge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUser } from '@/context/userContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 function UserStatusBadge({ registered }: { registered: boolean }) {
   return (
@@ -27,10 +28,13 @@ function AdminBadge({ isAdmin }: { isAdmin: boolean }) {
 }
 
 export default function AccountsTable() {
+  const { t } = useTranslation()
   const { users, loading, error, deleteUser } = useUser()
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const handleDelete = async (id: string, userId: string | null) => {
+    if (!confirm(t('common.confirmDelete'))) return
+    
     setDeletingId(id)
     await deleteUser(id, userId)
     setDeletingId(null)
@@ -51,9 +55,9 @@ export default function AccountsTable() {
         <TableRow>
           <TableHead>Email</TableHead>
           {/* <TableHead>Creation Date</TableHead> */}
-          <TableHead>Status</TableHead>
-          <TableHead>Admin</TableHead>
-          <TableHead className='text-right'>Actions</TableHead>
+          <TableHead>{t('user.status.registered')}</TableHead>
+          <TableHead>{t('user.isAdmin')}</TableHead>
+          <TableHead className='text-right'>{t('common.delete')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -76,7 +80,7 @@ export default function AccountsTable() {
                   disabled={deletingId === user.id}
                 >
                   {deletingId === user.id ? <Loader2 className='h-4 w-4 animate-spin' /> : <Trash className='h-4 w-4 mr-1' />}
-                  <span>Delete</span>
+                  <span>{t('common.delete')}</span>
                 </Button>
               </TableCell>
             </TableRow>
@@ -87,7 +91,7 @@ export default function AccountsTable() {
               colSpan={5}
               className='text-center text-muted-foreground py-6'
             >
-              No users found
+              {t('common.noUsersFound')}
             </TableCell>
           </TableRow>
         )}

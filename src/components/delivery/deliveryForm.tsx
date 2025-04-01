@@ -17,10 +17,12 @@ import { toast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
 import { DeliveryFormData } from '@/lib/types/delivery'
 import { deliverySchema } from '@/lib/validations/delivery'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function DeliveryForm() {
+  const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [userEmail, setUserEmail] = useState('Loading...')
+  const [userEmail, setUserEmail] = useState(t('common.loading'))
 
   useEffect(() => {
     const getUser = async () => {
@@ -130,7 +132,7 @@ export default function DeliveryForm() {
               size={20}
               className='mr-2'
             />
-            Register Delivery
+            {t('deliveries.register')}
           </>
         )}
       </Button>
@@ -140,8 +142,8 @@ export default function DeliveryForm() {
   return (
     <>
       <GenericCardView
-        title='Delivery Registration'
-        description='Enter package delivery details below'
+        title={t('deliveries.newDelivery')}
+        description={t('deliveries.newDelivery')}
         headerRight={headerRight}
         footer={footerContent}
       >
@@ -157,13 +159,10 @@ export default function DeliveryForm() {
                 name='recipient'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor='recipient-search'>Recipient</FormLabel>
+                    <FormLabel htmlFor='recipient'>{t('deliveries.recipient')}</FormLabel>
                     <FormControl>
                       <RecipientSelect
-                        value={field.value}
-                        onChange={field.onChange}
-                        id='recipient'
-                        name='recipient'
+                        {...field}
                         disabled={isSubmitting}
                       />
                     </FormControl>
@@ -177,12 +176,12 @@ export default function DeliveryForm() {
                 name='place'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor='place'>Place</FormLabel>
+                    <FormLabel htmlFor='place'>{t('deliveries.place')}</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         id='place'
-                        placeholder='Enter delivery place'
+                        placeholder={t('deliveries.enterPlace')}
                         disabled={isSubmitting}
                         autoComplete='off'
                       />
@@ -197,12 +196,12 @@ export default function DeliveryForm() {
                 name='notes'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor='notes'>Notes</FormLabel>
+                    <FormLabel htmlFor='notes'>{t('common.notes')}</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         id='notes'
-                        placeholder='Add package information, special instructions, etc.'
+                        placeholder={t('common.optionalNotes')}
                         rows={4}
                         disabled={isSubmitting}
                         autoComplete='off'

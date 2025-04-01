@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useDeliveries } from '@/context/deliveriesContext'
 import { DeliveryData } from '@/lib/types/delivery'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 const COLUMN_WIDTHS = {
   id: 'w-[15%]',
@@ -54,6 +55,7 @@ type SortConfig = {
 
 function DeliveriesTable() {
   const { deliveries, error, initialLoading, loading, hasMore, setPage } = useDeliveries()
+  const { t } = useTranslation()
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: null,
@@ -108,7 +110,7 @@ function DeliveriesTable() {
     }
 
     if (deliveries.length === 0 && !initialLoading) {
-      return <p className='text-center py-8 text-gray-500'>No results found with the applied filters</p>
+      return <p className='text-center py-8 text-gray-500'>{t('deliveries.noResultsFound')}</p>
     }
 
     return (
@@ -122,7 +124,7 @@ function DeliveriesTable() {
                 style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
                 <div className='flex items-center whitespace-nowrap'>
-                  ID
+                  {t('deliveries.id')}
                   {!initialLoading ? renderSortIndicator('id') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
@@ -132,7 +134,7 @@ function DeliveriesTable() {
                 style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
                 <div className='flex items-center whitespace-nowrap'>
-                  Recipient
+                  {t('deliveries.recipient')}
                   {!initialLoading ? renderSortIndicator('recipientEmail') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
@@ -142,7 +144,7 @@ function DeliveriesTable() {
                 style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
                 <div className='flex items-center whitespace-nowrap'>
-                  Sender
+                  {t('deliveries.sender')}
                   {!initialLoading ? renderSortIndicator('user') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
@@ -152,7 +154,7 @@ function DeliveriesTable() {
                 style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
                 <div className='flex items-center whitespace-nowrap'>
-                  Status
+                  {t('common.status')}
                   {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
@@ -162,12 +164,12 @@ function DeliveriesTable() {
                 style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
               >
                 <div className='flex items-center whitespace-nowrap'>
-                  Created
+                  {t('deliveries.created')}
                   {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
               <TableHead className={COLUMN_WIDTHS.actions}>
-                <div className='whitespace-nowrap'>Actions</div>
+                <div className='whitespace-nowrap'>{t('deliveries.actions')}</div>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -183,7 +185,7 @@ function DeliveriesTable() {
                   >
                     <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
                     <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || 'Unknown sender'}</TableCell>
+                    <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>
                     <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
                       <StatusBadge status={delivery.status} />
                     </TableCell>
@@ -198,7 +200,7 @@ function DeliveriesTable() {
                         size='sm'
                         asChild
                       >
-                        <Link href={`/delivery/${delivery.id}`}>Open<ArrowRight className='ml-2 h-4 w-4' /></Link>
+                        <Link href={`/delivery/${delivery.id}`}>{t('deliveries.open')}<ArrowRight className='ml-2 h-4 w-4' /></Link>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -213,12 +215,16 @@ function DeliveriesTable() {
               onClick={() => setPage((p) => p + 1)}
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Load More'}
+              {loading ? t('common.loading') : t('deliveries.loadMore')}
             </Button>
           </div>
         )}
 
-        {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>You&apos;ve reached the end of the list</div>}
+        {!initialLoading && !hasMore && deliveries.length > 0 && (
+          <div className='text-center text-xs italic text-muted-foreground my-4'>
+            {t('deliveries.endOfList')}
+          </div>
+        )}
       </div>
     )
   }

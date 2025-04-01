@@ -1,0 +1,120 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "warning": "Attenzione",
+    "info": "Informazioni",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "close": "Chiudi",
+    "send": "Invia",
+    "view": "Visualizza",
+    "filters": "Filtri",
+    "notes": "Note",
+    "optionalNotes": "Note opzionali",
+    "noUsersFound": "Nessun utente trovato",
+    "confirmDelete": "Sei sicuro di voler eliminare?",
+    "status": "Stato"
+  },
+  "auth": {
+    "login": "Accedi",
+    "register": "Registrati",
+    "logout": "Esci",
+    "email": "Indirizzo email",
+    "password": "Password",
+    "confirmPassword": "Conferma password",
+    "forgotPassword": "Password dimenticata",
+    "loginButton": "Accedi",
+    "registerButton": "Registrati",
+    "emailPlaceholder": "tuo@email.com",
+    "passwordPlaceholder": "••••••••",
+    "loginFailed": "Accesso fallito",
+    "invalidCredentials": "Credenziali non valide",
+    "loginError": "Errore di accesso",
+    "unexpectedError": "Si è verificato un errore imprevisto",
+    "notAuthenticated": "Non autenticato",
+    "loginToContinue": "Accedi per continuare",
+    "role": "Ruolo",
+    "admin": "Amministratore",
+    "user": "Utente"
+  },
+  "deliveries": {
+    "title": "Consegne",
+    "newDelivery": "Nuova Consegna",
+    "allDeliveries": "Tutte le Consegne",
+    "description": "Ispeziona le consegne",
+    "status": {
+      "pending": "In attesa",
+      "completed": "Completata",
+      "cancelled": "Annullata"
+    },
+    "recipient": "Destinatario",
+    "sender": "Mittente",
+    "place": "Luogo",
+    "created": "Creato",
+    "actions": "Azioni",
+    "open": "Apri",
+    "loadMore": "Carica altri",
+    "endOfList": "Hai raggiunto la fine dell'elenco",
+    "id": "ID",
+    "selectRecipient": "Seleziona destinatario",
+    "enterPlace": "Inserisci luogo di consegna",
+    "dateRange": "Intervallo di date",
+    "selectDateRange": "Seleziona intervallo di date",
+    "noResultsFound": "Nessun risultato trovato con i filtri applicati",
+    "unknownSender": "Mittente sconosciuto",
+    "register": "Registra"
+  },
+  "user": {
+    "management": "Gestione Utenti",
+    "newUser": "Nuovo Utente",
+    "users": "Utenti",
+    "status": {
+      "registered": "Registrato",
+      "notRegistered": "Non registrato",
+      "admin": "Amministratore",
+      "notAdmin": "Utente"
+    },
+    "createUser": "Crea Utente",
+    "deleteUser": "Elimina Utente",
+    "isAdmin": "Amministratore",
+    "email": "Email",
+    "creationDate": "Data di creazione"
+  },
+  "navigation": {
+    "allDeliveries": "Tutte le Consegne",
+    "newDelivery": "Nuova Consegna",
+    "dashboard": "Dashboard",
+    "userManagement": "Gestione Utenti"
+  },
+  "dashboard": {
+    "title": "Dashboard KPI",
+    "period": "Periodo",
+    "totalPackages": "Pacchi Totali",
+    "averageStorageTime": "Tempo Medio di Giacenza",
+    "completionRate": "Tasso di Completamento",
+    "employeesServed": "Dipendenti Serviti",
+    "statusDistribution": "Distribuzione Stati",
+    "packagesTimeline": "Timeline Pacchi",
+    "departmentDistribution": "Distribuzione per Dipartimento",
+    "chart": "Grafico",
+    "days": "giorni"
+  },
+  "notifications": {
+    "emailNotifications": "Notifiche Email",
+    "viewLogs": "Visualizza Log",
+    "lastReminderSent": "Ultimo promemoria inviato con successo",
+    "lastReminderFailed": "Ultimo promemoria fallito",
+    "noEmailsSent": "Nessuna notifica email è stata ancora inviata.",
+    "sendReminder": "Invia Promemoria al Destinatario",
+    "logs": "Log delle Notifiche Email",
+    "logsDescription": "Cronologia di tutte le notifiche email inviate per questa consegna"
+  },
+  "dialog": {
+    "confirmDeletion": "Conferma Eliminazione",
+    "confirmDeletionDescription": "Sei sicuro di voler eliminare questo elemento? Questa azione non può essere annullata."
+  }
+} 

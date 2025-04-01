@@ -1,10 +1,12 @@
-import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import './globals.css'
-import TopBar from '@/components/TopBar'
+import Menu from '@/components/menu'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/authContext'
+import { I18nProvider } from '@/i18n/I18nProvider'
+import { getDictionary } from '@/i18n/dictionaries'
+import { staticLocale } from '@/i18n/config'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,26 +18,32 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-export const metadata: Metadata = {
-  title: 'Package Delivery',
-  description: 'Package Delivery',
+export async function generateMetadata() {
+  const dict = await getDictionary(staticLocale)
+  
+  return {
+    title: dict.common.siteTitle,
+    description: dict.common.siteDescription,
+  }
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang='en'>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary/20`}>
+    <html lang="it">
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen h-full md:h-screen bg-primary/20 md:flex`}>
+        <I18nProvider>
         <AuthProvider>
-          <Toaster />
-          <div className='flex flex-col h-screen'>
-            <TopBar />
-            <div className='flex justify-center p-2 items-stretch h-full w-full max-w-screen-xl mx-auto'>{children}</div>
-          </div>
-        </AuthProvider>
+              <Menu />
+              <div className='mx-auto min-h-screen h-full flex max-w-screen-xl w-full p-1 md:p-4'>
+              {children}
+              </div>
+              <Toaster />
+          </AuthProvider>
+        </I18nProvider>
       </body>
     </html>
   )

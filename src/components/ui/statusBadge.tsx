@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -58,18 +59,20 @@ export function StatusBadge({
 
 // Helper function to get default label text
 function getDefaultLabel(status: StatusType): string {
+  const { t } = useTranslation()
+  
   switch (status) {
-    case 'pending': return 'Pending'
-    case 'completed': return 'Completed'
-    case 'cancelled': return 'Cancelled'
-    case 'registered': return 'Registrato'
-    case 'not-registered': return 'Non registrato'
-    case 'admin': return 'Sì'
-    case 'not-admin': return 'No'
-    case 'success': return 'Success'
-    case 'warning': return 'Warning'
-    case 'error': return 'Error'
-    case 'info': return 'Info'
+    case 'pending': return t('deliveries.status.pending')
+    case 'completed': return t('deliveries.status.completed')
+    case 'cancelled': return t('deliveries.status.cancelled')
+    case 'registered': return t('user.status.registered')
+    case 'not-registered': return t('user.status.notRegistered')
+    case 'admin': return t('user.status.admin')
+    case 'not-admin': return t('user.status.notAdmin')
+    case 'success': return t('common.success')
+    case 'warning': return t('common.warning')
+    case 'error': return t('common.error')
+    case 'info': return t('common.info')
     default: return status
   }
 }

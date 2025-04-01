@@ -13,8 +13,10 @@ import { useUser } from '@/context/userContext'
 import { toast } from '@/hooks/use-toast'
 import { CreateUserFormData } from '@/lib/types/user'
 import { createUserSchema } from '@/lib/validations/user'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function CreateUserFormWithContext() {
+  const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { addUser } = useUser()
 
@@ -34,23 +36,23 @@ export default function CreateUserFormWithContext() {
 
       if (result.success) {
         toast({
-          title: 'User pre-registered successfully',
-          description: `Email: ${data.email} - isAdmin: ${data.isAdmin ? 'Yes' : 'No'}`,
+          title: t('user.createUser'),
+          description: `Email: ${data.email} - ${t('user.isAdmin')}: ${data.isAdmin ? t('user.status.admin') : t('user.status.notAdmin')}`,
         })
         form.reset()
       } else {
         toast({
-          title: 'Unable to pre-register user',
+          title: t('common.error'),
           description: result.message,
           variant: 'destructive',
         })
       }
     } catch (error) {
       console.error('Unexpected error in onSubmit:', error)
-      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : 'An unexpected error occurred.'
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : t('common.error')
 
       toast({
-        title: 'Unexpected error',
+        title: t('common.error'),
         description: errorMessage,
         variant: 'destructive',
       })
@@ -71,11 +73,11 @@ export default function CreateUserFormWithContext() {
             name='email'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('auth.email')}</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isSubmitting}
-                    placeholder='user@example.com'
+                    placeholder={t('auth.emailPlaceholder')}
                     {...field}
                   />
                 </FormControl>
@@ -91,7 +93,7 @@ export default function CreateUserFormWithContext() {
             name='isAdmin'
             render={({ field }) => (
               <FormItem className='flex flex-row items-center justify-between space-x-2 space-y-0'>
-                <FormLabel>Admin?</FormLabel>
+                <FormLabel>{t('user.isAdmin')}</FormLabel>
                 <FormControl>
                   <Switch
                     disabled={isSubmitting}
@@ -108,7 +110,7 @@ export default function CreateUserFormWithContext() {
             type='submit'
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Registering...' : 'Pre-register user'}
+            {isSubmitting ? t('common.loading') : t('user.createUser')}
           </Button>
         </div>
       </form>

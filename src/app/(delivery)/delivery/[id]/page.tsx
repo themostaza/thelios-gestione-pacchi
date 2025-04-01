@@ -1,10 +1,14 @@
-import { Metadata } from 'next'
-
 import DeliveryView from '@/components/delivery/DeliveryView'
+import { getDictionary } from '@/i18n/dictionaries'
+import { staticLocale } from '@/i18n/config'
 
-export const metadata: Metadata = {
-  title: 'Delivery',
-  description: 'Delivery details',
+export async function generateMetadata() {
+  const dict = await getDictionary(staticLocale)
+  
+  return {
+    title: dict.common.siteTitle,
+    description: dict.common.siteDescription,
+  }
 }
 
 interface DeliveryPageProps {

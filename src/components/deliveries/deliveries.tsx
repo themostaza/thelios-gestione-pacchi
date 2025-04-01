@@ -1,12 +1,15 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
 import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
 import GenericCardView from '@/components/GenericCardView'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 interface DeliveriesProps {
   isAdmin: boolean
@@ -14,7 +17,7 @@ interface DeliveriesProps {
 
 function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   const { loading, error } = useDeliveries()
-
+  const { t } = useTranslation()
   const headerRight = (
     <div className='flex space-x-2 justify-end items-center'>
       <DeliveryStatusFilter />
@@ -49,8 +52,8 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
 
   return (
     <GenericCardView
-      title='Your Deliveries'
-      description='Manage and monitor all your delivery requests'
+      title={t('deliveries.title')}
+      description={t('deliveries.description')}
       headerRight={headerRight}
       useScrollArea={true}
       className='w-full flex flex-col h-full'
@@ -62,7 +65,23 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   )
 }
 
+const DeliveriesWithNoSSR = dynamic(
+  () => Promise.resolve(DeliveriesContent),
+  { ssr: false }
+)
+
 export default function Deliveries({ isAdmin }: DeliveriesProps) {
+  const [isMounted, setIsMounted] = useState(false)
+  
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+  
+  // Only render once client-side
+  if (!isMounted) {
+    return null // or a loading skeleton
+  }
+  
   return (
     <DeliveriesProvider>
       <DeliveriesContent isAdmin={isAdmin} />
