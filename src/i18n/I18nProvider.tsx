@@ -2,7 +2,15 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { getStaticLocale } from './config'
-import { getDictionary } from './dictionaries'
+// Import dictionaries statically for better performance
+import enDictionary from './dictionaries/en.json'
+import itDictionary from './dictionaries/it.json'
+
+// Create a dictionary map for instant access
+const dictionaries: Record<string, Record<string, any>> = {
+  en: enDictionary,
+  it: itDictionary
+}
 
 interface I18nContextProps {
   t: (key: string) => string
@@ -24,25 +32,39 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children }: I18nProviderProps) {
-  const locale = 'it'
-  const [dictionary, setDictionary] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
+  const locale = getStaticLocale()
+  // Start with the dictionary already loaded instead of an empty object
+  const [dictionary, setDictionary] = useState<Record<string, any>>(dictionaries[locale] || dictionaries.en)
+  const [loading, setLoading] = useState(false)
 
+  // This useEffect ensures the right dictionary is used if locale changes
   useEffect(() => {
+    // If we already have the dictionary for this locale, use it immediately
+    if (dictionaries[locale]) {
+      setDictionary(dictionaries[locale])
+      return
+    }
+    
+    // Only fetch dynamically if it's not in our static dictionaries
     async function loadDictionary() {
-      console.log('Loading dictionary for locale:', locale)
-      const dict = await getDictionary(locale)
-      console.log('Dictionary loaded:', dict)
-      setDictionary(dict)
-      setLoading(false)
+      setLoading(true)
+      try {
+        const dict = await import(`./dictionaries/${locale}.json`).then(module => module.default)
+        setDictionary(dict)
+      } catch (error) {
+        console.warn(`Dictionary for locale "${locale}" not found, using default locale "en" instead`)
+        setDictionary(dictionaries.en)
+      } finally {
+        setLoading(false)
+      }
     }
     
     loadDictionary()
   }, [locale])
 
   function t(key: string): string {
-    if (loading) return key
-
+    // Don't return the key during loading, use the existing dictionary
+    // which should already have values from static imports
     const keys = key.split('.')
     let value = dictionary
     
@@ -59,4 +81,4 @@ export function I18nProvider({ children }: I18nProviderProps) {
       {children}
     </I18nContext.Provider>
   )
-} 
+}
