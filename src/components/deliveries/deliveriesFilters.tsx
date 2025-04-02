@@ -161,7 +161,9 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('deliveries.title')} {t('common.filters')}</DialogTitle>
+            <DialogTitle>
+              {t('deliveries.title')} {t('common.filters')}
+            </DialogTitle>
           </DialogHeader>
           <FilterPanelContent />
         </DialogContent>

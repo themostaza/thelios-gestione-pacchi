@@ -34,7 +34,7 @@ export default function AccountsTable() {
 
   const handleDelete = async (id: string, userId: string | null) => {
     if (!confirm(t('common.confirmDelete'))) return
-    
+
     setDeletingId(id)
     await deleteUser(id, userId)
     setDeletingId(null)

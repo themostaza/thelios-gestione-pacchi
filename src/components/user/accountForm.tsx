@@ -11,9 +11,9 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { useUser } from '@/context/userContext'
 import { toast } from '@/hooks/use-toast'
+import { useTranslation } from '@/i18n/I18nProvider'
 import { CreateUserFormData } from '@/lib/types/user'
 import { createUserSchema } from '@/lib/validations/user'
-import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function CreateUserFormWithContext() {
   const { t } = useTranslation()

@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/authContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 import { RegisterFormData } from '@/lib/types/user'
 import { registerSchema } from '@/lib/validations/user'
-import { useTranslation } from '@/i18n/I18nProvider'
 
 interface RegisterFormProps {
   onLoginClick?: () => void

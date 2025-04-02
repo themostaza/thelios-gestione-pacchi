@@ -1,11 +1,10 @@
 'use client'
 
-import GenericCardView from '@/components/GenericCardView'
-import { DeliveryProvider } from '@/context/deliveryContext'
-
 import DeliveryActions from '@/components/delivery/DeliveryActions'
 import DeliveryDetails from '@/components/delivery/DeliveryDetails'
 import DeliveryFooter from '@/components/delivery/DeliveryFooter'
+import GenericCardView from '@/components/GenericCardView'
+import { DeliveryProvider } from '@/context/deliveryContext'
 
 interface DeliveryViewProps {
   deliveryId: string

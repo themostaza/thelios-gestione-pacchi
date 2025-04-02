@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 import { DeliveryData } from '@/lib/types/delivery'
 import { cn } from '@/lib/utils'
-import { useTranslation } from '@/i18n/I18nProvider'
 
 const COLUMN_WIDTHS = {
   id: 'w-[15%]',
@@ -200,7 +200,10 @@ function DeliveriesTable() {
                         size='sm'
                         asChild
                       >
-                        <Link href={`/delivery/${delivery.id}`}>{t('deliveries.open')}<ArrowRight className='ml-2 h-4 w-4' /></Link>
+                        <Link href={`/delivery/${delivery.id}`}>
+                          {t('deliveries.open')}
+                          <ArrowRight className='ml-2 h-4 w-4' />
+                        </Link>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -220,11 +223,7 @@ function DeliveriesTable() {
           </div>
         )}
 
-        {!initialLoading && !hasMore && deliveries.length > 0 && (
-          <div className='text-center text-xs italic text-muted-foreground my-4'>
-            {t('deliveries.endOfList')}
-          </div>
-        )}
+        {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>{t('deliveries.endOfList')}</div>}
       </div>
     )
   }

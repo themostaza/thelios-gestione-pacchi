@@ -7,4 +7,4 @@ export const staticLocale = 'it'
 // Function to get the static locale (can be used throughout the app)
 export function getStaticLocale() {
   return staticLocale
-} 
+}

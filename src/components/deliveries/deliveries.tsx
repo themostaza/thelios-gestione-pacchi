@@ -1,7 +1,6 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
@@ -65,23 +64,18 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   )
 }
 
-const DeliveriesWithNoSSR = dynamic(
-  () => Promise.resolve(DeliveriesContent),
-  { ssr: false }
-)
-
 export default function Deliveries({ isAdmin }: DeliveriesProps) {
   const [isMounted, setIsMounted] = useState(false)
-  
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
-  
+
   // Only render once client-side
   if (!isMounted) {
     return null // or a loading skeleton
   }
-  
+
   return (
     <DeliveriesProvider>
       <DeliveriesContent isAdmin={isAdmin} />

@@ -40,8 +40,10 @@ export function StatusBadge({
   icon,
   className,
 }: StatusBadgeProps) {
+  const { t } = useTranslation()
+  
   // Get the appropriate label if not provided
-  const badgeLabel = label || getDefaultLabel(status)
+  const badgeLabel = label || getDefaultLabel(status, t)
   
   // Get appropriate style class based on status and variant
   const styleClass = getStatusStyle(status, variant)
@@ -58,9 +60,7 @@ export function StatusBadge({
 }
 
 // Helper function to get default label text
-function getDefaultLabel(status: StatusType): string {
-  const { t } = useTranslation()
-  
+function getDefaultLabel(status: StatusType, t: (key: string) => string): string {
   switch (status) {
     case 'pending': return t('deliveries.status.pending')
     case 'completed': return t('deliveries.status.completed')

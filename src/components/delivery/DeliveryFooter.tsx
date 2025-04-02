@@ -2,10 +2,9 @@ import { Mail } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { useDelivery } from '@/context/deliveryContext'
-
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function DeliveryFooter() {
@@ -40,12 +39,16 @@ export default function DeliveryFooter() {
                 {emailLogs[0].ok ? (
                   <div className='flex items-center text-green-600'>
                     <span className='inline-block w-2 h-2 rounded-full bg-green-600 mr-1.5'></span>
-                    <span className='mr-2'>{t('notifications.lastReminderSent')} • {new Date(emailLogs[0].send_at).toLocaleString()}</span>
+                    <span className='mr-2'>
+                      {t('notifications.lastReminderSent')} • {new Date(emailLogs[0].send_at).toLocaleString()}
+                    </span>
                   </div>
                 ) : (
                   <div className='flex items-center text-red-600'>
                     <span className='inline-block w-2 h-2 rounded-full bg-red-600 mr-1.5'></span>
-                    <span className='mr-2'>{t('notifications.lastReminderFailed')} • {new Date(emailLogs[0].send_at).toLocaleString()}</span>
+                    <span className='mr-2'>
+                      {t('notifications.lastReminderFailed')} • {new Date(emailLogs[0].send_at).toLocaleString()}
+                    </span>
                   </div>
                 )}
               </div>
@@ -85,9 +88,7 @@ export default function DeliveryFooter() {
                   style={{ borderColor: log.ok ? '#10b981' : '#ef4444' }}
                 >
                   <div>
-                    <span className={`font-medium ${log.ok ? 'text-green-600' : 'text-red-600'}`}>
-                      {log.ok ? t('common.success') : t('common.error')}
-                    </span>
+                    <span className={`font-medium ${log.ok ? 'text-green-600' : 'text-red-600'}`}>{log.ok ? t('common.success') : t('common.error')}</span>
                     <p className='text-muted-foreground'>{log.message}</p>
                   </div>
                   <span className='text-muted-foreground whitespace-nowrap'>{new Date(log.send_at).toLocaleString()}</span>

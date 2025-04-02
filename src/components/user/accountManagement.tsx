@@ -8,7 +8,7 @@ import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function UserManagement() {
   const { t } = useTranslation()
-  
+
   return (
     <UserProvider>
       <GenericCardView
