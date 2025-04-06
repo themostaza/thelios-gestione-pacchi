@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { Loader2, LogIn } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -65,7 +65,7 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
             form={activeTab === 'login' ? 'login-form' : 'register-form'}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : activeTab === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
+            {isSubmitting ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <LogIn className='h-4 w-4 mr-2' />} {activeTab === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
           </Button>
         </div>
       }
