@@ -2,6 +2,7 @@
 import { Clipboard, PlusCircle, LayoutDashboard, Users, Loader2 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 import { useAuth } from '@/context/authContext'
 import { useTranslation } from '@/i18n/I18nProvider'
@@ -17,6 +18,7 @@ export default function NavigationButtons() {
 
   useEffect(() => {
     setLoadingButton(null)
+    console.log('Current pathname:', pathname)
   }, [pathname])
 
   const navigationButtons = [
@@ -65,14 +67,16 @@ export default function NavigationButtons() {
             key={`nav-${index}`}
             className='w-full'
           >
-            <a
+            <Link
               href={button.href}
-              className={cn('flex items-center p-2 rounded-md w-full', pathname === button.href ? 'bg-accent' : 'bg-background', !isLoggedIn ? 'opacity-50 pointer-events-none' : 'hover:bg-accent')}
+              className={`flex items-center p-2 rounded-md w-full ${
+                pathname === button.href ? 'bg-primary text-primary-foreground' : 'bg-background'
+              } ${!isLoggedIn ? 'opacity-50 pointer-events-none' : 'hover:bg-accent'}`}
               onClick={(e) => handleNavigate(button.href, e)}
             >
               {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
               <span>{button.text}</span>
-            </a>
+            </Link>
           </li>
         ))}
 
@@ -81,18 +85,16 @@ export default function NavigationButtons() {
             key={`admin-${index}`}
             className='w-full'
           >
-            <a
+            <Link
               href={button.href}
-              className={cn(
-                'flex items-center p-2 rounded-md w-full',
-                pathname === button.href ? 'bg-accent' : 'bg-background',
-                !isLoggedIn || !isAdmin ? 'opacity-50 pointer-events-none' : 'hover:bg-accent'
-              )}
+              className={`flex items-center p-2 rounded-md w-full ${
+                pathname === button.href ? 'bg-primary text-primary-foreground' : 'bg-background'
+              } ${!isLoggedIn || !isAdmin ? 'opacity-50 pointer-events-none' : 'hover:bg-accent'}`}
               onClick={(e) => handleNavigate(button.href, e)}
             >
               {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
               <span>{button.text}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
