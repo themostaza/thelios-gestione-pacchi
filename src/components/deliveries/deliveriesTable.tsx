@@ -3,7 +3,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ArrowUpDown, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
@@ -54,7 +54,7 @@ type SortConfig = {
 }
 
 function DeliveriesTable() {
-  const { deliveries, error, initialLoading, loading, hasMore, setPage } = useDeliveries()
+  const { deliveries, error, initialLoading, loading, hasMore, setPage, columnVisibility } = useDeliveries()
   const { t } = useTranslation()
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -118,56 +118,66 @@ function DeliveriesTable() {
         <Table className='table-fixed w-full'>
           <TableHeader>
             <TableRow>
-              <TableHead
-                className={COLUMN_WIDTHS.id}
-                onClick={!initialLoading ? () => handleSort('id') : undefined}
-                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-              >
-                <div className='flex items-center whitespace-nowrap'>
-                  {t('deliveries.id')}
-                  {!initialLoading ? renderSortIndicator('id') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                </div>
-              </TableHead>
-              <TableHead
-                className={COLUMN_WIDTHS.recipient}
-                onClick={!initialLoading ? () => handleSort('recipientEmail') : undefined}
-                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-              >
-                <div className='flex items-center whitespace-nowrap'>
-                  {t('deliveries.recipient')}
-                  {!initialLoading ? renderSortIndicator('recipientEmail') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                </div>
-              </TableHead>
-              <TableHead
-                className={COLUMN_WIDTHS.sender}
-                onClick={!initialLoading ? () => handleSort('user') : undefined}
-                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-              >
-                <div className='flex items-center whitespace-nowrap'>
-                  {t('deliveries.sender')}
-                  {!initialLoading ? renderSortIndicator('user') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                </div>
-              </TableHead>
-              <TableHead
-                className={COLUMN_WIDTHS.status}
-                onClick={!initialLoading ? () => handleSort('status') : undefined}
-                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-              >
-                <div className='flex items-center whitespace-nowrap'>
-                  {t('common.status')}
-                  {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                </div>
-              </TableHead>
-              <TableHead
-                className={COLUMN_WIDTHS.created}
-                onClick={!initialLoading ? () => handleSort('created_at') : undefined}
-                style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-              >
-                <div className='flex items-center whitespace-nowrap'>
-                  {t('deliveries.created')}
-                  {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
-                </div>
-              </TableHead>
+              {columnVisibility.id && (
+                <TableHead
+                  className={COLUMN_WIDTHS.id}
+                  onClick={!initialLoading ? () => handleSort('id') : undefined}
+                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                >
+                  <div className='flex items-center whitespace-nowrap'>
+                    {t('deliveries.id')}
+                    {!initialLoading ? renderSortIndicator('id') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                  </div>
+                </TableHead>
+              )}
+              {columnVisibility.recipient && (
+                <TableHead
+                  className={COLUMN_WIDTHS.recipient}
+                  onClick={!initialLoading ? () => handleSort('recipientEmail') : undefined}
+                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                >
+                  <div className='flex items-center whitespace-nowrap'>
+                    {t('deliveries.recipient')}
+                    {!initialLoading ? renderSortIndicator('recipientEmail') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                  </div>
+                </TableHead>
+              )}
+              {columnVisibility.sender && (
+                <TableHead
+                  className={COLUMN_WIDTHS.sender}
+                  onClick={!initialLoading ? () => handleSort('user') : undefined}
+                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                >
+                  <div className='flex items-center whitespace-nowrap'>
+                    {t('deliveries.sender')}
+                    {!initialLoading ? renderSortIndicator('user') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                  </div>
+                </TableHead>
+              )}
+              {columnVisibility.status && (
+                <TableHead
+                  className={COLUMN_WIDTHS.status}
+                  onClick={!initialLoading ? () => handleSort('status') : undefined}
+                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                >
+                  <div className='flex items-center whitespace-nowrap'>
+                    {t('common.status')}
+                    {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                  </div>
+                </TableHead>
+              )}
+              {columnVisibility.created && (
+                <TableHead
+                  className={COLUMN_WIDTHS.created}
+                  onClick={!initialLoading ? () => handleSort('created_at') : undefined}
+                  style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                >
+                  <div className='flex items-center whitespace-nowrap'>
+                    {t('deliveries.created')}
+                    {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                  </div>
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -182,17 +192,21 @@ function DeliveriesTable() {
                     onClick={() => window.location.href = `/delivery/${delivery.id}`}
                     className="cursor-pointer"
                   >
-                    <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
-                    <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>
-                    <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
-                      <StatusBadge status={delivery.status} />
-                    </TableCell>
-                    <TableCell className={COLUMN_WIDTHS.created}>
-                      {formatDistanceToNow(new Date(delivery.created_at), {
-                        addSuffix: true,
-                      })}
-                    </TableCell>
+                    {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
+                    {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
+                    {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>}
+                    {columnVisibility.status && (
+                      <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
+                        <StatusBadge status={delivery.status} />
+                      </TableCell>
+                    )}
+                    {columnVisibility.created && (
+                      <TableCell className={COLUMN_WIDTHS.created}>
+                        {formatDistanceToNow(new Date(delivery.created_at), {
+                          addSuffix: true,
+                        })}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
           </TableBody>

@@ -34,12 +34,12 @@ export default function GenericCardView({
   return (
     <Card className={`flex flex-col ${className}`}>
       <CardHeader>
-        <div className='flex flex-col lg:flex-row justify-between items-center'>
+        <div className='flex flex-col lg:flex-row gap-2 justify-stretch lg:justify-between items-stretch lg:items-center'>
           <div>
             <CardTitle className='text-2xl font-bold'>{title}</CardTitle>
             {description && <CardDescription className='mt-2'>{description}</CardDescription>}
           </div>
-          {headerRight && <div>{headerRight}</div>}
+          {headerRight && <div className='flex w-full lg:w-auto'>{headerRight}</div>}
         </div>
         <Separator className='mt-4' />
       </CardHeader>

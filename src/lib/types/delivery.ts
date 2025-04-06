@@ -109,6 +109,20 @@ export type DeliveriesContextType = {
   applyFilters: (values: FilterFormValues) => void
   resetFilters: () => void
   toggleStatusFilter: (status: string) => void
+  columnVisibility: {
+    id: boolean
+    recipient: boolean
+    sender: boolean
+    status: boolean
+    created: boolean
+  }
+  setColumnVisibility: (visibility: {
+    id: boolean
+    recipient: boolean
+    sender: boolean
+    status: boolean
+    created: boolean
+  }) => void
 }
 
 export type DeliveryContextType = {

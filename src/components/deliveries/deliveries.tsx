@@ -9,6 +9,7 @@ import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
 import GenericCardView from '@/components/GenericCardView'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
 import { useTranslation } from '@/i18n/I18nProvider'
+import ColumnSelectorDialog from './ColumnSelectorDialog'
 
 interface DeliveriesProps {
   isAdmin: boolean
@@ -18,9 +19,10 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   const { loading, error } = useDeliveries()
   const { t } = useTranslation()
   const headerRight = (
-    <div className='w-full flex flex-col lg:flex-row gap-2 lg:justify-end items-start lg:items-center'>
+    <div className='w-full flex flex-col lg:flex-row gap-2 justify-stretch lg:justify-end items-stretch lg:items-center'>
       <DeliveryStatusFilter />
       <DeliveryFilterPanel isAdmin={isAdmin} />
+      <ColumnSelectorDialog />
     </div>
   )
 

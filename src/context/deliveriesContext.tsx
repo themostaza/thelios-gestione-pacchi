@@ -20,6 +20,14 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
     status: ['pending', 'completed', 'cancelled'],
   })
 
+  const [columnVisibility, setColumnVisibility] = useState({
+    id: true,
+    recipient: true,
+    sender: false,
+    status: true,
+    created: false,
+  })
+
   const form = useForm<FilterFormValues>({
     defaultValues: {
       recipient: '',
@@ -143,6 +151,8 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
         applyFilters,
         resetFilters,
         toggleStatusFilter,
+        columnVisibility,
+        setColumnVisibility,
       }}
     >
       {children}
