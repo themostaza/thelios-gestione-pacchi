@@ -18,7 +18,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   const { loading, error } = useDeliveries()
   const { t } = useTranslation()
   const headerRight = (
-    <div className='flex space-x-2 justify-end items-center'>
+    <div className='w-full flex flex-col lg:flex-row gap-2 lg:justify-end items-start lg:items-center'>
       <DeliveryStatusFilter />
       <DeliveryFilterPanel isAdmin={isAdmin} />
     </div>

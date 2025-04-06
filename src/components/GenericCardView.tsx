@@ -34,7 +34,7 @@ export default function GenericCardView({
   return (
     <Card className={`flex flex-col ${className}`}>
       <CardHeader>
-        <div className='flex flex-col md:flex-row justify-between items-center'>
+        <div className='flex flex-col lg:flex-row justify-between items-center'>
           <div>
             <CardTitle className='text-2xl font-bold'>{title}</CardTitle>
             {description && <CardDescription className='mt-2'>{description}</CardDescription>}
@@ -46,7 +46,7 @@ export default function GenericCardView({
 
       <div className='flex-1 overflow-hidden flex flex-col'>
         <CardContent className={`flex-1 overflow-hidden ${contentClassName}`}>
-          <div className='flex flex-col md:flex-row gap-4 h-full'>
+          <div className='flex flex-col lg:flex-row gap-4 h-full'>
             <div className='w-full flex flex-col h-full overflow-hidden'>{content}</div>
           </div>
         </CardContent>

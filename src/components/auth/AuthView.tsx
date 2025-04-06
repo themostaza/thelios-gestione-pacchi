@@ -69,12 +69,12 @@ export default function AuthView({ defaultTab = 'login' }: AuthViewProps) {
           </Button>
         </div>
       }
-      footerClassName='md:w-1/3 m-auto'
+      footerClassName='lg:w-1/3 m-auto'
     >
       <Tabs
         defaultValue={defaultTab}
         onValueChange={setActiveTab}
-        className='w-full md:w-1/3 m-auto'
+        className='w-full lg:w-1/3 m-auto'
       >
         <TabsList className='grid w-full grid-cols-2'>
           <TabsTrigger value='login'>{t('auth.login')}</TabsTrigger>

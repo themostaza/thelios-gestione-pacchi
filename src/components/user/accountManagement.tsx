@@ -16,15 +16,15 @@ export default function UserManagement() {
         description='Crea e gestisci gli utenti del sistema'
         useScrollArea={false}
       >
-        <div className='flex flex-col md:flex-row gap-6 h-full'>
+        <div className='flex flex-col lg:flex-row gap-6 h-full'>
           {/* Form on the left for md screens and up */}
-          <div className='w-full md:w-1/3 bg-card border rounded-lg p-6 shadow-sm'>
+          <div className='w-full lg:w-1/3 bg-card border rounded-lg p-6 shadow-sm'>
             <h3 className='text-lg font-semibold mb-4'>{t('user.newUser')}</h3>
             <AccountForm />
           </div>
 
           {/* Users table on the right */}
-          <div className='w-full md:w-2/3 overflow-auto'>
+          <div className='w-full lg:w-2/3 overflow-auto'>
             <h3 className='text-lg font-semibold mb-4'>{t('user.users')}</h3>
             <AccountsTable />
           </div>

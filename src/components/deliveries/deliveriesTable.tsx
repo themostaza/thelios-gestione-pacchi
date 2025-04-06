@@ -168,9 +168,6 @@ function DeliveriesTable() {
                   {!initialLoading ? renderSortIndicator('created_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                 </div>
               </TableHead>
-              <TableHead className={COLUMN_WIDTHS.actions}>
-                <div className='whitespace-nowrap'>{t('deliveries.actions')}</div>
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -182,6 +179,8 @@ function DeliveriesTable() {
                   <TableRow
                     key={delivery.id}
                     id={`delivery-row-${delivery.id}`}
+                    onClick={() => window.location.href = `/delivery/${delivery.id}`}
+                    className="cursor-pointer"
                   >
                     <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>
                     <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>
@@ -193,18 +192,6 @@ function DeliveriesTable() {
                       {formatDistanceToNow(new Date(delivery.created_at), {
                         addSuffix: true,
                       })}
-                    </TableCell>
-                    <TableCell className={COLUMN_WIDTHS.actions}>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        asChild
-                      >
-                        <Link href={`/delivery/${delivery.id}`}>
-                          {t('deliveries.open')}
-                          <ArrowRight className='ml-2 h-4 w-4' />
-                        </Link>
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

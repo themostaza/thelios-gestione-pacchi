@@ -150,6 +150,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
         variant='outline'
         size='sm'
         onClick={() => setShowFilterDialog(true)}
+        className='w-full lg:w-auto'
       >
         <Filter className='h-4 w-4 mr-2' />
         {t('common.filters')}

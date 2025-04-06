@@ -21,7 +21,7 @@ export default function TopBar() {
       >
         <SheetTrigger
           asChild
-          className='md:hidden fixed top-4 left-4 z-40'
+          className='lg:hidden fixed top-4 left-4 z-40'
         >
           <Button
             variant='outline'
@@ -45,7 +45,7 @@ export default function TopBar() {
       </Sheet>
 
       {/* Desktop view - permanent sidebar */}
-      <div className='hidden md:flex flex-col justify-between h-screen bg-secondary p-4 gap-4 w-1/4'>
+      <div className='hidden lg:flex flex-col justify-between h-screen bg-secondary p-4 gap-4 w-1/4'>
         <NavigationButtons />
         <AuthStatus />
       </div>

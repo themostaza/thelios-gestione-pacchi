@@ -7,7 +7,7 @@ export default function DeliveryDetails() {
   if (!delivery) return null
 
   return (
-    <div className='grid md:grid-cols-2 gap-6'>
+    <div className='grid lg:grid-cols-2 gap-6'>
       <div>
         <h3 className='text-lg font-medium'>Delivery Information</h3>
         <div className='space-y-3 mt-3'>

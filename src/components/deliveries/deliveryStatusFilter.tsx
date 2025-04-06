@@ -42,12 +42,13 @@ export default function DeliveryStatusFilter() {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <div className='flex flex-col md:flex-row items-baseline justify-center gap-2 border rounded-md p-2'>
+              <div className='flex flex-col lg:flex-row items-baseline justify-center gap-2 border rounded-md p-2'>
                 {' '}
                 <Button
                   onClick={() => handleStatusToggle('pending')}
                   variant='ghost'
                   size='sm'
+                  className='flex items-center justify-between w-full lg:w-auto'
                 >
                   <FilterStatusBadge
                     status='pending'
@@ -60,6 +61,7 @@ export default function DeliveryStatusFilter() {
                   onClick={() => handleStatusToggle('completed')}
                   variant='ghost'
                   size='sm'
+                  className='flex items-center justify-between w-full lg:w-auto'
                 >
                   <FilterStatusBadge
                     status='completed'
@@ -72,6 +74,7 @@ export default function DeliveryStatusFilter() {
                   onClick={() => handleStatusToggle('cancelled')}
                   variant='ghost'
                   size='sm'
+                  className='flex items-center justify-between w-full lg:w-auto'
                 >
                   <FilterStatusBadge
                     status='cancelled'

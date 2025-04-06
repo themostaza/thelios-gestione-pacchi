@@ -30,11 +30,11 @@ export async function generateMetadata() {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='it'>
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen h-full md:h-screen bg-primary/20 md:flex`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen h-full lg:h-screen bg-primary/20 lg:flex`}>
         <I18nProvider>
           <AuthProvider>
             <Menu />
-            <div className='mx-auto min-h-screen h-full flex max-w-screen-xl w-full p-1 md:p-4'>{children}</div>
+            <div className='mx-auto min-h-screen h-full flex max-w-screen-xl w-full p-1 lg:p-4'>{children}</div>
             <Toaster />
           </AuthProvider>
         </I18nProvider>
