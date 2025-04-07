@@ -27,15 +27,6 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   )
 
   const renderContent = () => {
-    if (loading) {
-      return (
-        <div className='flex flex-col items-center justify-center gap-2 h-full py-12'>
-          <Loader2 className='h-8 w-8 animate-spin text-primary' />
-          <p>Loading deliveries...</p>
-        </div>
-      )
-    }
-
     if (error) {
       return (
         <div className='flex justify-center flex-col items-center py-12'>
@@ -44,6 +35,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
       )
     }
 
+    // Always render DeliveriesTable, which will handle its own loading state
     return (
       <div className='h-full'>
         <DeliveriesTable />

@@ -3,7 +3,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ArrowUpDown, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Button } from '@/components/ui/button'
@@ -62,6 +62,8 @@ function DeliveriesTable() {
     direction: 'asc',
   })
 
+  const tableRef = useRef<HTMLDivElement>(null)
+
   const handleSort = (field: keyof DeliveryData) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.field === field) {
@@ -113,8 +115,10 @@ function DeliveriesTable() {
       return <p className='text-center py-8 text-gray-500'>{t('deliveries.noResultsFound')}</p>
     }
 
+    const numberOfSkeletonRows = 10; // Adjust this to match the number of rows you expect to fetch
+
     return (
-      <div className='flex-1'>
+      <div className='flex-1' ref={tableRef}>
         <Table className='table-fixed w-full'>
           <TableHeader>
             <TableRow>
@@ -181,34 +185,39 @@ function DeliveriesTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {initialLoading
-              ? Array(5)
-                  .fill(0)
-                  .map((_, i) => <LoadingRow key={i} />)
-              : sortedDeliveries.map((delivery) => (
-                  <TableRow
-                    key={delivery.id}
-                    id={`delivery-row-${delivery.id}`}
-                    onClick={() => window.location.href = `/delivery/${delivery.id}`}
-                    className="cursor-pointer"
-                  >
-                    {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
-                    {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
-                    {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>}
-                    {columnVisibility.status && (
-                      <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
-                        <StatusBadge status={delivery.status} />
-                      </TableCell>
-                    )}
-                    {columnVisibility.created && (
-                      <TableCell className={COLUMN_WIDTHS.created}>
-                        {formatDistanceToNow(new Date(delivery.created_at), {
-                          addSuffix: true,
-                        })}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
+            {sortedDeliveries.map((delivery) => (
+              <TableRow
+                key={delivery.id}
+                id={`delivery-row-${delivery.id}`}
+                onClick={() => window.location.href = `/delivery/${delivery.id}`}
+                className="cursor-pointer"
+              >
+                {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
+                {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
+                {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>}
+                {columnVisibility.status && (
+                  <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
+                    <StatusBadge status={delivery.status} />
+                  </TableCell>
+                )}
+                {columnVisibility.created && (
+                  <TableCell className={COLUMN_WIDTHS.created}>
+                    {formatDistanceToNow(new Date(delivery.created_at), {
+                      addSuffix: true,
+                    })}
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {loading && Array(numberOfSkeletonRows).fill(0).map((_, i) => (
+              <TableRow key={`loading-${i}`}>
+                {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id}><Skeleton className='h-6 w-full' /></TableCell>}
+                {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient}><Skeleton className='h-6 w-full' /></TableCell>}
+                {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender}><Skeleton className='h-6 w-full' /></TableCell>}
+                {columnVisibility.status && <TableCell className={COLUMN_WIDTHS.status}><Skeleton className='h-6 w-full' /></TableCell>}
+                {columnVisibility.created && <TableCell className={COLUMN_WIDTHS.created}><Skeleton className='h-6 w-full' /></TableCell>}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
 
@@ -216,7 +225,15 @@ function DeliveriesTable() {
           <div className='py-4 flex justify-center'>
             <Button
               variant='outline'
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => {
+                const scrollPosition = tableRef.current?.scrollTop || 0
+                setPage((p) => p + 1)
+                setTimeout(() => {
+                  if (tableRef.current) {
+                    tableRef.current.scrollTop = scrollPosition
+                  }
+                }, 0)
+              }}
               disabled={loading}
             >
               {loading ? t('common.loading') : t('deliveries.loadMore')}
