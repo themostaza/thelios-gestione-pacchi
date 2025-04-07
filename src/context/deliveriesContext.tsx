@@ -50,11 +50,13 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
         const response = await getDeliveriesPaginated(page, 10, filters)
 
         if (response.success && response.data) {
-          if (page === 1) {
-            setDeliveries(response.data)
-          } else {
-            setDeliveries((prev) => [...prev, ...response.data!])
-          }
+          setDeliveries((prev) => {
+            if (!response.data) return prev
+            const newDeliveries = response.data!.filter(
+              (newDelivery) => !prev.some((existingDelivery) => existingDelivery.id === newDelivery.id)
+            )
+            return page === 1 ? response.data : [...prev, ...newDeliveries]
+          })
           setHasMore(response.hasMore)
           setError(null)
         } else {
@@ -70,6 +72,10 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
     }
 
     loadDeliveries()
+
+    const intervalId = setInterval(loadDeliveries, 30000) // 30 seconds
+
+    return () => clearInterval(intervalId)
   }, [page, filters])
 
   const applyFilters = (values: FilterFormValues) => {
