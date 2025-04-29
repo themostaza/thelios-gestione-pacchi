@@ -55,6 +55,11 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
   useEffect(() => {
     if (value) {
       setSearchQuery(value)
+      // When value is set programmatically (e.g. from scan), show results and trigger search
+      if (value.length > 0 && !selectedRecipientInfo) {
+        setShowResults(true)
+        setIsLoading(true)
+      }
     } else {
       setSearchQuery('')
       setSelectedRecipientInfo(null)
@@ -80,6 +85,10 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     try {
       const data = await searchRecipients(query)
       setSearchResults(data)
+      // When search results come back and we have results, keep dropdown open
+      if (data.length > 0) {
+        setShowResults(true)
+      }
     } catch (error) {
       console.error('Error fetching recipients:', error)
       setSearchResults([])

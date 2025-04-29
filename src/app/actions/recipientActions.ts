@@ -23,7 +23,7 @@ export async function searchRecipients(query: string) {
     : recipients.filter(
         (recipient) => recipient.name.toLowerCase().includes(normalizedQuery) || 
                       recipient.surname.toLowerCase().includes(normalizedQuery) || 
-                      recipient.email.toLowerCase().includes(normalizedQuery)
+                      (recipient.email ? recipient.email.toLowerCase().includes(normalizedQuery) : false)
       )
 
   return filteredRecipients
@@ -97,11 +97,11 @@ export async function getRecipients(): Promise<Recipient[]> {
     }
     
     // Map to required format and filter out entries with empty email addresses
-    return recipientData // Only include items with an email
+    return recipientData
       .map((item: { NAME1: string, NAME2: string, SMTP_ADDR: string }) => ({
         name: item.NAME1,
         surname: item.NAME2,
-        email: item.SMTP_ADDR || undefined
+        email: item.SMTP_ADDR || ""
       }))
     
   } catch (error) {
