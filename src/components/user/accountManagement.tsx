@@ -12,8 +12,8 @@ export default function UserManagement() {
   return (
     <UserProvider>
       <GenericCardView
-        title='Gestione Utenti'
-        description='Crea e gestisci gli utenti del sistema'
+        title={t('user.management')}
+        description={t('user.description')}
         useScrollArea={false}
       >
         <div className='flex flex-col lg:flex-row gap-6 h-full'>

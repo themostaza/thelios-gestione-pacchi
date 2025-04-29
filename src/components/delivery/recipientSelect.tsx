@@ -7,6 +7,7 @@ import { searchRecipients } from '@/app/actions/recipientActions'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useTranslation } from '@/i18n/I18nProvider'
 import { Recipient } from '@/lib/types/delivery'
 
 interface RecipientSelectProps {
@@ -44,6 +45,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function RecipientSelect({ value, onChange, id = 'recipient', name = 'recipient', disabled = false }: RecipientSelectProps) {
+  const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRecipientInfo, setSelectedRecipientInfo] = useState<Recipient | null>(null)
   const [showResults, setShowResults] = useState(false)
@@ -138,7 +140,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
         <Input
           id={`${id}-search`}
           type='text'
-          placeholder='Search recipient...'
+          placeholder={t('deliveries.searchRecipient')}
           value={searchQuery}
           onChange={handleSearch}
           className='pl-10'
@@ -188,12 +190,12 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
                     </div>
                     {recipient.email
                     ? <div className='text-sm text-muted-foreground'>{recipient.email}</div>
-                    : <div className='text-sm text-destructive'>No email found</div>}
+                    : <div className='text-sm text-destructive'>{t('deliveries.noEmailFound')}</div>}
                   </div>
                 </div>
               ))
             ) : (
-              <div className='p-4 text-center text-muted-foreground'>No results found</div>
+              <div className='p-4 text-center text-muted-foreground'>{t('deliveries.noResultsFoundForRecipient')}</div>
             )}
           </div>
         )}
@@ -218,7 +220,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
           type='button'
           onClick={clearRecipient}
           className={`text-muted-foreground ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-foreground'}`}
-          aria-label='Remove recipient'
+          aria-label={t('deliveries.removeRecipient')}
           disabled={disabled}
         >
           <X className='h-4 w-4' />

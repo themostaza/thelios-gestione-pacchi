@@ -17,7 +17,13 @@
     "optionalNotes": "Optional notes",
     "noUsersFound": "No users found",
     "confirmDelete": "Are you sure you want to delete?",
-    "status": "Status"
+    "status": "Status",
+    "apply": "Apply",
+    "siteTitle": "Delivery Management System",
+    "siteDescription": "Manage and track deliveries efficiently",
+    "backToList": "Back to list",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all"
   },
   "auth": {
     "login": "Login",
@@ -66,7 +72,21 @@
     "selectDateRange": "Select date range",
     "noResultsFound": "No results found with applied filters",
     "unknownSender": "Unknown sender",
-    "register": "Register"
+    "register": "Register",
+    "searchRecipient": "Search recipient...",
+    "noResultsFoundForRecipient": "No results found",
+    "noEmailFound": "No email found",
+    "removeRecipient": "Remove recipient",
+    "uploadLabelText": "Take a photo of the label or upload an image",
+    "takePhoto": "Camera",
+    "uploadFile": "Upload file",
+    "configureColumns": "Configure Columns",
+    "columnVisibility": "Column Visibility",
+    "selectColumns": "Select the columns you want to display",
+    "scanLabel": "Scan Label",
+    "scanningLabel": "Scanning label...",
+    "uploadSuccess": "Upload successful",
+    "labelTextExtracted": "Label text extracted successfully"
   },
   "user": {
     "management": "User Management",
@@ -101,7 +121,8 @@
     "packagesTimeline": "Packages Timeline",
     "departmentDistribution": "Department Distribution",
     "chart": "Chart",
-    "days": "days"
+    "days": "days",
+    "description": "View key performance indicators"
   },
   "notifications": {
     "emailNotifications": "Email Notifications",
@@ -111,10 +132,33 @@
     "noEmailsSent": "No email notifications have been sent yet.",
     "sendReminder": "Send Reminder to Recipient",
     "logs": "Email Notification Logs",
-    "logsDescription": "History of all email notifications sent for this delivery"
+    "logsDescription": "History of all email notifications sent for this delivery",
+    "emailLogs": "Email Logs",
+    "sentAt": "Sent at",
+    "status": "Status",
+    "details": "Details",
+    "sentBy": "Sent by",
+    "subject": "Subject",
+    "recipientEmail": "Recipient email"
   },
   "dialog": {
     "confirmDeletion": "Confirm Deletion",
     "confirmDeletionDescription": "Are you sure you want to delete this item? This action cannot be undone."
+  },
+  "scanner": {
+    "permissionDenied": "Camera permission denied",
+    "notSupported": "Camera not supported",
+    "retry": "Retry",
+    "takingPhoto": "Taking photo...",
+    "processingImage": "Processing image...",
+    "scanAgain": "Scan Again"
+  },
+  "errors": {
+    "failedToFetch": "Failed to fetch data",
+    "tryAgain": "Please try again later",
+    "fileUpload": "Error uploading file",
+    "scanFailed": "Scan failed",
+    "unauthorized": "Unauthorized access",
+    "permissionDenied": "Permission denied"
   }
 }

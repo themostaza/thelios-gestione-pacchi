@@ -17,7 +17,13 @@
     "optionalNotes": "Note opzionali",
     "noUsersFound": "Nessun utente trovato",
     "confirmDelete": "Sei sicuro di voler eliminare?",
-    "status": "Stato"
+    "status": "Stato",
+    "apply": "Applica",
+    "siteTitle": "Sistema di Gestione Consegne",
+    "siteDescription": "Gestisci e monitora le consegne in modo efficiente",
+    "backToList": "Torna alla lista",
+    "selectAll": "Seleziona tutto",
+    "deselectAll": "Deseleziona tutto"
   },
   "auth": {
     "login": "Accedi",
@@ -66,7 +72,21 @@
     "selectDateRange": "Seleziona intervallo di date",
     "noResultsFound": "Nessun risultato trovato con i filtri applicati",
     "unknownSender": "Mittente sconosciuto",
-    "register": "Registra"
+    "register": "Registra",
+    "searchRecipient": "Cerca destinatario...",
+    "noResultsFoundForRecipient": "Nessun risultato trovato",
+    "noEmailFound": "Nessuna email trovata",
+    "removeRecipient": "Rimuovi destinatario",
+    "uploadLabelText": "Scatta una foto dell'etichetta o carica un'immagine",
+    "takePhoto": "Fotocamera",
+    "uploadFile": "Carica file",
+    "configureColumns": "Configura Colonne",
+    "columnVisibility": "Visibilità Colonne",
+    "selectColumns": "Seleziona le colonne che vuoi visualizzare",
+    "scanLabel": "Scansiona Etichetta",
+    "scanningLabel": "Scansione etichetta in corso...",
+    "uploadSuccess": "Caricamento riuscito",
+    "labelTextExtracted": "Testo dell'etichetta estratto con successo"
   },
   "user": {
     "management": "Gestione Utenti",
@@ -101,7 +121,8 @@
     "packagesTimeline": "Timeline Pacchi",
     "departmentDistribution": "Distribuzione per Dipartimento",
     "chart": "Grafico",
-    "days": "giorni"
+    "days": "giorni",
+    "description": "Visualizza gli indicatori chiave di prestazione"
   },
   "notifications": {
     "emailNotifications": "Notifiche Email",
@@ -111,10 +132,33 @@
     "noEmailsSent": "Nessuna notifica email è stata ancora inviata.",
     "sendReminder": "Invia Promemoria al Destinatario",
     "logs": "Log delle Notifiche Email",
-    "logsDescription": "Cronologia di tutte le notifiche email inviate per questa consegna"
+    "logsDescription": "Cronologia di tutte le notifiche email inviate per questa consegna",
+    "emailLogs": "Log Email",
+    "sentAt": "Inviata il",
+    "status": "Stato",
+    "details": "Dettagli",
+    "sentBy": "Inviata da",
+    "subject": "Oggetto",
+    "recipientEmail": "Email destinatario"
   },
   "dialog": {
     "confirmDeletion": "Conferma Eliminazione",
     "confirmDeletionDescription": "Sei sicuro di voler eliminare questo elemento? Questa azione non può essere annullata."
+  },
+  "scanner": {
+    "permissionDenied": "Permesso fotocamera negato",
+    "notSupported": "Fotocamera non supportata",
+    "retry": "Riprova",
+    "takingPhoto": "Scatto foto...",
+    "processingImage": "Elaborazione immagine...",
+    "scanAgain": "Scansiona di nuovo"
+  },
+  "errors": {
+    "failedToFetch": "Impossibile recuperare i dati",
+    "tryAgain": "Si prega di riprovare più tardi",
+    "fileUpload": "Errore durante il caricamento del file",
+    "scanFailed": "Scansione fallita",
+    "unauthorized": "Accesso non autorizzato",
+    "permissionDenied": "Permesso negato"
   }
 }

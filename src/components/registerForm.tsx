@@ -5,6 +5,7 @@ import { Loader2, UserPlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 import { registerUser } from '@/app/actions/authActions'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import { RegisterFormData } from '@/lib/types/user'
 import { registerSchema } from '@/lib/validations/user'
 
 export default function RegisterForm() {
+  const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
@@ -72,8 +74,8 @@ export default function RegisterForm() {
       <CardHeader>
         <div className='flex justify-between items-center'>
           <div>
-            <CardTitle className='text-2xl font-bold'>New User Registration</CardTitle>
-            <CardDescription className='mt-2'>Create a new account to access the application</CardDescription>
+            <CardTitle className='text-2xl font-bold'>{t('auth.newUserRegistration')}</CardTitle>
+            <CardDescription className='mt-2'>{t('auth.createNewAccountDescription')}</CardDescription>
           </div>
         </div>
         <Separator className='mt-4' />
@@ -90,13 +92,13 @@ export default function RegisterForm() {
               name='email'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='email'>Email address</FormLabel>
+                  <FormLabel htmlFor='email'>{t('auth.email')}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id='email'
                       type='email'
-                      placeholder='tuoemail@esempio.com'
+                      placeholder={t('auth.emailPlaceholder')}
                       autoComplete='email'
                       disabled={isSubmitting}
                     />
