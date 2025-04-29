@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useAuth } from '@/context/authContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 import { cn } from '@/lib/utils'
+import { Separator } from './ui/separator'
 
 export default function NavigationButtons() {
   const pathname = usePathname()
@@ -69,9 +70,13 @@ export default function NavigationButtons() {
           >
             <Link
               href={button.href}
-              className={`flex items-center p-2 rounded-md w-full ${
-                pathname === button.href ? 'bg-primary text-primary-foreground' : 'bg-background'
-              } ${!isLoggedIn ? 'opacity-50 pointer-events-none' : 'hover:bg-accent'}`}
+              className={cn(
+                'flex items-center p-2 rounded-md w-full',
+                pathname === button.href 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' 
+                  : 'bg-background hover:bg-accent',
+                !isLoggedIn && 'opacity-50 pointer-events-none'
+              )}
               onClick={(e) => handleNavigate(button.href, e)}
             >
               {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
@@ -80,6 +85,8 @@ export default function NavigationButtons() {
           </li>
         ))}
 
+        <Separator />
+
         {adminButtons.map((button, index) => (
           <li
             key={`admin-${index}`}
@@ -87,9 +94,13 @@ export default function NavigationButtons() {
           >
             <Link
               href={button.href}
-              className={`flex items-center p-2 rounded-md w-full ${
-                pathname === button.href ? 'bg-primary text-primary-foreground' : 'bg-background'
-              } ${!isLoggedIn || !isAdmin ? 'opacity-50 pointer-events-none' : 'hover:bg-accent'}`}
+              className={cn(
+                'flex items-center p-2 rounded-md w-full',
+                pathname === button.href 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' 
+                  : 'bg-background hover:bg-accent',
+                (!isLoggedIn || !isAdmin) && 'opacity-50 pointer-events-none'
+              )}
               onClick={(e) => handleNavigate(button.href, e)}
             >
               {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}

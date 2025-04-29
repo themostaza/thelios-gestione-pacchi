@@ -64,6 +64,28 @@ function DeliveriesTable() {
 
   const tableRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (tableRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = tableRef.current
+        if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !loading) {
+          setPage((prevPage) => prevPage + 1)
+        }
+      }
+    }
+
+    const currentRef = tableRef.current
+    if (currentRef) {
+      currentRef.addEventListener('scroll', handleScroll)
+    }
+
+    return () => {
+      if (currentRef) {
+        currentRef.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [hasMore, loading, setPage])
+
   const handleSort = (field: keyof DeliveryData) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.field === field) {
@@ -118,7 +140,7 @@ function DeliveriesTable() {
     const numberOfSkeletonRows = 10; // Adjust this to match the number of rows you expect to fetch
 
     return (
-      <div className='flex-1' ref={tableRef}>
+      <div className='flex-1 overflow-auto' ref={tableRef}>
         <Table className='table-fixed w-full'>
           <TableHeader>
             <TableRow>
@@ -220,26 +242,6 @@ function DeliveriesTable() {
             ))}
           </TableBody>
         </Table>
-
-        {!initialLoading && hasMore && (
-          <div className='py-4 flex justify-center'>
-            <Button
-              variant='outline'
-              onClick={() => {
-                const scrollPosition = tableRef.current?.scrollTop || 0
-                setPage((p) => p + 1)
-                setTimeout(() => {
-                  if (tableRef.current) {
-                    tableRef.current.scrollTop = scrollPosition
-                  }
-                }, 0)
-              }}
-              disabled={loading}
-            >
-              {loading ? t('common.loading') : t('deliveries.loadMore')}
-            </Button>
-          </div>
-        )}
 
         {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>{t('deliveries.endOfList')}</div>}
       </div>

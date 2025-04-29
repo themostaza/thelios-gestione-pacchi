@@ -173,7 +173,9 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
                     <div className='font-medium'>
                       {recipient.name} {recipient.surname}
                     </div>
-                    <div className='text-sm text-muted-foreground'>{recipient.email}</div>
+                    {recipient.email
+                    ? <div className='text-sm text-muted-foreground'>{recipient.email}</div>
+                    : <div className='text-sm text-destructive'>No email found</div>}
                   </div>
                 </div>
               ))
