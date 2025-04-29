@@ -48,15 +48,12 @@ export async function getRecipients(): Promise<Recipient[]> {
 
     if (needsFetch) {
       // Fetch new data from the API
-      const response = await fetch(
-        'https://theliosdev.it-cpi026-rt.cfapps.eu10-002.hana.ondemand.com/http/api_mail_list',
-        {
-          headers: {
-            'Authorization': process.env.THELIOS_API_KEY || ''
-          }
-        }
-      )
-      
+      const response = await fetch('https://theliosdev.it-cpi026-rt.cfapps.eu10-002.hana.ondemand.com/http/api_mail_list', {
+        headers: {
+          Authorization: process.env.THELIOS_API_KEY || '',
+        },
+      })
+
       if (!response.ok) {
         throw new Error(`API response error: ${response.status}`)
       }
