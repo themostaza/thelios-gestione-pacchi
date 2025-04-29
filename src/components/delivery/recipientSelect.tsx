@@ -172,8 +172,12 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
               searchResults.map((recipient, index) => (
                 <div
                   key={index}
-                  className='flex items-center gap-3 p-3 hover:bg-primary/10 cursor-pointer'
-                  onClick={() => selectRecipient(recipient)}
+                  className={`flex items-center gap-3 p-3 ${
+                    recipient.email 
+                      ? 'hover:bg-primary/10 cursor-pointer' 
+                      : 'opacity-70 cursor-not-allowed'
+                  }`}
+                  onClick={() => recipient.email ? selectRecipient(recipient) : null}
                 >
                   <Avatar>
                     <AvatarFallback className='bg-primary text-primary-foreground'>{recipient.name.charAt(0)}</AvatarFallback>
