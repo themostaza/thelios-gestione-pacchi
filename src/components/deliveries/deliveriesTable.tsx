@@ -1,12 +1,10 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowUpDown, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
 import StatusBadge from '@/components/deliveries/statusBadge'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDeliveries } from '@/context/deliveriesContext'
@@ -21,31 +19,6 @@ const COLUMN_WIDTHS = {
   status: 'w-[15%]',
   created: 'w-[20%]',
   actions: 'w-[10%]',
-}
-
-function LoadingRow() {
-  return (
-    <TableRow>
-      <TableCell className={COLUMN_WIDTHS.id}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-      <TableCell className={COLUMN_WIDTHS.recipient}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-      <TableCell className={COLUMN_WIDTHS.sender}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-      <TableCell className={COLUMN_WIDTHS.status}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-      <TableCell className={COLUMN_WIDTHS.created}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-      <TableCell className={COLUMN_WIDTHS.actions}>
-        <Skeleton className='h-8 w-full' />
-      </TableCell>
-    </TableRow>
-  )
 }
 
 type SortConfig = {
@@ -137,10 +110,13 @@ function DeliveriesTable() {
       return <p className='text-center py-8 text-gray-500'>{t('deliveries.noResultsFound')}</p>
     }
 
-    const numberOfSkeletonRows = 10; // Adjust this to match the number of rows you expect to fetch
+    const numberOfSkeletonRows = 10 // Adjust this to match the number of rows you expect to fetch
 
     return (
-      <div className='flex-1 overflow-auto' ref={tableRef}>
+      <div
+        className='flex-1 overflow-auto'
+        ref={tableRef}
+      >
         <Table className='table-fixed w-full'>
           <TableHeader>
             <TableRow>
@@ -211,8 +187,8 @@ function DeliveriesTable() {
               <TableRow
                 key={delivery.id}
                 id={`delivery-row-${delivery.id}`}
-                onClick={() => window.location.href = `/delivery/${delivery.id}`}
-                className="cursor-pointer"
+                onClick={() => (window.location.href = `/delivery/${delivery.id}`)}
+                className='cursor-pointer'
               >
                 {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
                 {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
@@ -231,15 +207,38 @@ function DeliveriesTable() {
                 )}
               </TableRow>
             ))}
-            {loading && Array(numberOfSkeletonRows).fill(0).map((_, i) => (
-              <TableRow key={`loading-${i}`}>
-                {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id}><Skeleton className='h-6 w-full' /></TableCell>}
-                {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient}><Skeleton className='h-6 w-full' /></TableCell>}
-                {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender}><Skeleton className='h-6 w-full' /></TableCell>}
-                {columnVisibility.status && <TableCell className={COLUMN_WIDTHS.status}><Skeleton className='h-6 w-full' /></TableCell>}
-                {columnVisibility.created && <TableCell className={COLUMN_WIDTHS.created}><Skeleton className='h-6 w-full' /></TableCell>}
-              </TableRow>
-            ))}
+            {loading &&
+              Array(numberOfSkeletonRows)
+                .fill(0)
+                .map((_, i) => (
+                  <TableRow key={`loading-${i}`}>
+                    {columnVisibility.id && (
+                      <TableCell className={COLUMN_WIDTHS.id}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    )}
+                    {columnVisibility.recipient && (
+                      <TableCell className={COLUMN_WIDTHS.recipient}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    )}
+                    {columnVisibility.sender && (
+                      <TableCell className={COLUMN_WIDTHS.sender}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    )}
+                    {columnVisibility.status && (
+                      <TableCell className={COLUMN_WIDTHS.status}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    )}
+                    {columnVisibility.created && (
+                      <TableCell className={COLUMN_WIDTHS.created}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
 

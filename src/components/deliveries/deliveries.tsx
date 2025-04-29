@@ -1,6 +1,5 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
@@ -9,6 +8,7 @@ import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
 import GenericCardView from '@/components/GenericCardView'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
 import { useTranslation } from '@/i18n/I18nProvider'
+
 import ColumnSelectorDialog from './ColumnSelectorDialog'
 
 interface DeliveriesProps {
@@ -16,7 +16,7 @@ interface DeliveriesProps {
 }
 
 function DeliveriesContent({ isAdmin }: DeliveriesProps) {
-  const { loading, error } = useDeliveries()
+  const { error } = useDeliveries()
   const { t } = useTranslation()
   const headerRight = (
     <div className='w-full flex flex-col lg:flex-row gap-2 justify-stretch lg:justify-end items-stretch lg:items-center'>

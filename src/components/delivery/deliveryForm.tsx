@@ -2,11 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Send, Upload, Camera } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
+import { extractTextFromImage } from '@/app/actions/scanActions'
 import RecipientSelect from '@/components/delivery/recipientSelect'
 import GenericCardView from '@/components/GenericCardView'
 import { Button } from '@/components/ui/button'
@@ -18,7 +20,6 @@ import { useTranslation } from '@/i18n/I18nProvider'
 import { createClient } from '@/lib/supabase/client'
 import { DeliveryFormData } from '@/lib/types/delivery'
 import { deliverySchema } from '@/lib/validations/delivery'
-import { extractTextFromImage } from '@/app/actions/scanActions'
 
 export default function DeliveryForm() {
   const { t } = useTranslation()
@@ -115,20 +116,20 @@ export default function DeliveryForm() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
-    
+
     const file = e.target.files[0]
     if (!file) return
-    
+
     const previewUrl = URL.createObjectURL(file)
     setPreviewImage(previewUrl)
-    
+
     setIsScanning(true)
     try {
       const formData = new FormData()
       formData.append('image', file)
-      
+
       const result = await extractTextFromImage(formData)
-      
+
       if (result.success && result.text) {
         form.setValue('recipient', result.text)
       } else {
@@ -149,98 +150,102 @@ export default function DeliveryForm() {
       setIsScanning(false)
     }
   }
-  
+
   const takePhoto = async () => {
     setShowCamera(true)
-    
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      })
+
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        videoRef.current.srcObject = stream
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error('Error accessing camera:', error)
       toast({
         title: 'Camera Error',
         description: 'Unable to access the camera',
         variant: 'destructive',
-      });
-      setShowCamera(false);
+      })
+      setShowCamera(false)
     }
   }
-  
+
   const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    const context = canvas.getContext('2d');
+    if (!videoRef.current || !canvasRef.current) return
+
+    const video = videoRef.current
+    const canvas = canvasRef.current
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    const context = canvas.getContext('2d')
     if (context) {
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      const previewUrl = canvas.toDataURL('image/jpeg');
-      setPreviewImage(previewUrl);
-      
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          setIsScanning(true);
-          
-          const stream = video.srcObject as MediaStream;
-          stream.getTracks().forEach(track => track.stop());
-          setShowCamera(false);
-          
-          const formData = new FormData();
-          formData.append('image', blob, 'camera-capture.jpg');
-          
-          try {
-            const result = await extractTextFromImage(formData);
-            
-            if (result.success && result.text) {
-              form.setValue('recipient', result.text);
-            } else {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+      const previewUrl = canvas.toDataURL('image/jpeg')
+      setPreviewImage(previewUrl)
+
+      canvas.toBlob(
+        async (blob) => {
+          if (blob) {
+            setIsScanning(true)
+
+            const stream = video.srcObject as MediaStream
+            stream.getTracks().forEach((track) => track.stop())
+            setShowCamera(false)
+
+            const formData = new FormData()
+            formData.append('image', blob, 'camera-capture.jpg')
+
+            try {
+              const result = await extractTextFromImage(formData)
+
+              if (result.success && result.text) {
+                form.setValue('recipient', result.text)
+              } else {
+                toast({
+                  title: 'Error',
+                  description: result.message || 'Failed to extract text from image',
+                  variant: 'destructive',
+                })
+              }
+            } catch (error) {
+              console.error('Error processing image:', error)
               toast({
                 title: 'Error',
-                description: result.message || 'Failed to extract text from image',
+                description: 'An unexpected error occurred while processing the image',
                 variant: 'destructive',
-              });
+              })
+            } finally {
+              setIsScanning(false)
             }
-          } catch (error) {
-            console.error('Error processing image:', error);
-            toast({
-              title: 'Error',
-              description: 'An unexpected error occurred while processing the image',
-              variant: 'destructive',
-            });
-          } finally {
-            setIsScanning(false);
           }
-        }
-      }, 'image/jpeg', 0.95);
+        },
+        'image/jpeg',
+        0.95
+      )
     }
   }
-  
+
   const closeCamera = () => {
     if (videoRef.current) {
-      const stream = videoRef.current.srcObject as MediaStream;
+      const stream = videoRef.current.srcObject as MediaStream
       if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop())
       }
     }
-    setShowCamera(false);
+    setShowCamera(false)
   }
-  
+
   const clearPreview = () => {
     if (previewImage && previewImage.startsWith('blob:')) {
-      URL.revokeObjectURL(previewImage);
+      URL.revokeObjectURL(previewImage)
     }
-    setPreviewImage(null);
+    setPreviewImage(null)
   }
 
   const headerRight = (
@@ -279,27 +284,30 @@ export default function DeliveryForm() {
   return (
     <>
       {showCamera && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
-          <div className="relative w-full max-w-lg">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              className="w-full"
+        <div className='fixed inset-0 z-50 bg-black flex flex-col items-center justify-center'>
+          <div className='relative w-full max-w-lg'>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className='w-full'
               onLoadedMetadata={() => videoRef.current?.play()}
             />
-            <canvas ref={canvasRef} className="hidden" />
-            
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center gap-4 bg-black/50">
+            <canvas
+              ref={canvasRef}
+              className='hidden'
+            />
+
+            <div className='absolute bottom-0 left-0 right-0 p-4 flex justify-center gap-4 bg-black/50'>
               <Button
-                type="button"
+                type='button'
                 onClick={closeCamera}
-                variant="destructive"
+                variant='destructive'
               >
                 Cancel
               </Button>
               <Button
-                type="button"
+                type='button'
                 onClick={capturePhoto}
               >
                 Capture
@@ -308,7 +316,7 @@ export default function DeliveryForm() {
           </div>
         </div>
       )}
-      
+
       <GenericCardView
         title={t('deliveries.newDelivery')}
         description={t('deliveries.newDelivery')}
@@ -324,18 +332,21 @@ export default function DeliveryForm() {
             <div className='space-y-4 p-2'>
               <div className='border rounded-md p-4 space-y-4'>
                 <h3 className='text-sm font-medium'>{t('deliveries.scanLabel') || 'Scansione Etichetta'}</h3>
-                
+
                 <div className='flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-md'>
                   {previewImage ? (
                     <div className='space-y-4 w-full'>
                       <div className='relative'>
-                        <img 
-                          src={previewImage} 
-                          alt="Captured label" 
+                        <Image
+                          src={previewImage}
+                          alt='Captured label'
                           className='max-h-64 mx-auto object-contain rounded-md'
+                          width={500}
+                          height={300}
+                          style={{ maxHeight: '16rem', width: 'auto' }}
                         />
-                        <Button 
-                          variant='secondary' 
+                        <Button
+                          variant='secondary'
                           size='sm'
                           className='absolute top-2 right-2'
                           onClick={clearPreview}
@@ -343,7 +354,7 @@ export default function DeliveryForm() {
                           ×
                         </Button>
                       </div>
-                      
+
                       {isScanning && (
                         <div className='flex items-center justify-center mt-4'>
                           <Loader2 className='h-4 w-4 animate-spin mr-2' />
@@ -354,11 +365,12 @@ export default function DeliveryForm() {
                   ) : (
                     <div className='space-y-2 text-center'>
                       <div className='mx-auto h-12 w-12 text-gray-400 flex items-center justify-center'>
-                        <Upload size={48} className='text-gray-400' />
+                        <Upload
+                          size={48}
+                          className='text-gray-400'
+                        />
                       </div>
-                      <p className='text-sm text-muted-foreground'>
-                        {t('deliveries.uploadLabelText') || 'Scatta una foto dell\'etichetta o carica un\'immagine'}
-                      </p>
+                      <p className='text-sm text-muted-foreground'>{t('deliveries.uploadLabelText') || "Scatta una foto dell'etichetta o carica un'immagine"}</p>
                       <div className='flex justify-center gap-4 mt-4'>
                         <Button
                           type='button'
@@ -369,7 +381,7 @@ export default function DeliveryForm() {
                           <Camera className='h-4 w-4 mr-2' />
                           {t('deliveries.takePhoto') || 'Fotocamera'}
                         </Button>
-                        
+
                         <Button
                           type='button'
                           variant='outline'
@@ -390,7 +402,7 @@ export default function DeliveryForm() {
                           </label>
                         </Button>
                       </div>
-                      
+
                       {isScanning && (
                         <div className='flex items-center justify-center mt-4'>
                           <Loader2 className='h-4 w-4 animate-spin mr-2' />
@@ -401,7 +413,7 @@ export default function DeliveryForm() {
                   )}
                 </div>
               </div>
-              
+
               <FormField
                 control={form.control}
                 name='recipient'

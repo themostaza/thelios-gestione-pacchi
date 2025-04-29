@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useTranslation } from '@/i18n/I18nProvider'
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog'
 import { useDeliveries } from '@/context/deliveriesContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function ColumnSelectorDialog() {
   const { t } = useTranslation()
@@ -30,7 +31,10 @@ export default function ColumnSelectorDialog() {
   }, [isDialogOpen, columnVisibility])
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={setIsDialogOpen}
+    >
       <DialogTrigger asChild>
         <Button variant='outline'>{t('deliveries.configureColumns')}</Button>
       </DialogTrigger>
@@ -39,7 +43,10 @@ export default function ColumnSelectorDialog() {
         <DialogDescription>{t('deliveries.selectColumns')}</DialogDescription>
         <div className='flex flex-col space-y-2'>
           {Object.keys(tempColumnVisibility).map((column) => (
-            <div key={column} className='flex items-center'>
+            <div
+              key={column}
+              className='flex items-center'
+            >
               <Checkbox
                 checked={tempColumnVisibility[column as keyof typeof tempColumnVisibility]}
                 onCheckedChange={() => toggleTempColumnVisibility(column as keyof typeof tempColumnVisibility)}
@@ -50,13 +57,21 @@ export default function ColumnSelectorDialog() {
         </div>
         <div className='flex justify-end space-x-2 mt-4'>
           <DialogClose asChild>
-            <Button variant='outline' onClick={() => setIsDialogOpen(false)}>{t('common.close')}</Button>
+            <Button
+              variant='outline'
+              onClick={() => setIsDialogOpen(false)}
+            >
+              {t('common.close')}
+            </Button>
           </DialogClose>
-          <Button variant='default' onClick={applyColumnVisibilityChanges}>
+          <Button
+            variant='default'
+            onClick={applyColumnVisibilityChanges}
+          >
             {t('common.apply')}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   )
-} 
+}

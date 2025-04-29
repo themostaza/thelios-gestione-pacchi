@@ -52,9 +52,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
         if (response.success && response.data) {
           setDeliveries((prev) => {
             if (!response.data) return prev
-            const newDeliveries = response.data!.filter(
-              (newDelivery) => !prev.some((existingDelivery) => existingDelivery.id === newDelivery.id)
-            )
+            const newDeliveries = response.data!.filter((newDelivery) => !prev.some((existingDelivery) => existingDelivery.id === newDelivery.id))
             return page === 1 ? response.data : [...prev, ...newDeliveries]
           })
           setHasMore(response.hasMore)

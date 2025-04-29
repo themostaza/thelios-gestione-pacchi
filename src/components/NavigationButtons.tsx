@@ -1,12 +1,13 @@
 'use client'
 import { Clipboard, PlusCircle, LayoutDashboard, Users, Loader2 } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 
 import { useAuth } from '@/context/authContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 import { cn } from '@/lib/utils'
+
 import { Separator } from './ui/separator'
 
 export default function NavigationButtons() {
@@ -72,9 +73,7 @@ export default function NavigationButtons() {
               href={button.href}
               className={cn(
                 'flex items-center p-2 rounded-md w-full',
-                pathname === button.href 
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' 
-                  : 'bg-background hover:bg-accent',
+                pathname === button.href ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' : 'bg-background hover:bg-accent',
                 !isLoggedIn && 'opacity-50 pointer-events-none'
               )}
               onClick={(e) => handleNavigate(button.href, e)}
@@ -96,9 +95,7 @@ export default function NavigationButtons() {
               href={button.href}
               className={cn(
                 'flex items-center p-2 rounded-md w-full',
-                pathname === button.href 
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' 
-                  : 'bg-background hover:bg-accent',
+                pathname === button.href ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' : 'bg-background hover:bg-accent',
                 (!isLoggedIn || !isAdmin) && 'opacity-50 pointer-events-none'
               )}
               onClick={(e) => handleNavigate(button.href, e)}

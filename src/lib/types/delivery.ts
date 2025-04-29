@@ -116,13 +116,7 @@ export type DeliveriesContextType = {
     status: boolean
     created: boolean
   }
-  setColumnVisibility: (visibility: {
-    id: boolean
-    recipient: boolean
-    sender: boolean
-    status: boolean
-    created: boolean
-  }) => void
+  setColumnVisibility: (visibility: { id: boolean; recipient: boolean; sender: boolean; status: boolean; created: boolean }) => void
 }
 
 export type DeliveryContextType = {
