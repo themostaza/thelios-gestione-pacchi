@@ -1,24 +1,17 @@
 'use client'
 
+import { format } from 'date-fns'
 import { RefreshCw, Search, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { format } from 'date-fns'
 
 import { searchRecipients, forceRefreshRecipients } from '@/app/actions/recipientActions'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from '@/i18n/I18nProvider'
 import { Recipient } from '@/lib/types/delivery'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 
 interface RecipientSelectProps {
   value: string
@@ -102,7 +95,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
         console.error('Error fetching last update date:', error)
       }
     }
-    
+
     fetchLastUpdate()
   }, [])
 
@@ -185,17 +178,17 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
             {t('deliveries.lastUpdate')}: {format(new Date(lastFetchDate), 'dd/MM/yyyy HH:mm')}
           </div>
         )}
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant='outline'
+          size='sm'
           onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowRefreshDialog(true);
-          }} 
+            e.preventDefault()
+            e.stopPropagation()
+            setShowRefreshDialog(true)
+          }}
           disabled={isRefreshing || disabled}
-          className="ml-auto"
-          type="button"
+          className='ml-auto'
+          type='button'
         >
           <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
           {t('deliveries.refreshList')}
@@ -301,32 +294,33 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
       />
 
       {/* Confirmation Dialog */}
-      <Dialog open={showRefreshDialog} onOpenChange={setShowRefreshDialog}>
+      <Dialog
+        open={showRefreshDialog}
+        onOpenChange={setShowRefreshDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('deliveries.confirmRefresh')}</DialogTitle>
-            <DialogDescription>
-              {t('deliveries.confirmRefreshDescription')}
-            </DialogDescription>
+            <DialogDescription>{t('deliveries.confirmRefreshDescription')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant='outline'
               onClick={(e) => {
-                e.preventDefault();
-                setShowRefreshDialog(false);
+                e.preventDefault()
+                setShowRefreshDialog(false)
               }}
-              type="button"
+              type='button'
             >
               {t('common.cancel')}
             </Button>
-            <Button 
+            <Button
               onClick={(e) => {
-                e.preventDefault();
-                handleRefresh();
+                e.preventDefault()
+                handleRefresh()
               }}
               disabled={isRefreshing}
-              type="button"
+              type='button'
             >
               {isRefreshing ? t('common.refreshing') : t('common.refresh')}
             </Button>

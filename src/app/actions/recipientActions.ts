@@ -28,7 +28,7 @@ export async function searchRecipients(query: string) {
 
   return {
     recipients: filteredRecipients,
-    created_at
+    created_at,
   }
 }
 
@@ -99,14 +99,14 @@ export async function getRecipients(forceRefresh = false): Promise<{ recipients:
         surname: item.NAME2,
         email: item.SMTP_ADDR || '',
       })),
-      created_at
+      created_at,
     }
   } catch (error) {
     console.error('Error fetching recipients:', error)
     // Return empty array in case of error
     return {
       recipients: [],
-      created_at: null
+      created_at: null,
     }
   }
 }
