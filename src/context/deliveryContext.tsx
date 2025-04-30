@@ -13,6 +13,7 @@ type DeliveryContextType = {
   emailLogs: ReminderLog[]
   changeStatus: (newStatus: StatusType) => Promise<void>
   sendReminder: () => Promise<void>
+  refreshDelivery: () => Promise<void>
 }
 
 const DeliveryContext = createContext<DeliveryContextType | undefined>(undefined)
@@ -23,31 +24,35 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
   const [error, setError] = useState<string | null>(null)
   const [emailLogs, setEmailLogs] = useState<ReminderLog[]>([])
 
-  useEffect(() => {
-    async function loadDelivery() {
-      setLoading(true)
-      try {
-        const result = await getDeliveryById(deliveryId)
-        if (result.success) {
-          setDelivery(result.data)
+  const loadDelivery = async () => {
+    setLoading(true)
+    try {
+      const result = await getDeliveryById(deliveryId)
+      if (result.success) {
+        setDelivery(result.data)
 
-          const remindersResult = await getDeliveryReminders(deliveryId)
-          if (remindersResult.success) {
-            setEmailLogs(remindersResult.data || [])
-          }
-        } else {
-          setError(result.message)
+        const remindersResult = await getDeliveryReminders(deliveryId)
+        if (remindersResult.success) {
+          setEmailLogs(remindersResult.data || [])
         }
-      } catch (err) {
-        setError('Failed to load delivery details')
-        console.error(err)
-      } finally {
-        setLoading(false)
+      } else {
+        setError(result.message)
       }
+    } catch (err) {
+      setError('Failed to load delivery details')
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadDelivery()
   }, [deliveryId])
+
+  const refreshDelivery = async () => {
+    await loadDelivery()
+  }
 
   const changeStatus = async (newStatus: StatusType) => {
     try {
@@ -79,7 +84,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     }
   }
 
-  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, changeStatus, sendReminder }}>{children}</DeliveryContext.Provider>
+  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, changeStatus, sendReminder, refreshDelivery }}>{children}</DeliveryContext.Provider>
 }
 
 export const useDelivery = () => {

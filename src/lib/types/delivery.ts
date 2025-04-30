@@ -14,6 +14,7 @@ export type DeliveryData = {
   notes: string
   status: StatusType
   created_at: string
+  completed_at: string | null
   user: {
     email: string
   }

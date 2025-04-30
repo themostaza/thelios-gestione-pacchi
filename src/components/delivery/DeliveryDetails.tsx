@@ -42,6 +42,14 @@ export default function DeliveryDetails() {
             <p className='font-medium'>{new Date(delivery.created_at).toLocaleString()}</p>
           </div>
           <div>
+            <p className='text-sm text-muted-foreground'>Completed At</p>
+            {delivery.completed_at ? (
+              <p className='font-medium'>{new Date(delivery.completed_at).toLocaleString()}</p>
+            ) : (
+              <p className='font-medium text-destructive'>Not completed</p>
+            )}
+          </div>
+          <div>
             <p className='text-sm text-muted-foreground'>Created By</p>
             <p className='font-medium'>{delivery.user.email}</p>
           </div>

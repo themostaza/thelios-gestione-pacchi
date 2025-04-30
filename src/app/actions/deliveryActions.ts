@@ -72,6 +72,7 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
       notes: deliveryData.notes,
       status: deliveryData.status,
       created_at: deliveryData.created_at,
+      completed_at: deliveryData.completed_at,
       user: {
         email: user.email || 'unknown',
       },
@@ -201,6 +202,7 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
         notes: delivery.notes,
         status: delivery.status,
         created_at: delivery.created_at,
+        completed_at: delivery.completed_at,
         user: {
           email: userEmail,
         },
@@ -292,6 +294,7 @@ export async function getDeliveryById(id: string) {
       notes: delivery.notes,
       status: delivery.status,
       created_at: delivery.created_at,
+      completed_at: delivery.completed_at,
       user: {
         email: userEmail,
       },
@@ -349,7 +352,20 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
-    const { data: updatedDelivery, error: updateError } = await supabase.from('delivery').update({ status }).eq('id', id).select().single()
+    const updateData: any = { status }
+    
+    if (status === 'completed' || status === 'cancelled') {
+      updateData.completed_at = new Date().toISOString()
+    } else {
+      updateData.completed_at = null
+    }
+
+    const { data: updatedDelivery, error: updateError } = await supabase
+      .from('delivery')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
 
     if (updateError) {
       return {
@@ -379,6 +395,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       notes: updatedDelivery.notes,
       status: updatedDelivery.status,
       created_at: updatedDelivery.created_at,
+      completed_at: updatedDelivery.completed_at,
       user: {
         email: userEmail,
       },

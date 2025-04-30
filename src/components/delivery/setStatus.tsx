@@ -10,8 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { StatusType } from '@/components/ui/statusBadge'
 import { useDelivery } from '@/context/deliveryContext'
 
-export default function setStatus() {
-  const { delivery, changeStatus } = useDelivery()
+export default function SetStatus() {
+  const { delivery, changeStatus, refreshDelivery } = useDelivery()
   const [changingStatus, setChangingStatus] = useState(false)
 
   if (!delivery) return null
@@ -19,6 +19,8 @@ export default function setStatus() {
   const handleStatusChange = async (newStatus: StatusType) => {
     setChangingStatus(true)
     await changeStatus(newStatus)
+    // Refresh delivery data after status change
+    await refreshDelivery()
     setChangingStatus(false)
   }
 
