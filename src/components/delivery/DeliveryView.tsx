@@ -1,6 +1,6 @@
 'use client'
 
-import DeliveryActions from '@/components/delivery/DeliveryActions'
+import DeliverySetStatus from '@/components/delivery/setStatus'
 import DeliveryDetails from '@/components/delivery/DeliveryDetails'
 import DeliveryFooter from '@/components/delivery/DeliveryFooter'
 import GenericCardView from '@/components/GenericCardView'
@@ -16,7 +16,7 @@ export default function DeliveryView({ deliveryId }: DeliveryViewProps) {
       <GenericCardView
         title='Delivery Details'
         description={`View and manage delivery #${deliveryId}`}
-        headerRight={<DeliveryActions />}
+        headerRight={<DeliverySetStatus />}
         footer={<DeliveryFooter />}
       >
         <DeliveryDetails />

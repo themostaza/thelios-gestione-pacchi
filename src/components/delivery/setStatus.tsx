@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { StatusType } from '@/components/ui/statusBadge'
 import { useDelivery } from '@/context/deliveryContext'
 
-export default function DeliveryActions() {
+export default function setStatus() {
   const { delivery, changeStatus } = useDelivery()
   const [changingStatus, setChangingStatus] = useState(false)
 
