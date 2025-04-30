@@ -13,11 +13,9 @@ type Recipient = {
 
 export async function searchRecipients(query: string) {
   // First get the recipients data
-  const recipients = await getRecipients()
+  const { recipients, created_at } = await getRecipients()
 
   // Then filter them
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
   const normalizedQuery = query.toLowerCase()
   const filteredRecipients = !normalizedQuery
     ? []
@@ -28,10 +26,13 @@ export async function searchRecipients(query: string) {
           (recipient.email ? recipient.email.toLowerCase().includes(normalizedQuery) : false)
       )
 
-  return filteredRecipients
+  return {
+    recipients: filteredRecipients,
+    created_at
+  }
 }
 
-export async function getRecipients(): Promise<Recipient[]> {
+export async function getRecipients(forceRefresh = false): Promise<{ recipients: Recipient[]; created_at: string | null }> {
   try {
     const supabase = createClient(cookies())
 
@@ -42,9 +43,10 @@ export async function getRecipients(): Promise<Recipient[]> {
     const oneMonthAgo = new Date()
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
 
-    const needsFetch = !latestRecord || new Date(latestRecord.created_at) < oneMonthAgo
+    const needsFetch = forceRefresh || !latestRecord || new Date(latestRecord.created_at) < oneMonthAgo
 
     let recipientData
+    let created_at = latestRecord?.created_at
 
     if (needsFetch) {
       // Fetch new data from the API
@@ -84,20 +86,31 @@ export async function getRecipients(): Promise<Recipient[]> {
       }
 
       recipientData = savedRecord.data
+      created_at = savedRecord.created_at
     } else {
       // Use existing data
       recipientData = latestRecord.data
     }
 
     // Map to required format and filter out entries with empty email addresses
-    return recipientData.map((item: { NAME1: string; NAME2: string; SMTP_ADDR: string }) => ({
-      name: item.NAME1,
-      surname: item.NAME2,
-      email: item.SMTP_ADDR || '',
-    }))
+    return {
+      recipients: recipientData.map((item: { NAME1: string; NAME2: string; SMTP_ADDR: string }) => ({
+        name: item.NAME1,
+        surname: item.NAME2,
+        email: item.SMTP_ADDR || '',
+      })),
+      created_at
+    }
   } catch (error) {
     console.error('Error fetching recipients:', error)
     // Return empty array in case of error
-    return []
+    return {
+      recipients: [],
+      created_at: null
+    }
   }
+}
+
+export async function forceRefreshRecipients() {
+  return getRecipients(true)
 }

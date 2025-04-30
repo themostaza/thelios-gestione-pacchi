@@ -23,7 +23,9 @@
     "siteDescription": "Gestisci e monitora le consegne in modo efficiente",
     "backToList": "Torna alla lista",
     "selectAll": "Seleziona tutto",
-    "deselectAll": "Deseleziona tutto"
+    "deselectAll": "Deseleziona tutto",
+    "refresh": "Aggiorna",
+    "refreshing": "Aggiornamento in corso..."
   },
   "auth": {
     "login": "Accedi",
@@ -86,7 +88,11 @@
     "scanLabel": "Scansiona Etichetta",
     "scanningLabel": "Scansione etichetta in corso...",
     "uploadSuccess": "Caricamento riuscito",
-    "labelTextExtracted": "Testo dell'etichetta estratto con successo"
+    "labelTextExtracted": "Testo dell'etichetta estratto con successo",
+    "lastUpdate": "Ultimo aggiornamento",
+    "refreshList": "Aggiorna lista",
+    "confirmRefresh": "Conferma aggiornamento",
+    "confirmRefreshDescription": "Questa operazione aggiornerà l'elenco dei destinatari dal sistema aziendale. Potrebbe richiedere alcuni istanti."
   },
   "user": {
     "management": "Gestione Utenti",

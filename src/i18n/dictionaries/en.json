@@ -23,7 +23,9 @@
     "siteDescription": "Manage and track deliveries efficiently",
     "backToList": "Back to list",
     "selectAll": "Select all",
-    "deselectAll": "Deselect all"
+    "deselectAll": "Deselect all",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing..."
   },
   "auth": {
     "login": "Login",
@@ -86,7 +88,11 @@
     "scanLabel": "Scan Label",
     "scanningLabel": "Scanning label...",
     "uploadSuccess": "Upload successful",
-    "labelTextExtracted": "Label text extracted successfully"
+    "labelTextExtracted": "Label text extracted successfully",
+    "lastUpdate": "Last update",
+    "refreshList": "Refresh list",
+    "confirmRefresh": "Confirm refresh",
+    "confirmRefreshDescription": "This operation will update the recipients list from the company system. It might take a moment."
   },
   "user": {
     "management": "User Management",

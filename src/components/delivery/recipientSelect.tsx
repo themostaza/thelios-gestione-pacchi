@@ -1,14 +1,24 @@
 'use client'
 
-import { Search, X } from 'lucide-react'
+import { RefreshCw, Search, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { format } from 'date-fns'
 
-import { searchRecipients } from '@/app/actions/recipientActions'
+import { searchRecipients, forceRefreshRecipients } from '@/app/actions/recipientActions'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from '@/i18n/I18nProvider'
 import { Recipient } from '@/lib/types/delivery'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface RecipientSelectProps {
   value: string
@@ -51,6 +61,9 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
   const [showResults, setShowResults] = useState(false)
   const [searchResults, setSearchResults] = useState<Recipient[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [lastFetchDate, setLastFetchDate] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showRefreshDialog, setShowRefreshDialog] = useState(false)
 
   const debouncedQuery = useDebounce(searchQuery, 500)
 
@@ -77,6 +90,22 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     }
   }, [debouncedQuery])
 
+  // Fetch the last updated date on component mount
+  useEffect(() => {
+    const fetchLastUpdate = async () => {
+      try {
+        const { created_at } = await searchRecipients('')
+        if (created_at) {
+          setLastFetchDate(created_at)
+        }
+      } catch (error) {
+        console.error('Error fetching last update date:', error)
+      }
+    }
+    
+    fetchLastUpdate()
+  }, [])
+
   const handleRecipientSearch = async (query: string) => {
     if (!query) {
       setSearchResults([])
@@ -86,9 +115,9 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     setIsLoading(true)
     try {
       const data = await searchRecipients(query)
-      setSearchResults(data)
+      setSearchResults(data.recipients)
       // When search results come back and we have results, keep dropdown open
-      if (data.length > 0) {
+      if (data.recipients.length > 0) {
         setShowResults(true)
       }
     } catch (error) {
@@ -96,6 +125,23 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
       setSearchResults([])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setShowRefreshDialog(false)
+    setIsRefreshing(true)
+    try {
+      const { created_at } = await forceRefreshRecipients()
+      setLastFetchDate(created_at)
+      // If search is active, refresh results
+      if (searchQuery) {
+        handleRecipientSearch(searchQuery)
+      }
+    } catch (error) {
+      console.error('Error refreshing recipients:', error)
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -133,6 +179,29 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
 
   return (
     <div className='space-y-2'>
+      <div className='flex items-center justify-between mb-1'>
+        {lastFetchDate && (
+          <div className='text-xs text-muted-foreground'>
+            {t('deliveries.lastUpdate')}: {format(new Date(lastFetchDate), 'dd/MM/yyyy HH:mm')}
+          </div>
+        )}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowRefreshDialog(true);
+          }} 
+          disabled={isRefreshing || disabled}
+          className="ml-auto"
+          type="button"
+        >
+          <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {t('deliveries.refreshList')}
+        </Button>
+      </div>
+
       <div className={`relative ${selectedRecipientInfo ? 'hidden' : ''}`}>
         <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
           <Search className='h-4 w-4 text-muted-foreground' />
@@ -230,6 +299,40 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
         disabled={disabled}
         autoComplete='off'
       />
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showRefreshDialog} onOpenChange={setShowRefreshDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('deliveries.confirmRefresh')}</DialogTitle>
+            <DialogDescription>
+              {t('deliveries.confirmRefreshDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={(e) => {
+                e.preventDefault();
+                setShowRefreshDialog(false);
+              }}
+              type="button"
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button 
+              onClick={(e) => {
+                e.preventDefault();
+                handleRefresh();
+              }}
+              disabled={isRefreshing}
+              type="button"
+            >
+              {isRefreshing ? t('common.refreshing') : t('common.refresh')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
