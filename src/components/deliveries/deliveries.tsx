@@ -37,7 +37,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
 
     // Always render DeliveriesTable, which will handle its own loading state
     return (
-      <div className='h-full'>
+      <div className='h-full flex-1 overflow-auto'>
         <DeliveriesTable />
       </div>
     )
@@ -48,9 +48,9 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
       title={t('deliveries.title')}
       description={t('deliveries.description')}
       headerRight={headerRight}
-      useScrollArea={true}
+      useScrollArea={false}
       className='w-full flex flex-col h-full'
-      contentClassName='flex-1 overflow-hidden'
+      contentClassName='flex-1 overflow-hidden flex flex-col'
       footerClassName='p-6'
     >
       {renderContent()}
