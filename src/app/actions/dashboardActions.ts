@@ -6,33 +6,43 @@ import { createClient } from '@/lib/supabase/server'
 export async function getDashboardMetrics(
   timePeriod = '30', 
   customStartDate?: Date, 
-  customEndDate?: Date
+  customEndDate?: Date,
+  year?: number
 ) {
   try {
     const supabase = createClient(cookies())
     
     // Calculate the date range based on time period or custom dates
     let startDate: Date
+    let endDate: Date
     
-    if (timePeriod === 'custom' && customStartDate && customEndDate) {
+    // If year is specified and it's not the current year, set date range to that year
+    const currentYear = new Date().getFullYear()
+    const isSpecificYear = year !== undefined && year !== currentYear
+    
+    if (isSpecificYear) {
+      // For previous years, use the entire year range
+      startDate = new Date(year, 0, 1) // January 1st of specified year
+      endDate = new Date(year, 11, 31, 23, 59, 59) // December 31st of specified year
+    } else if (timePeriod === 'custom' && customStartDate && customEndDate) {
       startDate = new Date(customStartDate)
+      endDate = new Date(customEndDate)
+      // Add 1 day to include the full end date
+      endDate.setDate(endDate.getDate() + 1)
     } else if (timePeriod !== 'all') {
+      endDate = new Date()
       startDate = new Date()
       startDate.setDate(startDate.getDate() - parseInt(timePeriod))
     } else {
-      // For "all time", set a very old date
-      startDate = new Date()
-      startDate.setFullYear(2000)
-    }
-    
-    // For custom range, we also need to use the end date in queries
-    const endDate = timePeriod === 'custom' && customEndDate 
-      ? new Date(customEndDate) 
-      : new Date()
-    
-    // Add 1 day to include the full end date
-    if (timePeriod === 'custom') {
-      endDate.setDate(endDate.getDate() + 1)
+      // For "all time", set a very old date for current year or the specified year
+      endDate = new Date()
+      if (year) {
+        // If year is specified but it's the current year, limit "all" to just this year
+        startDate = new Date(year, 0, 1) // January 1st of specified year
+      } else {
+        startDate = new Date()
+        startDate.setFullYear(2000)
+      }
     }
     
     // Get packages for selected period
@@ -40,11 +50,7 @@ export async function getDashboardMetrics(
       .from('delivery')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', startDate.toISOString())
-    
-    // Add end date filter for custom ranges
-    if (timePeriod === 'custom') {
-      periodQuery.lte('created_at', endDate.toISOString())
-    }
+      .lte('created_at', endDate.toISOString()) // Always apply end date filter
     
     const { count: totalPackagesPeriod, error: packagesPeriodError } = await periodQuery
     
@@ -56,11 +62,6 @@ export async function getDashboardMetrics(
       .select('created_at, completed_at')
       .not('completed_at', 'is', null)
       .gte('created_at', startDate.toISOString())
-    
-    // Add end date filter for custom ranges
-    if (timePeriod === 'custom') {
-      processingQuery.lte('created_at', endDate.toISOString())
-    }
     
     const { data: deliveries, error: deliveriesError } = await processingQuery
     
@@ -83,11 +84,6 @@ export async function getDashboardMetrics(
       .select('recipient_email')
       .not('recipient_email', 'is', null)
       .gte('created_at', startDate.toISOString())
-    
-    // Add end date filter for custom ranges
-    if (timePeriod === 'custom') {
-      usersQuery.lte('created_at', endDate.toISOString())
-    }
     
     const { data: uniqueUsers, error: usersError } = await usersQuery
     
@@ -254,6 +250,48 @@ export async function getDashboardMetrics(
     const cancelledDates = Object.keys(cancelledPerDay)
     const cancelledCounts = Object.values(cancelledPerDay)
     
+    // Add new query to calculate average processing time by month
+    const monthlyAvgQuery = supabase
+      .from('delivery')
+      .select('created_at, completed_at')
+      .not('completed_at', 'is', null)
+    
+    // For monthly averages, we don't filter by time period to get all data
+    
+    const { data: monthlyDeliveries, error: monthlyError } = await monthlyAvgQuery
+    
+    if (monthlyError) throw monthlyError
+    
+    // Calculate average storage days by month
+    const storageByMonth: { [key: string]: { total: number, count: number } } = {}
+    const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
+    
+    // Initialize all months with zero
+    monthNames.forEach((_, index) => {
+      storageByMonth[index] = { total: 0, count: 0 }
+    })
+    
+    monthlyDeliveries.forEach(delivery => {
+      const created = new Date(delivery.created_at)
+      const completed = new Date(delivery.completed_at)
+      const diffDays = (completed.getTime() - created.getTime()) / (1000 * 3600 * 24)
+      
+      const month = created.getMonth() // 0-indexed month
+      
+      storageByMonth[month].total += diffDays
+      storageByMonth[month].count++
+    })
+    
+    // Calculate averages
+    const monthlyAverages = monthNames.map((name, index) => {
+      const data = storageByMonth[index]
+      const average = data.count > 0 ? parseFloat((data.total / data.count).toFixed(1)) : 0
+      return {
+        month: name,
+        average: average
+      }
+    })
+    
     return {
       totalPackages: totalPackagesPeriod || 0,
       avgProcessingTime: avgProcessingTime || 0,
@@ -266,7 +304,8 @@ export async function getDashboardMetrics(
         completedValues: completedCounts,
         cancelledLabels: cancelledDates,
         cancelledValues: cancelledCounts
-      }
+      },
+      monthlyStorageAverages: monthlyAverages
     }
   } catch (error) {
     console.error('Error fetching dashboard metrics:', error)
@@ -286,7 +325,36 @@ export async function getDashboardMetrics(
         completedValues: [],
         cancelledLabels: [],
         cancelledValues: []
-      }
+      },
+      monthlyStorageAverages: []
     }
+  }
+}
+
+// Add a new function to get available years
+export async function getAvailableYears() {
+  try {
+    const supabase = createClient(cookies())
+    
+    // Query distinct years from created_at dates
+    const { data, error } = await supabase
+      .from('delivery')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    
+    // Extract unique years from data
+    const years = new Set<number>()
+    data.forEach(item => {
+      const year = new Date(item.created_at).getFullYear()
+      years.add(year)
+    })
+    
+    // Convert to array and sort in descending order
+    return Array.from(years).sort((a, b) => b - a)
+  } catch (error) {
+    console.error('Error fetching available years:', error)
+    return [new Date().getFullYear()]
   }
 } 

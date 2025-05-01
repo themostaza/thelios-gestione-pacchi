@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import GenericCardView from './GenericCardView'
-import { getDashboardMetrics } from '@/app/actions/dashboardActions'
+import { getDashboardMetrics, getAvailableYears } from '@/app/actions/dashboardActions'
 import { Package, Clock, CheckCircle, Users, X } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Pie, Bar } from 'react-chartjs-2'
@@ -210,10 +210,22 @@ function aggregateChartData(labels: string[], values: number[], completedValues:
 export default function Dashboard() {
   const { t } = useTranslation()
   const [timePeriod, setTimePeriod] = useState('30') // Default to 30 days
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()) // Default to current year
+  const [availableYears, setAvailableYears] = useState<number[]>([])
   const [dateRange, setDateRange] = useState<{from: Date | undefined, to?: Date | undefined}>({from: undefined, to: undefined})
   const [isCustomRange, setIsCustomRange] = useState(false)
   
-  const [metrics, setMetrics] = useState({
+  const [metrics, setMetrics] = useState<{
+    totalPackages: number;
+    avgProcessingTime: number;
+    usersServed: number;
+    statusDistribution: {
+      pending: number;
+      cancelled: number;
+      completed: number;
+    };
+    monthlyStorageAverages: Array<{month: string; average: number}>;
+  }>({
     totalPackages: 0,
     avgProcessingTime: 0,
     usersServed: 0,
@@ -221,7 +233,8 @@ export default function Dashboard() {
       pending: 15,
       cancelled: 15,
       completed: 70
-    }
+    },
+    monthlyStorageAverages: [] // Now properly typed as Array<{month: string; average: number}>
   })
   const [loading, setLoading] = useState(true)
 
@@ -239,19 +252,41 @@ export default function Dashboard() {
     cancelledValues: []
   })
 
+  // Check if selected year is current year
+  const currentYear = new Date().getFullYear()
+  const isCurrentYear = selectedYear === currentYear
+
+  // Fetch available years on initial load
+  useEffect(() => {
+    async function fetchAvailableYears() {
+      const years = await getAvailableYears()
+      setAvailableYears(years)
+      
+      // If no year is selected yet, set to most recent
+      if (years.length > 0 && !selectedYear) {
+        setSelectedYear(years[0])
+      }
+    }
+    
+    fetchAvailableYears()
+  }, [])
+
   useEffect(() => {
     async function loadMetrics() {
       try {
         setLoading(true)
         
+        // Make sure we're using the correct year parameter
+        // This ensures data filtering is specifically for the selected year
         let data
         if (isCustomRange && dateRange.from && dateRange.to) {
-          // Use custom date range
-          data = await getDashboardMetrics('custom', dateRange.from, dateRange.to)
+          data = await getDashboardMetrics('custom', dateRange.from, dateRange.to, selectedYear)
         } else {
-          // Use predefined period
-          data = await getDashboardMetrics(timePeriod)
+          const effectiveTimePeriod = !isCurrentYear ? 'all' : timePeriod
+          data = await getDashboardMetrics(effectiveTimePeriod, undefined, undefined, selectedYear)
         }
+        
+        console.log(`Loading data for year: ${selectedYear}, period: ${isCurrentYear ? timePeriod : 'all'}`)
         
         // Log dei dati ricevuti per debug
         console.log("Dashboard metrics received:", data)
@@ -408,8 +443,17 @@ export default function Dashboard() {
       }
     }
     
-    loadMetrics()
-  }, [timePeriod, dateRange, isCustomRange])
+    // Only load metrics if we have a selected year
+    if (selectedYear) {
+      loadMetrics()
+    }
+
+    // If year changes and it's not the current year, force time period to "all"
+    if (!isCurrentYear && timePeriod !== 'all') {
+      setTimePeriod('all')
+      setIsCustomRange(false)
+    }
+  }, [timePeriod, dateRange, isCustomRange, selectedYear, isCurrentYear])
 
   // Prepariamo i dati per il grafico a torta in modo che sia vuoto quando non ci sono dati
   const hasData = packagesData.values.some(val => val > 0) || 
@@ -520,6 +564,49 @@ export default function Dashboard() {
     return t('dashboard.selectDateRange')
   }
 
+  // Add data preparation for monthly storage averages chart
+  const monthlyStorageData = {
+    labels: metrics.monthlyStorageAverages?.map(item => item.month) || [],
+    datasets: [
+      {
+        label: t('dashboard.averageStorageDays'),
+        data: metrics.monthlyStorageAverages?.map(item => item.average) || [],
+        backgroundColor: 'rgba(245, 158, 11, 0.8)', // amber color
+        borderColor: 'rgb(245, 158, 11)',
+        borderWidth: 1,
+      }
+    ],
+  }
+  
+  const monthlyStorageOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMax: 4, // Set max based on your data
+      },
+      x: {
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false, // Hide legend for cleaner look
+      },
+      title: {
+        display: true,
+        text: t('dashboard.averageStorageDays'),
+        font: {
+          size: 14
+        }
+      }
+    },
+  }
+
   return (
     <GenericCardView
       title={t('dashboard.title')}
@@ -527,7 +614,22 @@ export default function Dashboard() {
       useScrollArea={true}
     >
       <div className="p-4 flex flex-wrap gap-4 items-center">
-        {/* Period selector */}
+        {/* Year selector with dynamic years */}
+        <Select 
+          value={selectedYear?.toString() || ''} 
+          onValueChange={(value) => setSelectedYear(parseInt(value))}
+        >
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder={t('dashboard.selectYear')} />
+          </SelectTrigger>
+          <SelectContent>
+            {availableYears.map(year => (
+              <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Period selector - disabled for previous years */}
         <Select 
           value={isCustomRange ? 'custom' : timePeriod} 
           onValueChange={(value) => {
@@ -538,23 +640,30 @@ export default function Dashboard() {
               setTimePeriod(value)
             }
           }}
+          disabled={!isCurrentYear}
         >
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder={`${t('dashboard.period')}: ${t('dashboard.last30Days')}`} />
+            <SelectValue placeholder={`${t('dashboard.period')}: ${isCurrentYear ? t('dashboard.last30Days') : t('dashboard.allTime')}`} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">{t('dashboard.lastDay')}</SelectItem>
-            <SelectItem value="7">{t('dashboard.last7Days')}</SelectItem>
-            <SelectItem value="30">{t('dashboard.last30Days')}</SelectItem>
-            <SelectItem value="90">{t('dashboard.last90Days')}</SelectItem>
-            <SelectItem value="365">{t('dashboard.last12Months')}</SelectItem>
+            {isCurrentYear ? (
+              <>
+                <SelectItem value="1">{t('dashboard.lastDay')}</SelectItem>
+                <SelectItem value="7">{t('dashboard.last7Days')}</SelectItem>
+                <SelectItem value="30">{t('dashboard.last30Days')}</SelectItem>
+                <SelectItem value="90">{t('dashboard.last90Days')}</SelectItem>
+                <SelectItem value="365">{t('dashboard.last12Months')}</SelectItem>
+                <SelectItem value="custom">{t('dashboard.customDateRange')}</SelectItem>
+              </>
+            ) : (
+              <SelectItem value="all">{t('dashboard.allTime')}</SelectItem>
+            )}
             <SelectItem value="all">{t('dashboard.allTime')}</SelectItem>
-            <SelectItem value="custom">{t('dashboard.customDateRange')}</SelectItem>
           </SelectContent>
         </Select>
 
-        {/* Date range picker */}
-        {isCustomRange && (
+        {/* Date range picker - only for current year */}
+        {isCurrentYear && isCustomRange && (
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -690,6 +799,24 @@ export default function Dashboard() {
                       }
                     }} />
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Add the new monthly storage chart after the existing charts */}
+          <div className="mt-4 p-4">
+            <Card className="w-full">
+              <CardContent className="pt-6 p-2">
+                <h3 className="text-lg font-medium mb-4 px-2">{t('dashboard.monthlyStorageAverage')}</h3>
+                <div className="w-full h-[350px] flex items-center justify-center">
+                  <Bar
+                    data={monthlyStorageData} 
+                    options={{
+                      ...monthlyStorageOptions,
+                      maintainAspectRatio: false
+                    }} 
+                  />
                 </div>
               </CardContent>
             </Card>
