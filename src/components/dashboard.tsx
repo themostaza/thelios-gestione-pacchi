@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // Register Chart.js components
 ChartJS.register(
@@ -48,23 +49,31 @@ ChartJS.register(
   BarElement
 )
 
-// Stat card component - removed percentage change display
+// Stat card component with support for empty state
 function StatCard({ 
   title, 
   value, 
-  icon 
+  icon,
+  hasData = true
 }: { 
   title: string; 
   value: string | number; 
-  icon: React.ReactNode 
+  icon: React.ReactNode;
+  hasData?: boolean;
 }) {
+  const { t } = useTranslation();
+  
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="text-gray-500 text-sm font-medium mb-1">{title}</div>
         <div className="flex justify-between items-center">
           <div>
-            <div className="text-3xl font-bold">{value}</div>
+            {hasData ? (
+              <div className="text-3xl font-bold">{value}</div>
+            ) : (
+              <div className="text-3xl font-medium text-gray-400">{t('dashboard.noData')}</div>
+            )}
           </div>
           <div className="text-2xl opacity-80">{icon}</div>
         </div>
@@ -207,6 +216,56 @@ function aggregateChartData(labels: string[], values: number[], completedValues:
   }
 }
 
+// Improve this helper function to be more comprehensive
+function hasPackageData(data: any): boolean {
+  if (!data) return false
+  
+  // Check if any of the key metrics indicate data exists
+  const hasPackages = data.totalPackages > 0
+  const hasUsers = data.usersServed > 0
+  const hasChartData = 
+    data.packageData.values.some((v: number) => v > 0) ||
+    data.packageData.completedValues.some((v: number) => v > 0) ||
+    data.packageData.cancelledValues.some((v: number) => v > 0)
+  
+  // For time periods with no packages, both packages and users should be 0
+  if (!hasChartData && (hasPackages || hasUsers)) {
+    console.warn('Inconsistency detected: Chart shows no data but metrics show values')
+    return false
+  }
+  
+  return hasChartData || hasPackages
+}
+
+// Add this function to create a stat card skeleton
+function StatCardSkeleton() {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <Skeleton className="h-4 w-24 mb-3" />
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-6 w-6 rounded-full" />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Add this function to create a chart skeleton
+function ChartSkeleton() {
+  return (
+    <Card className="w-full">
+      <CardContent className="pt-6 p-2">
+        <Skeleton className="h-6 w-32 mb-6" />
+        <div className="w-full h-[350px] flex items-center justify-center">
+          <Skeleton className="h-[300px] w-full" />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function Dashboard() {
   const { t } = useTranslation()
   const [timePeriod, setTimePeriod] = useState('30') // Default to 30 days
@@ -288,154 +347,182 @@ export default function Dashboard() {
         
         console.log(`Loading data for year: ${selectedYear}, period: ${isCurrentYear ? timePeriod : 'all'}`)
         
-        // Log dei dati ricevuti per debug
+        // Log the data received for debugging
         console.log("Dashboard metrics received:", data)
         
-        // Verifica che la distribuzione degli stati sia presente e corretta
-        if (!data.statusDistribution || 
-            (data.statusDistribution.pending === 0 && 
-             data.statusDistribution.cancelled === 0 && 
-             data.statusDistribution.completed === 0 && 
-             data.totalPackages > 0)) {
-          console.warn("Status distribution data appears incorrect, recalculating locally...")
+        // Check if we have actual data for the period
+        const hasData = hasPackageData(data)
+        
+        // If no data, set consistent zero values for ALL metrics
+        if (!hasData) {
+          console.log("No data detected for this period, showing empty state")
+          setMetrics({
+            totalPackages: 0,
+            avgProcessingTime: 0,
+            usersServed: 0,
+            statusDistribution: {
+              pending: 0,
+              cancelled: 0,
+              completed: 0
+            },
+            monthlyStorageAverages: []
+          })
           
-          // Se abbiamo pacchi ma nessuna distribuzione di stati, calcola localmente
-          // basandoci sui dati dei grafici
-          const localPending = data.packageData.values.reduce((sum: number, val: number) => sum + val, 0) - 
-                              data.packageData.completedValues.reduce((sum: number, val: number) => sum + val, 0) - 
-                              data.packageData.cancelledValues.reduce((sum: number, val: number) => sum + val, 0)
-          
-          const localCompleted = data.packageData.completedValues.reduce((sum: number, val: number) => sum + val, 0)
-          const localCancelled = data.packageData.cancelledValues.reduce((sum: number, val: number) => sum + val, 0)
-          
-          const total = Math.max(localPending + localCompleted + localCancelled, 1)
-          
-          data.statusDistribution = {
-            pending: Math.round((localPending / total) * 100),
-            completed: Math.round((localCompleted / total) * 100),
-            cancelled: Math.round((localCancelled / total) * 100)
-          }
-          
-          // Assicurati che il totale sia 100%
-          const totalPercent = data.statusDistribution.pending + data.statusDistribution.completed + data.statusDistribution.cancelled
-          if (totalPercent !== 100) {
-            // Aggiungi la differenza alla categoria più grande
-            if (localPending >= localCompleted && localPending >= localCancelled) {
-              data.statusDistribution.pending += (100 - totalPercent)
-            } else if (localCompleted >= localPending && localCompleted >= localCancelled) {
-              data.statusDistribution.completed += (100 - totalPercent)
-            } else {
-              data.statusDistribution.cancelled += (100 - totalPercent)
+          // Set empty chart data
+          setPackagesData({
+            labels: [],
+            values: [],
+            completedLabels: [],
+            completedValues: [],
+            cancelledValues: []
+          })
+        } else {
+          // Verifica che la distribuzione degli stati sia presente e corretta
+          if (!data.statusDistribution || 
+              (data.statusDistribution.pending === 0 && 
+               data.statusDistribution.cancelled === 0 && 
+               data.statusDistribution.completed === 0 && 
+               data.totalPackages > 0)) {
+            console.warn("Status distribution data appears incorrect, recalculating locally...")
+            
+            // Se abbiamo pacchi ma nessuna distribuzione di stati, calcola localmente
+            // basandoci sui dati dei grafici
+            const localPending = data.packageData.values.reduce((sum: number, val: number) => sum + val, 0) - 
+                                data.packageData.completedValues.reduce((sum: number, val: number) => sum + val, 0) - 
+                                data.packageData.cancelledValues.reduce((sum: number, val: number) => sum + val, 0)
+            
+            const localCompleted = data.packageData.completedValues.reduce((sum: number, val: number) => sum + val, 0)
+            const localCancelled = data.packageData.cancelledValues.reduce((sum: number, val: number) => sum + val, 0)
+            
+            const total = Math.max(localPending + localCompleted + localCancelled, 1)
+            
+            data.statusDistribution = {
+              pending: Math.round((localPending / total) * 100),
+              completed: Math.round((localCompleted / total) * 100),
+              cancelled: Math.round((localCancelled / total) * 100)
+            }
+            
+            // Assicurati che il totale sia 100%
+            const totalPercent = data.statusDistribution.pending + data.statusDistribution.completed + data.statusDistribution.cancelled
+            if (totalPercent !== 100) {
+              // Aggiungi la differenza alla categoria più grande
+              if (localPending >= localCompleted && localPending >= localCancelled) {
+                data.statusDistribution.pending += (100 - totalPercent)
+              } else if (localCompleted >= localPending && localCompleted >= localCancelled) {
+                data.statusDistribution.completed += (100 - totalPercent)
+              } else {
+                data.statusDistribution.cancelled += (100 - totalPercent)
+              }
             }
           }
-        }
-        
-        setMetrics(data)
-        
-        // Generate all dates in the selected period
-        let allDates: string[] = []
-        
-        // Calculate start and end dates based on selected period
-        const endDate = new Date()
-        let startDate: Date
-        
-        if (isCustomRange && dateRange.from && dateRange.to) {
-          startDate = new Date(dateRange.from)
-          const customEndDate = new Date(dateRange.to)
-          // Non aggiungere il giorno extra, includi solo fino alla data finale
-          endDate.setTime(customEndDate.getTime())
-        } else if (timePeriod !== 'all') {
-          startDate = new Date()
-          startDate.setDate(startDate.getDate() - parseInt(timePeriod) + 1) // +1 per includere oggi ma non il giorno extra
-        } else {
-          // For "all time", use the dates we have in the data
-          startDate = endDate
-          allDates = [...data.packageData.labels].sort((a, b) => {
-            const [dayA, monthA] = a.split('/').map(Number)
-            const [dayB, monthB] = b.split('/').map(Number)
-            if (monthA !== monthB) return monthA - monthB
-            return dayA - dayB
-          })
-        }
-        
-        // Generate all dates in the range if not "all time"
-        if (timePeriod !== 'all' || (isCustomRange && dateRange.from && dateRange.to)) {
-          // Clone the start date to avoid modifying it
-          const currentDate = new Date(startDate.getTime())
           
-          // Include solo i giorni nel range effettivo, non andare oltre la fine
-          while (currentDate <= endDate) {
-            const dateStr = `${currentDate.getDate()}/${currentDate.getMonth() + 1}`
-            allDates.push(dateStr)
-            currentDate.setDate(currentDate.getDate() + 1)
+          setMetrics(data)
+          
+          // Generate all dates in the selected period
+          let allDates: string[] = []
+          
+          // Calculate start and end dates based on selected period
+          const endDate = new Date()
+          let startDate: Date
+          
+          if (isCustomRange && dateRange.from && dateRange.to) {
+            startDate = new Date(dateRange.from)
+            const customEndDate = new Date(dateRange.to)
+            // Non aggiungere il giorno extra, includi solo fino alla data finale
+            endDate.setTime(customEndDate.getTime())
+          } else if (timePeriod !== 'all') {
+            startDate = new Date()
+            startDate.setDate(startDate.getDate() - parseInt(timePeriod) + 1) // +1 per includere oggi ma non il giorno extra
+          } else {
+            // For "all time", use the dates we have in the data
+            startDate = endDate
+            allDates = [...data.packageData.labels].sort((a, b) => {
+              const [dayA, monthA] = a.split('/').map(Number)
+              const [dayB, monthB] = b.split('/').map(Number)
+              if (monthA !== monthB) return monthA - monthB
+              return dayA - dayB
+            })
           }
-        }
-        
-        // Initialize values arrays with zeros for all dates
-        const receivedValues = Array(allDates.length).fill(0)
-        const completedValues = Array(allDates.length).fill(0)
-        const cancelledValues = Array(allDates.length).fill(0)
-        
-        // Fill in actual values where we have data
-        data.packageData.labels.forEach((date: string, index: number) => {
-          const dateIndex = allDates.indexOf(date)
-          if (dateIndex !== -1) {
-            receivedValues[dateIndex] = data.packageData.values[index]
+          
+          // Generate all dates in the range if not "all time"
+          if (timePeriod !== 'all' || (isCustomRange && dateRange.from && dateRange.to)) {
+            // Clone the start date to avoid modifying it
+            const currentDate = new Date(startDate.getTime())
+            
+            // Include solo i giorni nel range effettivo, non andare oltre la fine
+            while (currentDate <= endDate) {
+              const dateStr = `${currentDate.getDate()}/${currentDate.getMonth() + 1}`
+              allDates.push(dateStr)
+              currentDate.setDate(currentDate.getDate() + 1)
+            }
           }
-        })
-        
-        data.packageData.completedLabels.forEach((date: string, index: number) => {
-          const dateIndex = allDates.indexOf(date)
-          if (dateIndex !== -1) {
-            completedValues[dateIndex] = data.packageData.completedValues[index]
-          }
-        })
-        
-        if (data.packageData.cancelledLabels) {
-          data.packageData.cancelledLabels.forEach((date: string, index: number) => {
+          
+          // Initialize values arrays with zeros for all dates
+          const receivedValues = Array(allDates.length).fill(0)
+          const completedValues = Array(allDates.length).fill(0)
+          const cancelledValues = Array(allDates.length).fill(0)
+          
+          // Fill in actual values where we have data
+          data.packageData.labels.forEach((date: string, index: number) => {
             const dateIndex = allDates.indexOf(date)
             if (dateIndex !== -1) {
-              cancelledValues[dateIndex] = data.packageData.cancelledValues[index]
+              receivedValues[dateIndex] = data.packageData.values[index]
             }
           })
+          
+          data.packageData.completedLabels.forEach((date: string, index: number) => {
+            const dateIndex = allDates.indexOf(date)
+            if (dateIndex !== -1) {
+              completedValues[dateIndex] = data.packageData.completedValues[index]
+            }
+          })
+          
+          if (data.packageData.cancelledLabels) {
+            data.packageData.cancelledLabels.forEach((date: string, index: number) => {
+              const dateIndex = allDates.indexOf(date)
+              if (dateIndex !== -1) {
+                cancelledValues[dateIndex] = data.packageData.cancelledValues[index]
+              }
+            })
+          }
+          
+          // Prima dell'aggregazione, salva i dati non aggregati
+          const rawData = {
+            labels: allDates,
+            values: receivedValues,
+            completedLabels: allDates,
+            completedValues: completedValues,
+            cancelledValues: cancelledValues
+          }
+          
+          // Applica l'aggregazione ai dati
+          const aggregated = aggregateChartData(
+            allDates, 
+            receivedValues, 
+            completedValues, 
+            cancelledValues,
+            isCustomRange ? 'custom' : timePeriod
+          )
+          
+          // Aggiorna con i dati aggregati
+          setPackagesData({
+            labels: aggregated.labels,
+            values: aggregated.values,
+            completedLabels: aggregated.labels,
+            completedValues: aggregated.completedValues,
+            cancelledValues: aggregated.cancelledValues
+          })
+          
+          // Calcola i valori corretti per la torta dai dati non aggregati
+          // (i dati della torta dovrebbero essere basati sui totali, non sui dati aggregati)
+          const correctDistribution = calculatePieChartData(rawData)
+          
+          // Aggiorna i dati delle metriche con la distribuzione corretta
+          setMetrics(prevMetrics => ({
+            ...prevMetrics,
+            statusDistribution: correctDistribution
+          }))
         }
-        
-        // Prima dell'aggregazione, salva i dati non aggregati
-        const rawData = {
-          labels: allDates,
-          values: receivedValues,
-          completedLabels: allDates,
-          completedValues: completedValues,
-          cancelledValues: cancelledValues
-        }
-        
-        // Applica l'aggregazione ai dati
-        const aggregated = aggregateChartData(
-          allDates, 
-          receivedValues, 
-          completedValues, 
-          cancelledValues,
-          isCustomRange ? 'custom' : timePeriod
-        )
-        
-        // Aggiorna con i dati aggregati
-        setPackagesData({
-          labels: aggregated.labels,
-          values: aggregated.values,
-          completedLabels: aggregated.labels,
-          completedValues: aggregated.completedValues,
-          cancelledValues: aggregated.cancelledValues
-        })
-        
-        // Calcola i valori corretti per la torta dai dati non aggregati
-        // (i dati della torta dovrebbero essere basati sui totali, non sui dati aggregati)
-        const correctDistribution = calculatePieChartData(rawData)
-        
-        // Aggiorna i dati delle metriche con la distribuzione corretta
-        setMetrics(prevMetrics => ({
-          ...prevMetrics,
-          statusDistribution: correctDistribution
-        }))
       } catch (error) {
         console.error('Failed to load metrics:', error)
       } finally {
@@ -455,25 +542,30 @@ export default function Dashboard() {
     }
   }, [timePeriod, dateRange, isCustomRange, selectedYear, isCurrentYear])
 
-  // Prepariamo i dati per il grafico a torta in modo che sia vuoto quando non ci sono dati
-  const hasData = packagesData.values.some(val => val > 0) || 
-                  packagesData.completedValues.some(val => val > 0) || 
-                  packagesData.cancelledValues.some(val => val > 0)
+  // Define hasData checks for each metric independently
+  const hasPackages = metrics.totalPackages > 0
+  const hasProcessingTimeData = metrics.avgProcessingTime > 0
+  const hasUsersData = metrics.usersServed > 0
+  const hasStatusData = Object.values(metrics.statusDistribution).some(value => value > 0)
+  const hasChartData = packagesData.values.some(v => v > 0) || 
+                       packagesData.completedValues.some(v => v > 0) || 
+                       packagesData.cancelledValues.some(v => v > 0)
+  const hasStorageData = metrics.monthlyStorageAverages?.some(item => item.average > 0)
 
   // Prepare chart data with empty data if no data is available
   const chartData = {
     labels: [t('deliveries.status.pending'), t('deliveries.status.cancelled'), t('deliveries.status.completed')],
     datasets: [
       {
-        data: hasData ? [
+        data: hasStatusData ? [
           metrics.statusDistribution.pending,
           metrics.statusDistribution.cancelled,
           metrics.statusDistribution.completed
-        ] : [], // Array vuoto quando non ci sono dati
+        ] : [], // Empty array when no data
         backgroundColor: [
-          '#F59E0B', // giallo per pending
-          '#F87171', // rosso per cancelled
-          '#10B981', // verde per completed
+          '#F59E0B', // yellow for pending
+          '#F87171', // red for cancelled
+          '#10B981', // green for completed
         ],
         borderWidth: 0,
       },
@@ -613,7 +705,7 @@ export default function Dashboard() {
       description={t('dashboard.description')}
       useScrollArea={true}
     >
-      <div className="p-4 flex flex-wrap gap-4 items-center">
+      <div className="p-4 flex flex-wrap gap-6 items-center">
         {/* Year selector with dynamic years */}
         <Select 
           value={selectedYear?.toString() || ''} 
@@ -689,83 +781,95 @@ export default function Dashboard() {
       </div>
       
       {loading ? (
-        <div className="flex justify-center my-8">{t('common.loading')}</div>
+        <div className="p-4 flex flex-col gap-6">
+          {/* First row skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </div>
+          
+          {/* Second row skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </div>
+          
+          {/* Charts section skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </div>
+          
+          {/* Monthly storage chart skeleton */}
+          <div>
+            <ChartSkeleton />
+          </div>
+        </div>
       ) : (
-        <>
+        <div className="p-4 flex flex-col gap-6">
           {/* First row: Total packages, average storage time, and employees served */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard 
               title={t('dashboard.totalPackages')} 
               value={metrics.totalPackages} 
               icon={<Package className="h-6 w-6 text-blue-500" />} 
+              hasData={hasPackages}
             />
             <StatCard 
               title={t('dashboard.averageStorageTime')} 
               value={`${metrics.avgProcessingTime} ${t('dashboard.days')}`} 
               icon={<Clock className="h-6 w-6 text-blue-500" />} 
+              hasData={hasProcessingTimeData}
             />
             <StatCard 
               title={t('dashboard.employeesServed')} 
               value={metrics.usersServed} 
               icon={<Users className="h-6 w-6 text-purple-500" />} 
+              hasData={hasUsersData}
             />
           </div>
 
-          {/* Second row: Status cards (pending, completed, cancelled) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+          {/* Second row: Status cards with conditional rendering */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard 
               title={t('dashboard.pendingRate')} 
               value={`${metrics.statusDistribution.pending}%`} 
               icon={<Clock className="h-6 w-6 text-orange-500" />} 
+              hasData={hasStatusData}
             />
             <StatCard 
               title={t('dashboard.completionRate')} 
               value={`${metrics.statusDistribution.completed}%`} 
               icon={<CheckCircle className="h-6 w-6 text-green-500" />} 
+              hasData={hasStatusData}
             />
             <StatCard 
               title={t('dashboard.cancellationRate')} 
               value={`${metrics.statusDistribution.cancelled}%`} 
               icon={<X className="h-6 w-6 text-red-500" />} 
+              hasData={hasStatusData}
             />
           </div>
 
-          {/* Charts section - side by side on desktop, stacked on mobile */}
-          <div className="mt-4 p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Charts section with conditional rendering */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Bar chart for packages received */}
             <Card className="w-full">
               <CardContent className="pt-6 p-2">
                 <h3 className="text-lg font-medium mb-4 px-2">{t('dashboard.packagesReceived')}</h3>
                 <div className="w-full h-[350px] flex items-center justify-center">
-                  <Bar
-                    data={barChartData} 
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      layout: {
-                        padding: 0
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          ticks: {
-                            precision: 0
-                          }
-                        },
-                        x: {
-                          ticks: {
-                            maxRotation: 45,
-                            minRotation: 45
-                          }
-                        }
-                      },
-                      plugins: {
-                        legend: {
-                          position: 'bottom' as const,
-                        },
-                      },
-                    }} 
-                  />
+                  {hasChartData ? (
+                    <Bar
+                      data={barChartData} 
+                      options={barChartOptions} 
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <div className="text-lg">{t('dashboard.noChartData')}</div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -775,53 +879,44 @@ export default function Dashboard() {
               <CardContent className="pt-6">
                 <h3 className="text-lg font-medium mb-4">{t('dashboard.statusDistribution')}</h3>
                 <div className="w-full h-[350px] flex items-center justify-center">
-                  <div className="w-full h-full p-4">
-                    <Pie data={chartData} options={{
-                      ...chartOptions,
-                      maintainAspectRatio: false,
-                      layout: {
-                        padding: 20
-                      },
-                      plugins: {
-                        ...chartOptions.plugins,
-                        legend: {
-                          ...chartOptions.plugins.legend,
-                          position: 'bottom',
-                          align: 'center',
-                          labels: {
-                            boxWidth: 12,
-                            padding: 15,
-                            font: {
-                              size: 12
-                            }
-                          }
-                        }
-                      }
-                    }} />
-                  </div>
+                  {hasStatusData ? (
+                    <div className="w-full h-full p-4">
+                      <Pie data={chartData} options={chartOptions} />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <div className="text-lg">{t('dashboard.noChartData')}</div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Add the new monthly storage chart after the existing charts */}
-          <div className="mt-4 p-4">
+          {/* Monthly storage chart with conditional rendering */}
+          <div>
             <Card className="w-full">
               <CardContent className="pt-6 p-2">
                 <h3 className="text-lg font-medium mb-4 px-2">{t('dashboard.monthlyStorageAverage')}</h3>
                 <div className="w-full h-[350px] flex items-center justify-center">
-                  <Bar
-                    data={monthlyStorageData} 
-                    options={{
-                      ...monthlyStorageOptions,
-                      maintainAspectRatio: false
-                    }} 
-                  />
+                  {hasStorageData ? (
+                    <Bar
+                      data={monthlyStorageData} 
+                      options={{
+                        ...monthlyStorageOptions,
+                        maintainAspectRatio: false
+                      }} 
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <div className="text-lg">{t('dashboard.noChartData')}</div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
-        </>
+        </div>
       )}
     </GenericCardView>
   )
