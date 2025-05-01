@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import GenericCardView from './GenericCardView'
 import { getDashboardMetrics, getAvailableYears } from '@/app/actions/dashboardActions'
 import { Package, Clock, CheckCircle, Users, X } from 'lucide-react'
@@ -121,8 +121,15 @@ function calculatePieChartData(packagesData: any) {
   }
 }
 
-// Aggiungi una funzione di aggregazione dei dati
-function aggregateChartData(labels: string[], values: number[], completedValues: number[], cancelledValues: number[], timePeriod: string) {
+// Update this function to ensure we get full month names
+function aggregateChartData(
+  labels: string[], 
+  values: number[], 
+  completedValues: number[], 
+  cancelledValues: number[], 
+  timePeriod: string,
+  t: (key: string) => string  // Translation function parameter
+) {
   // Non aggregare per periodi brevi o personalizzati
   if (timePeriod === 'custom' || timePeriod === '1' || timePeriod === '7') {
     return { labels, values, completedValues, cancelledValues }
@@ -196,12 +203,36 @@ function aggregateChartData(labels: string[], values: number[], completedValues:
     
     // Converti in formato array, ordinando per mese
     const months = Object.keys(monthData).sort((a, b) => parseInt(a) - parseInt(b))
-    const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
+    
+    // Map of month numbers to full translation keys
+    const monthToKey: {[key: string]: string} = {
+      '1': 'jan',
+      '2': 'feb',
+      '3': 'mar',
+      '4': 'apr',
+      '5': 'may',
+      '6': 'jun',
+      '7': 'jul',
+      '8': 'aug',
+      '9': 'sep',
+      '10': 'oct',
+      '11': 'nov',
+      '12': 'dec'
+    }
     
     months.forEach(month => {
-      // Converti numero mese in nome mese (1-based)
-      const monthName = monthNames[parseInt(month) - 1] || month
-      aggregatedLabels.push(monthName)
+      // Get the proper translation key for this month
+      const monthKey = monthToKey[month]
+      
+      // Get full month name from translation file
+      let fullMonthName = month
+      if (monthKey) {
+        fullMonthName = t(`dashboard.months.${monthKey}`)
+        // Debug to see what we're getting
+        console.log(`Month ${month} maps to key ${monthKey}, translated as: ${fullMonthName}`)
+      }
+      
+      aggregatedLabels.push(fullMonthName)
       aggregatedValues.push(monthData[month].total)
       aggregatedCompletedValues.push(monthData[month].completed)
       aggregatedCancelledValues.push(monthData[month].cancelled)
@@ -314,6 +345,26 @@ export default function Dashboard() {
   // Check if selected year is current year
   const currentYear = new Date().getFullYear()
   const isCurrentYear = selectedYear === currentYear
+
+  // Memoize the aggregateChartData function call to avoid dependency issues
+  const processChartData = useCallback(
+    (
+      allDates: string[], 
+      receivedValues: number[], 
+      completedValues: number[], 
+      cancelledValues: number[]
+    ) => {
+      return aggregateChartData(
+        allDates, 
+        receivedValues, 
+        completedValues, 
+        cancelledValues,
+        isCustomRange ? 'custom' : timePeriod,
+        t
+      )
+    },
+    [isCustomRange, timePeriod, t]
+  )
 
   // Fetch available years on initial load
   useEffect(() => {
@@ -495,14 +546,15 @@ export default function Dashboard() {
             cancelledValues: cancelledValues
           }
           
-          // Applica l'aggregazione ai dati
-          const aggregated = aggregateChartData(
+          // Use the memoized function
+          const aggregated = processChartData(
             allDates, 
             receivedValues, 
             completedValues, 
-            cancelledValues,
-            isCustomRange ? 'custom' : timePeriod
+            cancelledValues
           )
+          
+          console.log("Month labels after aggregation:", aggregated.labels)
           
           // Aggiorna con i dati aggregati
           setPackagesData({
@@ -540,7 +592,7 @@ export default function Dashboard() {
       setTimePeriod('all')
       setIsCustomRange(false)
     }
-  }, [timePeriod, dateRange, isCustomRange, selectedYear, isCurrentYear])
+  }, [timePeriod, dateRange, isCustomRange, selectedYear, isCurrentYear, processChartData])
 
   // Define hasData checks for each metric independently
   const hasPackages = metrics.totalPackages > 0

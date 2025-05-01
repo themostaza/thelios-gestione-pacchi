@@ -141,7 +141,26 @@
     "selectDateRange": "Select date range",
     "packagesReceived": "Packages received",
     "packagesCompleted": "Packages completed",
-    "packagesCancelled": "Packages cancelled"
+    "packagesCancelled": "Packages cancelled",
+    "noData": "No data",
+    "noChartData": "No data available for this period",
+    "selectYear": "Select year",
+    "monthlyStorageAverage": "Monthly Storage Average",
+    "averageStorageDays": "Average Storage Days",
+    "months": {
+      "jan": "January",
+      "feb": "February",
+      "mar": "March",
+      "apr": "April",
+      "may": "May",
+      "jun": "June",
+      "jul": "July",
+      "aug": "August",
+      "sep": "September",
+      "oct": "October",
+      "nov": "November",
+      "dec": "December"
+    }
   },
   "notifications": {
     "emailNotifications": "Email Notifications",

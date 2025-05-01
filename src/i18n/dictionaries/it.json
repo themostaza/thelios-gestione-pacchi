@@ -141,7 +141,26 @@
     "selectDateRange": "Seleziona intervallo date",
     "packagesReceived": "Pacchi ricevuti",
     "packagesCompleted": "Pacchi completati",
-    "packagesCancelled": "Pacchi cancellati"
+    "packagesCancelled": "Pacchi cancellati",
+    "noData": "Nessun dato",
+    "noChartData": "Nessun dato disponibile per questo periodo",
+    "selectYear": "Seleziona anno",
+    "monthlyStorageAverage": "Media Mensile di Giacenza",
+    "averageStorageDays": "Giorni Medi di Giacenza",
+    "months": {
+      "jan": "Gennaio",
+      "feb": "Febbraio",
+      "mar": "Marzo",
+      "apr": "Aprile",
+      "may": "Maggio",
+      "jun": "Giugno",
+      "jul": "Luglio",
+      "aug": "Agosto",
+      "sep": "Settembre",
+      "oct": "Ottobre",
+      "nov": "Novembre",
+      "dec": "Dicembre"
+    }
   },
   "notifications": {
     "emailNotifications": "Notifiche Email",
