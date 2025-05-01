@@ -353,19 +353,14 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     }
 
     const updateData: any = { status }
-    
+
     if (status === 'completed' || status === 'cancelled') {
       updateData.completed_at = new Date().toISOString()
     } else {
       updateData.completed_at = null
     }
 
-    const { data: updatedDelivery, error: updateError } = await supabase
-      .from('delivery')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single()
+    const { data: updatedDelivery, error: updateError } = await supabase.from('delivery').update(updateData).eq('id', id).select().single()
 
     if (updateError) {
       return {

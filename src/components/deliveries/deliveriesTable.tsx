@@ -51,7 +51,7 @@ function DeliveriesTable() {
 
   useEffect(() => {
     if (initialLoading) return
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries
@@ -61,12 +61,12 @@ function DeliveriesTable() {
       },
       { threshold: 0.1, rootMargin: '100px' }
     )
-    
+
     const currentLoaderRef = loaderRef.current
     if (currentLoaderRef) {
       observer.observe(currentLoaderRef)
     }
-    
+
     return () => {
       if (currentLoaderRef) {
         observer.unobserve(currentLoaderRef)
@@ -134,7 +134,7 @@ function DeliveriesTable() {
           ref={tableRef}
         >
           <Table className='table-fixed w-full'>
-            <TableHeader className="sticky top-0 bg-background z-10">
+            <TableHeader className='sticky top-0 bg-background z-10'>
               <TableRow>
                 {columnVisibility.id && (
                   <TableHead
@@ -258,18 +258,13 @@ function DeliveriesTable() {
             </TableBody>
           </Table>
 
-          <div ref={loaderRef} className="h-16 w-full">
-            {hasMore && (
-              <div className='text-center py-4 text-sm text-gray-500'>
-                {loading ? 'Loading more...' : ''}
-              </div>
-            )}
-            
-            {!initialLoading && !hasMore && deliveries.length > 0 && (
-              <div className='text-center text-xs italic text-muted-foreground my-4'>
-                {t('deliveries.endOfList')}
-              </div>
-            )}
+          <div
+            ref={loaderRef}
+            className='h-16 w-full'
+          >
+            {hasMore && <div className='text-center py-4 text-sm text-gray-500'>{loading ? 'Loading more...' : ''}</div>}
+
+            {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>{t('deliveries.endOfList')}</div>}
           </div>
         </div>
       </div>
@@ -279,4 +274,3 @@ function DeliveriesTable() {
   return renderTableContent()
 }
 export default DeliveriesTable
-

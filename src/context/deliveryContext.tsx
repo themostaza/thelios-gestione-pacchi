@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 
 import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail } from '@/app/actions/deliveryActions'
 import { StatusType } from '@/components/ui/statusBadge'
@@ -24,7 +24,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
   const [error, setError] = useState<string | null>(null)
   const [emailLogs, setEmailLogs] = useState<ReminderLog[]>([])
 
-  const loadDelivery = async () => {
+  const loadDelivery = useCallback(async () => {
     setLoading(true)
     try {
       const result = await getDeliveryById(deliveryId)
@@ -44,11 +44,11 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     } finally {
       setLoading(false)
     }
-  }
+  }, [deliveryId])
 
   useEffect(() => {
     loadDelivery()
-  }, [deliveryId])
+  }, [loadDelivery])
 
   const refreshDelivery = async () => {
     await loadDelivery()
