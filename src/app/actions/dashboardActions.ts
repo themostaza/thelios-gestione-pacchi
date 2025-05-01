@@ -77,6 +77,7 @@ export async function getDashboardMetrics(timePeriod = '30', customStartDate?: D
     const usersServed = uniqueEmails.size
 
     // Centralizzare la logica di filtro temporale in una funzione helper
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function applyTimeFilter(query: any, startDate: Date, endDate: Date | null, timePeriod: string) {
       // Sempre applicare il filtro di data iniziale
       query.gte('created_at', startDate.toISOString())

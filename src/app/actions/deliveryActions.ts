@@ -352,6 +352,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = { status }
 
     if (status === 'completed' || status === 'cancelled') {

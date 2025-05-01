@@ -40,6 +40,7 @@ function StatCard({ title, value, icon, hasData = true }: { title: string; value
 
 // Funzione per calcolare i valori reali del grafico a torta dai dati a barre
 // Mettila come funzione normale nel componente Dashboard
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function calculatePieChartData(packagesData: any) {
   // Calcola i totali per ciascun tipo di pacchetto
   const totalReceived = packagesData.values.reduce((sum: number, val: number) => sum + val, 0)
@@ -202,6 +203,7 @@ function aggregateChartData(
 }
 
 // Improve this helper function to be more comprehensive
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function hasPackageData(data: any): boolean {
   if (!data) return false
 
@@ -564,6 +566,7 @@ export default function Dashboard() {
       },
       tooltip: {
         callbacks: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           label: function (context: any) {
             return `${context.label}: ${context.raw}%`
           },
