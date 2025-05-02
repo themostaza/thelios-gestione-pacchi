@@ -36,7 +36,7 @@ export default function ColumnSelectorDialog() {
       onOpenChange={setIsDialogOpen}
     >
       <DialogTrigger asChild>
-        <Button variant='outline'>{t('deliveries.configureColumns')}</Button>
+        <Button variant='outline' size='sm'>{t('deliveries.configureColumns')}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>{t('deliveries.columnVisibility')}</DialogTitle>

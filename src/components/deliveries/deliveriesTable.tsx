@@ -13,12 +13,12 @@ import { DeliveryData } from '@/lib/types/delivery'
 import { cn } from '@/lib/utils'
 
 const COLUMN_WIDTHS = {
-  id: 'w-[15%]',
-  recipient: 'w-[25%]',
-  sender: 'w-[25%]',
-  status: 'w-[15%]',
-  created: 'w-[20%]',
-  actions: 'w-[10%]',
+  id: 'w-[12%]',
+  recipient: 'w-[22%]',
+  sender: 'w-[22%]',
+  status: 'w-[12%]',
+  created: 'w-[16%]',
+  completed_at: 'w-[16%]',
 }
 
 type SortConfig = {
@@ -196,6 +196,18 @@ function DeliveriesTable() {
                     </div>
                   </TableHead>
                 )}
+                {columnVisibility.completed_at && (
+                  <TableHead
+                    className={COLUMN_WIDTHS.completed_at}
+                    onClick={!initialLoading ? () => handleSort('completed_at') : undefined}
+                    style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
+                  >
+                    <div className='flex items-center whitespace-nowrap'>
+                      {t('deliveries.completed_at')}
+                      {!initialLoading ? renderSortIndicator('completed_at') : <ArrowUpDown className='ml-2 h-4 w-4' />}
+                    </div>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -219,6 +231,13 @@ function DeliveriesTable() {
                       {formatDistanceToNow(new Date(delivery.created_at), {
                         addSuffix: true,
                       })}
+                    </TableCell>
+                  )}
+                  {columnVisibility.completed_at && (
+                    <TableCell className={COLUMN_WIDTHS.completed_at}>
+                      {delivery.completed_at
+                        ? formatDistanceToNow(new Date(delivery.completed_at), { addSuffix: true })
+                        : '-'}
                     </TableCell>
                   )}
                 </TableRow>
@@ -250,6 +269,11 @@ function DeliveriesTable() {
                       )}
                       {columnVisibility.created && (
                         <TableCell className={COLUMN_WIDTHS.created}>
+                          <Skeleton className='h-6 w-full' />
+                        </TableCell>
+                      )}
+                      {columnVisibility.completed_at && (
+                        <TableCell className={COLUMN_WIDTHS.completed_at}>
                           <Skeleton className='h-6 w-full' />
                         </TableCell>
                       )}

@@ -157,6 +157,10 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
       query = query.lte('created_at', filters.endDate)
     }
 
+    if (filters.completed_at) {
+      query = query.gte('completed_at', filters.completed_at)
+    }
+
     if (filters.searchTerm) {
       const term = `%${filters.searchTerm}%`
       query = query.or(`recipient_email.ilike.${term},place.ilike.${term},notes.ilike.${term}`)

@@ -64,6 +64,7 @@ export type DeliveryFilters = {
   status?: string | string[]
   startDate?: string
   endDate?: string
+  completed_at?: string
   searchTerm?: string
   userEmail?: string
 }
@@ -116,8 +117,9 @@ export type DeliveriesContextType = {
     sender: boolean
     status: boolean
     created: boolean
+    completed_at: boolean
   }
-  setColumnVisibility: (visibility: { id: boolean; recipient: boolean; sender: boolean; status: boolean; created: boolean }) => void
+  setColumnVisibility: (visibility: { id: boolean; recipient: boolean; sender: boolean; status: boolean; created: boolean; completed_at: boolean }) => void
 }
 
 export type DeliveryContextType = {

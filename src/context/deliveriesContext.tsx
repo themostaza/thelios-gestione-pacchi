@@ -26,6 +26,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
     sender: false,
     status: true,
     created: false,
+    completed_at: false,
   })
 
   const form = useForm<FilterFormValues>({
