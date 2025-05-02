@@ -130,7 +130,7 @@ function DeliveriesTable() {
     return (
       <div className='flex flex-col h-full'>
         <div
-          className='overflow-auto flex-1 min-h-0'
+          className='overflow-auto lg:overflow-y-scroll flex-1 min-h-0'
           ref={tableRef}
         >
           <Table className='table-fixed w-full'>
@@ -211,38 +211,40 @@ function DeliveriesTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedDeliveries.map((delivery) => (
-                <TableRow
-                  key={delivery.id}
-                  id={`delivery-row-${delivery.id}`}
-                  onClick={() => (window.location.href = `/delivery/${delivery.id}`)}
-                  className='cursor-pointer'
-                >
-                  {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
-                  {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
-                  {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>}
-                  {columnVisibility.status && (
-                    <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
-                      <StatusBadge status={delivery.status} />
-                    </TableCell>
-                  )}
-                  {columnVisibility.created && (
-                    <TableCell className={COLUMN_WIDTHS.created}>
-                      {formatDistanceToNow(new Date(delivery.created_at), {
-                        addSuffix: true,
-                      })}
-                    </TableCell>
-                  )}
-                  {columnVisibility.completed_at && (
-                    <TableCell className={COLUMN_WIDTHS.completed_at}>
-                      {delivery.completed_at
-                        ? formatDistanceToNow(new Date(delivery.completed_at), { addSuffix: true })
-                        : '-'}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-              {loading &&
+              {(!initialLoading && sortedDeliveries.length > 0) &&
+                sortedDeliveries.map((delivery) => (
+                  <TableRow
+                    key={delivery.id}
+                    id={`delivery-row-${delivery.id}`}
+                    onClick={() => (window.location.href = `/delivery/${delivery.id}`)}
+                    className='cursor-pointer'
+                  >
+                    {columnVisibility.id && <TableCell className={COLUMN_WIDTHS.id + ' font-medium'}>{delivery.id}</TableCell>}
+                    {columnVisibility.recipient && <TableCell className={COLUMN_WIDTHS.recipient + ' truncate'}>{delivery.recipientEmail}</TableCell>}
+                    {columnVisibility.sender && <TableCell className={COLUMN_WIDTHS.sender + ' truncate'}>{delivery.user.email || t('deliveries.unknownSender')}</TableCell>}
+                    {columnVisibility.status && (
+                      <TableCell className={cn(COLUMN_WIDTHS.status, 'flex justify-left items-center w-full h-full')}>
+                        <StatusBadge status={delivery.status} />
+                      </TableCell>
+                    )}
+                    {columnVisibility.created && (
+                      <TableCell className={COLUMN_WIDTHS.created}>
+                        {formatDistanceToNow(new Date(delivery.created_at), {
+                          addSuffix: true,
+                        })}
+                      </TableCell>
+                    )}
+                    {columnVisibility.completed_at && (
+                      <TableCell className={COLUMN_WIDTHS.completed_at}>
+                        {delivery.completed_at
+                          ? formatDistanceToNow(new Date(delivery.completed_at), { addSuffix: true })
+                          : '-'}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              }
+              {(initialLoading || loading) &&
                 Array(numberOfSkeletonRows)
                   .fill(0)
                   .map((_, i) => (
