@@ -62,9 +62,9 @@ export function StatusBadge({
 // Helper function to get default label text
 function getDefaultLabel(status: StatusType, t: (key: string) => string): string {
   switch (status) {
-    case 'pending': return t('deliveries.status.pending')
-    case 'completed': return t('deliveries.status.completed')
-    case 'cancelled': return t('deliveries.status.cancelled')
+    case 'pending': return t('deliveries.statusText.pending')
+    case 'completed': return t('deliveries.statusText.completed')
+    case 'cancelled': return t('deliveries.statusText.cancelled')
     case 'registered': return t('user.status.registered')
     case 'not-registered': return t('user.status.notRegistered')
     case 'admin': return t('user.status.admin')

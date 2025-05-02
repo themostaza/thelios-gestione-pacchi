@@ -54,7 +54,8 @@
     "newDelivery": "Nuova Consegna",
     "allDeliveries": "Tutte le Consegne",
     "description": "Ispeziona le consegne",
-    "status": {
+    "status": "Stato",
+    "statusText": {
       "pending": "In attesa",
       "completed": "Completata",
       "cancelled": "Annullata"
@@ -62,7 +63,7 @@
     "recipient": "Destinatario",
     "sender": "Mittente",
     "place": "Luogo",
-    "created": "Creato",
+    "created": "Data di creazione",
     "actions": "Azioni",
     "open": "Apri",
     "loadMore": "Carica altri",
@@ -82,9 +83,9 @@
     "uploadLabelText": "Scatta una foto dell'etichetta o carica un'immagine",
     "takePhoto": "Fotocamera",
     "uploadFile": "Carica file",
-    "configureColumns": "Configura Colonne",
-    "columnVisibility": "Visibilità Colonne",
-    "selectColumns": "Seleziona le colonne che vuoi visualizzare",
+    "configureColumns": "Configura colonne",
+    "columnVisibility": "Visibilità colonne",
+    "selectColumns": "Seleziona le colonne da visualizzare",
     "scanLabel": "Scansiona Etichetta",
     "scanningLabel": "Scansione etichetta in corso...",
     "uploadSuccess": "Caricamento riuscito",
@@ -92,7 +93,8 @@
     "lastUpdate": "Ultimo aggiornamento",
     "refreshList": "Aggiorna lista",
     "confirmRefresh": "Conferma aggiornamento",
-    "confirmRefreshDescription": "Questa operazione aggiornerà l'elenco dei destinatari dal sistema aziendale. Potrebbe richiedere alcuni istanti."
+    "confirmRefreshDescription": "Questa operazione aggiornerà l'elenco dei destinatari dal sistema aziendale. Potrebbe richiedere alcuni istanti.",
+    "completed_at": "Data di completamento"
   },
   "user": {
     "management": "Gestione Utenti",

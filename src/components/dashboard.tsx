@@ -537,10 +537,14 @@ export default function Dashboard() {
 
   // Prepare chart data with empty data if no data is available
   const chartData = {
-    labels: [t('deliveries.status.pending'), t('deliveries.status.cancelled'), t('deliveries.status.completed')],
+    labels: [
+      t('deliveries.statusText.pending'),
+      t('deliveries.statusText.cancelled'),
+      t('deliveries.statusText.completed')
+    ],
     datasets: [
       {
-        data: hasStatusData ? [metrics.statusDistribution.pending, metrics.statusDistribution.cancelled, metrics.statusDistribution.completed] : [], // Empty array when no data
+        data: hasStatusData ? [metrics.statusDistribution.pending, metrics.statusDistribution.cancelled, metrics.statusDistribution.completed] : [],
         backgroundColor: [
           '#F59E0B', // yellow for pending
           '#F87171', // red for cancelled

@@ -54,7 +54,8 @@
     "newDelivery": "New Delivery",
     "allDeliveries": "All Deliveries",
     "description": "Inspect deliveries",
-    "status": {
+    "status": "Status",
+    "statusText": {
       "pending": "Pending",
       "completed": "Completed",
       "cancelled": "Cancelled"
@@ -92,7 +93,8 @@
     "lastUpdate": "Last update",
     "refreshList": "Refresh list",
     "confirmRefresh": "Confirm refresh",
-    "confirmRefreshDescription": "This operation will update the recipients list from the company system. It might take a moment."
+    "confirmRefreshDescription": "This operation will update the recipients list from the company system. It might take a moment.",
+    "completed_at": "Completed At"
   },
   "user": {
     "management": "User Management",

@@ -50,8 +50,11 @@ export default function ColumnSelectorDialog() {
               <Checkbox
                 checked={tempColumnVisibility[column as keyof typeof tempColumnVisibility]}
                 onCheckedChange={() => toggleTempColumnVisibility(column as keyof typeof tempColumnVisibility)}
+                aria-label={t(`deliveries.${column}`)}
               />
-              <label className='ml-2'>{t(`deliveries.${column}`)}</label>
+              <label className='ml-2' htmlFor={`column-checkbox-${column}`}>
+                {t(`deliveries.${column}`)}
+              </label>
             </div>
           ))}
         </div>
