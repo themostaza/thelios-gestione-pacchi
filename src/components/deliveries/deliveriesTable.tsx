@@ -1,8 +1,9 @@
 'use client'
 
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format } from 'date-fns'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { it } from 'date-fns/locale'
 
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -229,15 +230,13 @@ function DeliveriesTable() {
                     )}
                     {columnVisibility.created && (
                       <TableCell className={COLUMN_WIDTHS.created}>
-                        {formatDistanceToNow(new Date(delivery.created_at), {
-                          addSuffix: true,
-                        })}
+                        {format(new Date(delivery.created_at), 'dd/MM/yy', { locale: it })}
                       </TableCell>
                     )}
                     {columnVisibility.completed_at && (
                       <TableCell className={COLUMN_WIDTHS.completed_at}>
                         {delivery.completed_at
-                          ? formatDistanceToNow(new Date(delivery.completed_at), { addSuffix: true })
+                          ? format(new Date(delivery.completed_at), 'dd/MM/yy', { locale: it })
                           : '-'}
                       </TableCell>
                     )}
