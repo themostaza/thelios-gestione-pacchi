@@ -130,11 +130,8 @@ function DeliveriesTable() {
 
     return (
       <div className='flex flex-col h-full'>
-        <div
-          className='overflow-auto lg:overflow-y-scroll flex-1 min-h-0'
-          ref={tableRef}
-        >
-          <Table className='table-fixed w-full'>
+        <div className='overflow-x-auto flex-1 min-h-0'>
+          <Table className='table-fixed min-w-[700px] w-full'>
             <TableHeader className='sticky top-0 bg-background z-10'>
               <TableRow>
                 {columnVisibility.id && (
