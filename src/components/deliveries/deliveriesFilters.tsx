@@ -34,6 +34,7 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
     // Ensure we always have a defined value (null instead of undefined)
     const [localDateRange, setLocalDateRange] = useState(form.getValues('dateRange') || null)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleDateRangeSelect = (range: any) => {
       // Always set a defined value (null if range is undefined)
       setLocalDateRange(range || null)
@@ -51,8 +52,11 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
 
         {/* Date Range Picker outside the form */}
         <div className='mb-4'>
-          <label className="text-sm font-medium">{t('deliveries.dateRange')}</label>
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <label className='text-sm font-medium'>{t('deliveries.dateRange')}</label>
+          <Popover
+            open={calendarOpen}
+            onOpenChange={setCalendarOpen}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant={'outline'}
@@ -99,17 +103,17 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
               render={({ field }) => (
                 <FormItem className='hidden'>
                   <FormControl>
-                    <Input 
-                      type="hidden" 
+                    <Input
+                      type='hidden'
                       {...field}
                       // Ensure the value is always a string (to avoid controlled/uncontrolled switching)
-                      value={field.value ? JSON.stringify(field.value) : ''} 
+                      value={field.value ? JSON.stringify(field.value) : ''}
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
-            
+
             <div className='space-y-4'>
               <FormField
                 control={form.control}

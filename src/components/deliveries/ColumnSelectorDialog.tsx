@@ -36,7 +36,12 @@ export default function ColumnSelectorDialog() {
       onOpenChange={setIsDialogOpen}
     >
       <DialogTrigger asChild>
-        <Button variant='outline' size='sm'>{t('deliveries.configureColumns')}</Button>
+        <Button
+          variant='outline'
+          size='sm'
+        >
+          {t('deliveries.configureColumns')}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>{t('deliveries.columnVisibility')}</DialogTitle>
@@ -52,7 +57,10 @@ export default function ColumnSelectorDialog() {
                 onCheckedChange={() => toggleTempColumnVisibility(column as keyof typeof tempColumnVisibility)}
                 aria-label={t(`deliveries.${column}`)}
               />
-              <label className='ml-2' htmlFor={`column-checkbox-${column}`}>
+              <label
+                className='ml-2'
+                htmlFor={`column-checkbox-${column}`}
+              >
                 {t(`deliveries.${column}`)}
               </label>
             </div>

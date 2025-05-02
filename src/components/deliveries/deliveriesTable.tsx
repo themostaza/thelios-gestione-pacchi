@@ -1,9 +1,9 @@
 'use client'
 
-import { formatDistanceToNow, format } from 'date-fns'
+import { format } from 'date-fns'
+import { it } from 'date-fns/locale'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { it } from 'date-fns/locale'
 
 import StatusBadge from '@/components/deliveries/statusBadge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,7 +36,6 @@ function DeliveriesTable() {
     direction: 'asc',
   })
 
-  const tableRef = useRef<HTMLDivElement>(null)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const loadNextPage = useCallback(() => {
@@ -209,7 +208,8 @@ function DeliveriesTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(!initialLoading && sortedDeliveries.length > 0) &&
+              {!initialLoading &&
+                sortedDeliveries.length > 0 &&
                 sortedDeliveries.map((delivery) => (
                   <TableRow
                     key={delivery.id}
@@ -225,21 +225,12 @@ function DeliveriesTable() {
                         <StatusBadge status={delivery.status} />
                       </TableCell>
                     )}
-                    {columnVisibility.created && (
-                      <TableCell className={COLUMN_WIDTHS.created}>
-                        {format(new Date(delivery.created_at), 'dd/MM/yy', { locale: it })}
-                      </TableCell>
-                    )}
+                    {columnVisibility.created && <TableCell className={COLUMN_WIDTHS.created}>{format(new Date(delivery.created_at), 'dd/MM/yy', { locale: it })}</TableCell>}
                     {columnVisibility.completed_at && (
-                      <TableCell className={COLUMN_WIDTHS.completed_at}>
-                        {delivery.completed_at
-                          ? format(new Date(delivery.completed_at), 'dd/MM/yy', { locale: it })
-                          : '-'}
-                      </TableCell>
+                      <TableCell className={COLUMN_WIDTHS.completed_at}>{delivery.completed_at ? format(new Date(delivery.completed_at), 'dd/MM/yy', { locale: it }) : '-'}</TableCell>
                     )}
                   </TableRow>
-                ))
-              }
+                ))}
               {(initialLoading || loading) &&
                 Array(numberOfSkeletonRows)
                   .fill(0)
