@@ -97,6 +97,16 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
 
 export async function getDeliveriesPaginated(page: number = 1, pageSize: number = 10, filters: DeliveryFilters = {}): Promise<PaginatedDeliveriesResponse> {
   try {
+    if (filters.status && Array.isArray(filters.status) && filters.status.length === 0) {
+      return {
+        success: true,
+        data: [],
+        message: 'No statuses selected',
+        hasMore: false,
+        count: 0,
+      }
+    }
+
     const supabase = createClient(cookies())
 
     const {

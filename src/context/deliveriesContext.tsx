@@ -92,9 +92,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       newFilters.userEmail = values.sender
     }
 
-    if (selectedStatuses.length > 0) {
-      newFilters.status = selectedStatuses
-    }
+    newFilters.status = selectedStatuses
 
     if (values.dateRange?.from) {
       const startOfDay = new Date(values.dateRange.from)
