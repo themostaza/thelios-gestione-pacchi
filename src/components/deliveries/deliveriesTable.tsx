@@ -170,14 +170,9 @@ function DeliveriesTable() {
                   </TableHead>
                 )}
                 {columnVisibility.status && (
-                  <TableHead
-                    className={COLUMN_WIDTHS.status}
-                    onClick={!initialLoading ? () => handleSort('status') : undefined}
-                    style={{ cursor: !initialLoading ? 'pointer' : 'default' }}
-                  >
+                  <TableHead className={COLUMN_WIDTHS.status}>
                     <div className='flex items-center whitespace-nowrap'>
                       {t('common.status')}
-                      {!initialLoading ? renderSortIndicator('status') : <ArrowUpDown className='ml-2 h-4 w-4' />}
                     </div>
                   </TableHead>
                 )}

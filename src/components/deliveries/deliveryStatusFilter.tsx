@@ -42,7 +42,7 @@ export default function DeliveryStatusFilter() {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <div className='flex flex-col lg:flex-row items-baseline justify-center gap-2 border rounded-md p-2'>
+              <div className='flex flex-col lg:flex-row items-baseline justify-center gap-2 border rounded-md'>
                 {' '}
                 <Button
                   onClick={() => handleStatusToggle('pending')}
