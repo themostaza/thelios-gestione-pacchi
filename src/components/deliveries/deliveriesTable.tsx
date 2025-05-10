@@ -171,9 +171,7 @@ function DeliveriesTable() {
                 )}
                 {columnVisibility.status && (
                   <TableHead className={COLUMN_WIDTHS.status}>
-                    <div className='flex items-center whitespace-nowrap'>
-                      {t('common.status')}
-                    </div>
+                    <div className='flex items-center whitespace-nowrap'>{t('common.status')}</div>
                   </TableHead>
                 )}
                 {columnVisibility.created && (
@@ -270,13 +268,7 @@ function DeliveriesTable() {
             ref={loaderRef}
             className='h-16 w-full'
           >
-            {(!initialLoading && deliveries.length > 0) && (
-              <div className='text-center py-4 text-sm text-gray-500'>
-                {hasMore && loading
-                  ? t('deliveries.loadingMore')
-                  : t('deliveries.endOfList')}
-              </div>
-            )}
+            {!initialLoading && deliveries.length > 0 && <div className='text-center py-4 text-sm text-gray-500'>{hasMore && loading ? t('deliveries.loadingMore') : t('deliveries.endOfList')}</div>}
           </div>
         </div>
       </div>

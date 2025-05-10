@@ -4,18 +4,11 @@ import { Loader2, Trash } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { StatusBadge } from '@/components/ui/statusBadge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUser } from '@/context/userContext'
 import { useTranslation } from '@/i18n/I18nProvider'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog'
 
 function UserStatusBadge({ registered }: { registered: boolean }) {
   return (
@@ -68,28 +61,28 @@ export default function AccountsTable() {
   return (
     <>
       {/* Delete confirmation dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('common.confirmDeleteTitle') || t('common.delete')}</DialogTitle>
-            <DialogDescription>
-              {t('common.confirmDelete')}
-            </DialogDescription>
+            <DialogDescription>{t('common.confirmDelete')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button
+              variant='outline'
+              onClick={() => setDialogOpen(false)}
+            >
               {t('common.cancel')}
             </Button>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={handleDeleteConfirmed}
               disabled={deletingId === selectedUser?.id}
             >
-              {deletingId === selectedUser?.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash className="h-4 w-4 mr-1" />
-              )}
+              {deletingId === selectedUser?.id ? <Loader2 className='h-4 w-4 animate-spin' /> : <Trash className='h-4 w-4 mr-1' />}
               <span>{t('common.delete')}</span>
             </Button>
           </DialogFooter>

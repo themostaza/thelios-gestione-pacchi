@@ -1,14 +1,13 @@
 'use client'
 
 import { Menu } from 'lucide-react'
-import { useState } from 'react'
 import Image from 'next/image'
+import { useState } from 'react'
 
 import AuthStatus from '@/components/authStatus'
 import NavigationButtons from '@/components/NavigationButtons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
-import { VisuallyHidden } from '@/components/visually-hidden'
 
 export default function TopBar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -37,12 +36,12 @@ export default function TopBar() {
         >
           <SheetTitle className='flex justify-center mb-2'>
             <Image
-                src="/logo.avif"
-                alt="Logo"
-                width={120}
-                height={40}
-                priority
-              />
+              src='/logo.avif'
+              alt='Logo'
+              width={120}
+              height={40}
+              priority
+            />
           </SheetTitle>
           <div className='flex flex-col justify-between gap-4 py-4'>
             <NavigationButtons onNavigate={() => setIsOpen(false)} />
@@ -53,11 +52,11 @@ export default function TopBar() {
 
       {/* Desktop view - permanent sidebar */}
       <div className='hidden lg:flex flex-col justify-between h-screen bg-secondary p-4 gap-4 w-1/4'>
-        <div className="flex flex-col justify-center">
-          <div className="flex justify-center mb-2">
+        <div className='flex flex-col justify-center'>
+          <div className='flex justify-center mb-2'>
             <Image
-              src="/logo.avif"
-              alt="Logo"
+              src='/logo.avif'
+              alt='Logo'
               width={120}
               height={40}
               priority
