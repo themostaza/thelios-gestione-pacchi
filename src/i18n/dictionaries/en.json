@@ -26,7 +26,8 @@
     "deselectAll": "Deselect all",
     "refresh": "Refresh",
     "refreshing": "Refreshing...",
-    "notCompleted": "Not completed"
+    "notCompleted": "Not completed",
+    "confirmDeleteTitle": "Confirm Deletion"
   },
   "auth": {
     "login": "Login",
@@ -99,6 +100,7 @@
     "completed_at": "Completed At"
   },
   "user": {
+    "description": "User management",
     "management": "User Management",
     "newUser": "New User",
     "users": "Users",

@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { useUser } from '@/context/userContext'
 import { toast } from '@/hooks/use-toast'
@@ -85,8 +84,6 @@ export default function CreateUserFormWithContext() {
               </FormItem>
             )}
           />
-
-          <Separator className='my-4' />
 
           <FormField
             control={form.control}

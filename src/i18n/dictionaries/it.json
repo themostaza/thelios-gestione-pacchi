@@ -26,7 +26,8 @@
     "deselectAll": "Deseleziona tutto",
     "refresh": "Aggiorna",
     "refreshing": "Aggiornamento in corso...",
-    "notCompleted": "Non completato"
+    "notCompleted": "Non completato",
+    "confirmDeleteTitle": "Conferma Eliminazione"
   },
   "auth": {
     "login": "Accedi",
@@ -99,6 +100,7 @@
     "completed_at": "Data di completamento"
   },
   "user": {
+    "description": "Gestione degli utenti",
     "management": "Gestione Utenti",
     "newUser": "Nuovo Utente",
     "users": "Utenti",
