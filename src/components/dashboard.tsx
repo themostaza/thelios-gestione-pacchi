@@ -535,16 +535,16 @@ export default function Dashboard() {
   const hasChartData = packagesData.values.some((v) => v > 0) || packagesData.completedValues.some((v) => v > 0) || packagesData.cancelledValues.some((v) => v > 0)
   const hasStorageData = metrics.monthlyStorageAverages?.some((item) => item.average > 0)
 
-  // Prepare chart data with empty data if no data is available
+  // Pie chart per status distribution
   const chartData = {
     labels: [t('deliveries.statusText.pending'), t('deliveries.statusText.cancelled'), t('deliveries.statusText.completed')],
     datasets: [
       {
         data: hasStatusData ? [metrics.statusDistribution.pending, metrics.statusDistribution.cancelled, metrics.statusDistribution.completed] : [],
         backgroundColor: [
-          '#F59E0B', // yellow for pending
-          '#F87171', // red for cancelled
-          '#10B981', // green for completed
+          '#F59E0B', // pending: yellow-500 (filled in statusBadge)
+          '#EF4444', // cancelled: red-500 (filled in statusBadge)
+          '#10B981', // completed: green-500 (filled in statusBadge)
         ],
         borderWidth: 0,
       },
@@ -556,6 +556,7 @@ export default function Dashboard() {
       legend: {
         display: true,
         position: 'bottom' as const,
+        align: 'center' as const,
         labels: {
           usePointStyle: true,
           padding: 20,
@@ -573,32 +574,32 @@ export default function Dashboard() {
         },
       },
     },
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
   }
 
-  // Line chart data for packages received
+  // Bar chart per pacchi ricevuti/completati/cancellati
   const barChartData = {
     labels: packagesData.labels,
     datasets: [
       {
         label: t('dashboard.packagesReceived'),
         data: packagesData.values,
-        backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500 con opacità
-        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: '#F59E0B', // info: blue-500 (filled in statusBadge)
+        borderColor: '#F59E0B',
         borderWidth: 1,
       },
       {
         label: t('dashboard.packagesCompleted'),
         data: packagesData.completedValues,
-        backgroundColor: 'rgba(16, 185, 129, 0.7)', // green-500 con opacità
-        borderColor: 'rgb(16, 185, 129)',
+        backgroundColor: '#10B981', // completed: green-500
+        borderColor: '#10B981',
         borderWidth: 1,
       },
       {
         label: t('dashboard.packagesCancelled'),
         data: packagesData.cancelledValues,
-        backgroundColor: 'rgba(239, 68, 68, 0.7)', // red-500 con opacità
-        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: '#EF4444', // cancelled: red-500
+        borderColor: '#EF4444',
         borderWidth: 1,
       },
     ],
@@ -606,7 +607,7 @@ export default function Dashboard() {
 
   const barChartOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true,
@@ -624,6 +625,7 @@ export default function Dashboard() {
     plugins: {
       legend: {
         position: 'bottom' as const,
+        align: 'center' as const,
       },
     },
   }
@@ -643,8 +645,8 @@ export default function Dashboard() {
       {
         label: t('dashboard.averageStorageDays'),
         data: metrics.monthlyStorageAverages?.map((item) => item.average) || [],
-        backgroundColor: 'rgba(245, 158, 11, 0.8)', // amber color
-        borderColor: 'rgb(245, 158, 11)',
+        backgroundColor: '#3B82F6', // blue-500
+        borderColor: '#3B82F6',
         borderWidth: 1,
       },
     ],
@@ -844,8 +846,8 @@ export default function Dashboard() {
           {/* Charts section with conditional rendering */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             {/* Bar chart for packages received */}
-            <Card className='w-full'>
-              <CardContent className='pt-6 p-2'>
+            <Card className='w-full h-[420px] flex flex-col justify-between'>
+              <CardContent className='pt-6 p-2 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4 px-2'>{t('dashboard.packagesReceived')}</h3>
                 <div className='w-full h-[350px] flex items-center justify-center'>
                   {hasChartData ? (
@@ -863,12 +865,12 @@ export default function Dashboard() {
             </Card>
 
             {/* Pie chart for status distribution */}
-            <Card className='w-full'>
-              <CardContent className='pt-6'>
+            <Card className='w-full h-[420px] flex flex-col justify-between'>
+              <CardContent className='pt-6 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4'>{t('dashboard.statusDistribution')}</h3>
                 <div className='w-full h-[350px] flex items-center justify-center'>
                   {hasStatusData ? (
-                    <div className='w-full h-full p-4'>
+                    <div className='w-full h-full flex items-center justify-center'>
                       <Pie
                         data={chartData}
                         options={chartOptions}
