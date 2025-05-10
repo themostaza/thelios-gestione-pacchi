@@ -242,8 +242,8 @@ function ChartSkeleton() {
     <Card className='w-full'>
       <CardContent className='pt-6 p-2'>
         <Skeleton className='h-6 w-32 mb-6' />
-        <div className='w-full h-[350px] flex items-center justify-center'>
-          <Skeleton className='h-[300px] w-full' />
+        <div className='w-full min-h-[250px] flex items-center justify-center'>
+          <Skeleton className='h-48 w-full' />
         </div>
       </CardContent>
     </Card>
@@ -693,7 +693,7 @@ export default function Dashboard() {
           value={selectedYear?.toString() || ''}
           onValueChange={(value) => setSelectedYear(parseInt(value))}
         >
-          <SelectTrigger className='w-[150px]'>
+          <SelectTrigger>
             <SelectValue placeholder={t('dashboard.selectYear')} />
           </SelectTrigger>
           <SelectContent>
@@ -721,7 +721,7 @@ export default function Dashboard() {
           }}
           disabled={!isCurrentYear}
         >
-          <SelectTrigger className='w-[200px]'>
+          <SelectTrigger>
             <SelectValue placeholder={`${t('dashboard.period')}: ${isCurrentYear ? t('dashboard.last30Days') : t('dashboard.allTime')}`} />
           </SelectTrigger>
           <SelectContent>
@@ -747,14 +747,14 @@ export default function Dashboard() {
             <PopoverTrigger asChild>
               <Button
                 variant='outline'
-                className='w-[300px] justify-start text-left font-normal'
+                className='justify-start text-left font-normal w-full max-w-sm'
               >
                 <CalendarIcon className='mr-2 h-4 w-4' />
                 {formatDateRange()}
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className='w-auto p-0'
+              className='p-0'
               align='start'
             >
               <Calendar
@@ -773,34 +773,34 @@ export default function Dashboard() {
       {loading ? (
         <div className='p-4 flex flex-col gap-6'>
           {/* First row skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
             <StatCardSkeleton />
             <StatCardSkeleton />
             <StatCardSkeleton />
           </div>
 
           {/* Second row skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
             <StatCardSkeleton />
             <StatCardSkeleton />
             <StatCardSkeleton />
           </div>
 
           {/* Charts section skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
 
           {/* Monthly storage chart skeleton */}
-          <div>
+          <div className='w-full'>
             <ChartSkeleton />
           </div>
         </div>
       ) : (
-        <div className='p-4 flex flex-col gap-6'>
+        <div className='p-2 flex flex-col gap-6'>
           {/* First row: Total packages, average storage time, and employees served */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
             <StatCard
               title={t('dashboard.totalPackages')}
               value={metrics.totalPackages}
@@ -822,7 +822,7 @@ export default function Dashboard() {
           </div>
 
           {/* Second row: Status cards with conditional rendering */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
             <StatCard
               title={t('dashboard.pendingRate')}
               value={`${metrics.statusDistribution.pending}%`}
@@ -843,13 +843,11 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Charts section with conditional rendering */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {/* Bar chart for packages received */}
-            <Card className='w-full h-[420px] flex flex-col justify-between'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
+            <Card className='w-full min-h-[320px] flex flex-col justify-between'>
               <CardContent className='pt-6 p-2 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4 px-2'>{t('dashboard.packagesReceived')}</h3>
-                <div className='w-full h-[350px] flex items-center justify-center'>
+                <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasChartData ? (
                     <Bar
                       data={barChartData}
@@ -864,11 +862,10 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Pie chart for status distribution */}
-            <Card className='w-full h-[420px] flex flex-col justify-between'>
+            <Card className='w-full min-h-[320px] flex flex-col justify-between'>
               <CardContent className='pt-6 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4'>{t('dashboard.statusDistribution')}</h3>
-                <div className='w-full h-[350px] flex items-center justify-center'>
+                <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasStatusData ? (
                     <div className='w-full h-full flex items-center justify-center'>
                       <Pie
@@ -886,12 +883,11 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* Monthly storage chart with conditional rendering */}
-          <div>
+          <div className='grid grid-cols-1 gap-6 w-full'>
             <Card className='w-full'>
               <CardContent className='pt-6 p-2'>
                 <h3 className='text-lg font-medium mb-4 px-2'>{t('dashboard.monthlyStorageAverage')}</h3>
-                <div className='w-full h-[350px] flex items-center justify-center'>
+                <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasStorageData ? (
                     <Bar
                       data={monthlyStorageData}
