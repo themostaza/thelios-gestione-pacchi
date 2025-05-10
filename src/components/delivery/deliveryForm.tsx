@@ -371,36 +371,41 @@ export default function DeliveryForm() {
                         />
                       </div>
                       <p className='text-sm text-muted-foreground'>{t('deliveries.uploadLabelText') || "Scatta una foto dell'etichetta o carica un'immagine"}</p>
-                      <div className='flex justify-center gap-4 mt-4'>
+                      <div className='flex flex-col sm:flex-row justify-center gap-4 mt-4'>
                         <Button
                           type='button'
                           variant='outline'
                           onClick={takePhoto}
                           disabled={isSubmitting || isScanning}
+                          className='w-full sm:w-auto'
                         >
                           <Camera className='h-4 w-4 mr-2' />
                           {t('deliveries.takePhoto') || 'Fotocamera'}
                         </Button>
 
-                        <Button
-                          type='button'
-                          variant='outline'
-                          disabled={isSubmitting || isScanning}
-                          asChild
+                        <label
+                          htmlFor='label-image'
+                          className='w-full sm:w-auto'
+                          tabIndex={0}
                         >
-                          <label htmlFor='label-image'>
-                            <input
-                              id='label-image'
-                              type='file'
-                              accept='image/*'
-                              className='hidden'
-                              onChange={handleImageUpload}
-                              disabled={isSubmitting || isScanning}
-                            />
+                          <Button
+                            type='button'
+                            variant='outline'
+                            disabled={isSubmitting || isScanning}
+                            className='w-full sm:w-auto'
+                          >
                             <Upload className='h-4 w-4 mr-2' />
                             {t('deliveries.uploadFile') || 'Carica file'}
-                          </label>
-                        </Button>
+                          </Button>
+                          <input
+                            id='label-image'
+                            type='file'
+                            accept='image/*'
+                            className='hidden'
+                            onChange={handleImageUpload}
+                            disabled={isSubmitting || isScanning}
+                          />
+                        </label>
                       </div>
 
                       {isScanning && (
