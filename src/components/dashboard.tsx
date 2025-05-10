@@ -27,7 +27,7 @@ function StatCard({ title, value, icon, hasData = true }: { title: string; value
 
   return (
     <Card>
-      <CardContent className='pt-6'>
+      <CardContent className='pt-2'>
         <div className='text-gray-500 text-sm font-medium mb-1'>{title}</div>
         <div className='flex justify-between items-center'>
           <div>{hasData ? <div className='text-3xl font-bold'>{value}</div> : <div className='text-3xl font-medium text-gray-400'>{t('dashboard.noData')}</div>}</div>
@@ -225,7 +225,7 @@ function hasPackageData(data: any): boolean {
 function StatCardSkeleton() {
   return (
     <Card>
-      <CardContent className='pt-6'>
+      <CardContent className='pt-2'>
         <Skeleton className='h-4 w-24 mb-3' />
         <div className='flex justify-between items-center'>
           <Skeleton className='h-8 w-16' />
@@ -240,7 +240,7 @@ function StatCardSkeleton() {
 function ChartSkeleton() {
   return (
     <Card className='w-full'>
-      <CardContent className='pt-6 p-2'>
+      <CardContent className='pt-2 p-2'>
         <Skeleton className='h-6 w-32 mb-6' />
         <div className='w-full min-h-[250px] flex items-center justify-center'>
           <Skeleton className='h-48 w-full' />
@@ -687,7 +687,7 @@ export default function Dashboard() {
       description={t('dashboard.description')}
       useScrollArea={true}
     >
-      <div className='p-4 flex flex-wrap gap-6 items-center'>
+      <div className='p-2 flex flex-wrap gap-4 items-center'>
         {/* Year selector with dynamic years */}
         <Select
           value={selectedYear?.toString() || ''}
@@ -771,23 +771,23 @@ export default function Dashboard() {
       </div>
 
       {loading ? (
-        <div className='p-4 flex flex-col gap-6'>
+        <div className='p-2 flex flex-col gap-6'>
           {/* First row skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full'>
             <StatCardSkeleton />
             <StatCardSkeleton />
             <StatCardSkeleton />
           </div>
 
           {/* Second row skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full'>
             <StatCardSkeleton />
             <StatCardSkeleton />
             <StatCardSkeleton />
           </div>
 
           {/* Charts section skeleton */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
@@ -800,7 +800,7 @@ export default function Dashboard() {
       ) : (
         <div className='p-2 flex flex-col gap-6'>
           {/* First row: Total packages, average storage time, and employees served */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full'>
             <StatCard
               title={t('dashboard.totalPackages')}
               value={metrics.totalPackages}
@@ -822,7 +822,7 @@ export default function Dashboard() {
           </div>
 
           {/* Second row: Status cards with conditional rendering */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full'>
             <StatCard
               title={t('dashboard.pendingRate')}
               value={`${metrics.statusDistribution.pending}%`}
@@ -843,9 +843,9 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full'>
             <Card className='w-full min-h-[320px] flex flex-col justify-between'>
-              <CardContent className='pt-6 p-2 flex-1 flex flex-col'>
+              <CardContent className='pt-2 p-2 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4 px-2'>{t('dashboard.packagesReceived')}</h3>
                 <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasChartData ? (
@@ -863,7 +863,7 @@ export default function Dashboard() {
             </Card>
 
             <Card className='w-full min-h-[320px] flex flex-col justify-between'>
-              <CardContent className='pt-6 flex-1 flex flex-col'>
+              <CardContent className='pt-2 flex-1 flex flex-col'>
                 <h3 className='text-lg font-medium mb-4'>{t('dashboard.statusDistribution')}</h3>
                 <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasStatusData ? (
@@ -883,9 +883,9 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <div className='grid grid-cols-1 gap-6 w-full'>
+          <div className='grid grid-cols-1 gap-4 w-full'>
             <Card className='w-full'>
-              <CardContent className='pt-6 p-2'>
+              <CardContent className='pt-2 p-2'>
                 <h3 className='text-lg font-medium mb-4 px-2'>{t('dashboard.monthlyStorageAverage')}</h3>
                 <div className='w-full min-h-[250px] flex items-center justify-center'>
                   {hasStorageData ? (
