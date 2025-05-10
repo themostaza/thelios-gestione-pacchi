@@ -17,7 +17,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
 
   const [filters, setFilters] = useState<DeliveryFilters>({
-    status: ['pending', 'completed', 'cancelled'],
+    status: ['pending'],
   })
 
   const [columnVisibility, setColumnVisibility] = useState({
@@ -35,8 +35,8 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       sender: '',
       statusFilters: {
         pending: true,
-        completed: true,
-        cancelled: true,
+        completed: false,
+        cancelled: false,
         error: false,
       },
       dateRange: undefined,
@@ -113,8 +113,8 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const resetFilters = () => {
     const defaultStatusFilters = {
       pending: true,
-      completed: true,
-      cancelled: true,
+      completed: false,
+      cancelled: false,
       error: false,
     }
 
@@ -125,7 +125,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
       dateRange: undefined,
     })
     setFilters({
-      status: ['pending', 'completed', 'cancelled'],
+      status: ['pending'],
     })
     setPage(1)
   }
