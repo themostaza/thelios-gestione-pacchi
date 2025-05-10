@@ -67,6 +67,7 @@
     "actions": "Actions",
     "open": "Open",
     "loadMore": "Load more",
+    "loadingMore": "Loading more...",
     "endOfList": "You've reached the end of the list",
     "id": "ID",
     "selectRecipient": "Select recipient",

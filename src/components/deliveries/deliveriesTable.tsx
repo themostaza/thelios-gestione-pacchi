@@ -275,9 +275,13 @@ function DeliveriesTable() {
             ref={loaderRef}
             className='h-16 w-full'
           >
-            {hasMore && <div className='text-center py-4 text-sm text-gray-500'>{loading ? 'Loading more...' : ''}</div>}
-
-            {!initialLoading && !hasMore && deliveries.length > 0 && <div className='text-center text-xs italic text-muted-foreground my-4'>{t('deliveries.endOfList')}</div>}
+            {(!initialLoading && deliveries.length > 0) && (
+              <div className='text-center py-4 text-sm text-gray-500'>
+                {hasMore && loading
+                  ? t('deliveries.loadingMore')
+                  : t('deliveries.endOfList')}
+              </div>
+            )}
           </div>
         </div>
       </div>
