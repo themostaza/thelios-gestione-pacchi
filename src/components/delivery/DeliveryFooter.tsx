@@ -22,18 +22,19 @@ export default function DeliveryFooter() {
   return (
     <>
       <div className='w-full bg-primary/10 rounded-lg p-4'>
-        <div className='flex justify-between items-center'>
-          <div className='flex items-center gap-2'>
+        <div className='flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center'>
+          <div className='flex flex-col gap-2 lg:flex-row lg:items-center'>
             <h3 className='text-lg font-medium'>{t('notifications.emailNotifications')}</h3>
             <Button
               variant='outline'
               size='sm'
+              className='w-full mt-2 lg:w-auto lg:mt-0'
               onClick={() => setLogsDialogOpen(true)}
             >
               {t('notifications.viewLogs')}
             </Button>
           </div>
-          <div className='flex items-center gap-2'>
+          <div className='flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:w-auto'>
             {emailLogs.length > 0 ? (
               <div className='flex items-center text-sm'>
                 {emailLogs[0].ok ? (
@@ -60,6 +61,7 @@ export default function DeliveryFooter() {
             <Button
               onClick={handleSendReminder}
               disabled={sendingReminder}
+              className='w-full lg:w-auto'
             >
               {sendingReminder ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
               {t('notifications.sendReminder')}
