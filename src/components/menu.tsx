@@ -2,6 +2,7 @@
 
 import { Menu } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 import AuthStatus from '@/components/authStatus'
 import NavigationButtons from '@/components/NavigationButtons'
@@ -34,10 +35,16 @@ export default function TopBar() {
           side='left'
           className='w-full p-4 bg-secondary'
         >
-          <SheetTitle>
-            <VisuallyHidden>Navigation Menu</VisuallyHidden>
+          <SheetTitle className='flex justify-center mb-2'>
+            <Image
+                src="/logo.avif"
+                alt="Logo"
+                width={120}
+                height={40}
+                priority
+              />
           </SheetTitle>
-          <div className='flex flex-col gap-4 py-4'>
+          <div className='flex flex-col justify-between gap-4 py-4'>
             <NavigationButtons onNavigate={() => setIsOpen(false)} />
             <AuthStatus />
           </div>
@@ -46,7 +53,18 @@ export default function TopBar() {
 
       {/* Desktop view - permanent sidebar */}
       <div className='hidden lg:flex flex-col justify-between h-screen bg-secondary p-4 gap-4 w-1/4'>
-        <NavigationButtons />
+        <div className="flex flex-col justify-center">
+          <div className="flex justify-center mb-2">
+            <Image
+              src="/logo.avif"
+              alt="Logo"
+              width={120}
+              height={40}
+              priority
+            />
+          </div>
+          <NavigationButtons />
+        </div>
         <AuthStatus />
       </div>
     </>
