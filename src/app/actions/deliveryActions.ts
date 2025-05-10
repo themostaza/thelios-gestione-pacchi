@@ -171,6 +171,16 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
     const offset = (page - 1) * pageSize
     const { data, error, count } = await query.range(offset, offset + pageSize - 1)
 
+    if (error && error.message.includes('range')) {
+      return {
+        success: true,
+        data: [],
+        message: 'No more deliveries available',
+        hasMore: false,
+        count: count || 0,
+      }
+    }
+
     if (error) throw error
 
     const userIds = [...new Set(data.map((delivery) => delivery.user_id))].filter(Boolean)
