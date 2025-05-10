@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 
 import { Separator } from './ui/separator'
 
-export default function NavigationButtons() {
+export default function NavigationButtons({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const [loadingButton, setLoadingButton] = useState<string | null>(null)
@@ -59,6 +59,7 @@ export default function NavigationButtons() {
       setLoadingButton(href)
       router.push(href)
     }
+    if (onNavigate) onNavigate()
   }
 
   return (

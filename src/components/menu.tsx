@@ -21,7 +21,7 @@ export default function TopBar() {
       >
         <SheetTrigger
           asChild
-          className='lg:hidden fixed top-4 left-4 z-40'
+          className='lg:hidden fixed top-4 right-4 z-40'
         >
           <Button
             variant='outline'
@@ -32,13 +32,13 @@ export default function TopBar() {
         </SheetTrigger>
         <SheetContent
           side='left'
-          className='w-[240px] p-4 bg-secondary'
+          className='w-full p-4 bg-secondary'
         >
           <SheetTitle>
             <VisuallyHidden>Navigation Menu</VisuallyHidden>
           </SheetTitle>
           <div className='flex flex-col gap-4 py-4'>
-            <NavigationButtons />
+            <NavigationButtons onNavigate={() => setIsOpen(false)} />
             <AuthStatus />
           </div>
         </SheetContent>
