@@ -23,7 +23,7 @@ type UserContextType = {
   error: string | null
   refreshUsers: () => Promise<void>
   addUser: (userData: CreateUserData) => Promise<{ success: boolean; message: string }>
-  deleteUser: (id: string, userId: string | null) => Promise<void>
+  deleteUser: (id: string, userId: string | null) => Promise<{ success: boolean; message: string }>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -71,18 +71,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const deleteUser = async (id: string, userId: string | null) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      try {
-        const result = await deleteProfileUser(id, userId)
-        if (result.success) {
-          refreshUsers()
-        } else {
-          alert(result.message)
-        }
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Error during deletion: ' + err
-        alert('Error during deletion: ' + errorMessage)
+    try {
+      const result = await deleteProfileUser(id, userId)
+      if (result.success) {
+        refreshUsers()
+        return { success: true, message: '' }
+      } else {
+        return { success: false, message: result.message }
       }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error during deletion: ' + err
+      return { success: false, message: errorMessage }
     }
   }
 
