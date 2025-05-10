@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { StatusType } from '@/components/ui/statusBadge'
 import { useDelivery } from '@/context/deliveryContext'
+import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function SetStatus() {
   const { delivery, changeStatus, refreshDelivery } = useDelivery()
   const [changingStatus, setChangingStatus] = useState(false)
+  const { t } = useTranslation()
 
   if (!delivery) return null
 
@@ -32,7 +34,7 @@ export default function SetStatus() {
         disabled={delivery.status === 'completed' || changingStatus}
       >
         {changingStatus ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Check className='h-4 w-4 mr-2' />}
-        Mark as Completed
+        {t('deliveries.statusText.completed')}
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -48,13 +50,13 @@ export default function SetStatus() {
             onClick={() => handleStatusChange('pending')}
             disabled={delivery.status === 'pending' || changingStatus}
           >
-            Mark as Pending
+            {t('deliveries.statusText.pending')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleStatusChange('cancelled')}
             disabled={delivery.status === 'cancelled' || changingStatus}
           >
-            Mark as Cancelled
+            {t('deliveries.statusText.cancelled')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

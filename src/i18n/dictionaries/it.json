@@ -25,7 +25,8 @@
     "selectAll": "Seleziona tutto",
     "deselectAll": "Deseleziona tutto",
     "refresh": "Aggiorna",
-    "refreshing": "Aggiornamento in corso..."
+    "refreshing": "Aggiornamento in corso...",
+    "notCompleted": "Non completato"
   },
   "auth": {
     "login": "Accedi",

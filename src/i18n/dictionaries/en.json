@@ -25,7 +25,8 @@
     "selectAll": "Select all",
     "deselectAll": "Deselect all",
     "refresh": "Refresh",
-    "refreshing": "Refreshing..."
+    "refreshing": "Refreshing...",
+    "notCompleted": "Not completed"
   },
   "auth": {
     "login": "Login",
