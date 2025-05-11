@@ -1,4 +1,4 @@
-import DeliveryForm from '@/components/delivery/deliveryForm'
+import DeliveryForm from '@/components/delivery/form'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 

@@ -1,5 +1,5 @@
 import { currentUserIsAdmin } from '@/app/actions/authActions'
-import Deliveries from '@/components/deliveries/deliveries'
+import DeliveriesComponent from '@/components/deliveries/component'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 
@@ -15,5 +15,5 @@ export async function generateMetadata() {
 export default async function DeliveriesPage() {
   const isAdmin = await currentUserIsAdmin()
 
-  return <Deliveries isAdmin={isAdmin} />
+  return <DeliveriesComponent isAdmin={isAdmin} />
 }

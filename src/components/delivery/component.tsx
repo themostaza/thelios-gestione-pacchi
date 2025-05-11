@@ -1,7 +1,7 @@
 'use client'
 
 import DeliveryDetails from '@/components/delivery/details'
-import DeliveryFooter from '@/components/delivery/DeliveryFooter'
+import DeliveryFooter from '@/components/delivery/footer'
 import DeliveryStatusSetter from '@/components/delivery/statusSetter'
 import GenericCardView from '@/components/genericCardView'
 import { DeliveryProvider } from '@/context/deliveryContext'

@@ -1,4 +1,4 @@
-import DeliveryView from '@/components/delivery/DeliveryView'
+import DeliveryComponent from '@/components/delivery/component'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 
@@ -18,5 +18,5 @@ interface DeliveryPageProps {
 export default async function DeliveryPage({ params }: DeliveryPageProps) {
   const { id } = await params
 
-  return <DeliveryView deliveryId={id} />
+  return <DeliveryComponent deliveryId={id} />
 }

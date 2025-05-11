@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react'
 
-import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
-import DeliveriesTable from '@/components/deliveries/deliveriesTable'
-import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
+import DeliveriesFilters from '@/components/deliveries/filters'
+import DeliveriesTable from '@/components/deliveries/list'
+import DeliveryStatusFilter from '@/components/deliveries/statusFilter'
 import GenericCardView from '@/components/genericCardView'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
-import ColumnSelectorDialog from './ColumnSelectorDialog'
+import DeliveryColumnPicker from './columnPicker'
 
 interface DeliveriesProps {
   isAdmin: boolean
@@ -21,8 +21,8 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   const headerRight = (
     <div className='w-full flex flex-col lg:flex-row gap-2 justify-stretch lg:justify-end items-stretch lg:items-center'>
       <DeliveryStatusFilter />
-      <DeliveryFilterPanel isAdmin={isAdmin} />
-      <ColumnSelectorDialog />
+      <DeliveriesFilters isAdmin={isAdmin} />
+      <DeliveryColumnPicker />
     </div>
   )
 
