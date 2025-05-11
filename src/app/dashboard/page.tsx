@@ -1,4 +1,4 @@
-import Dashboard from '@/components/dashboard'
+import DashboardComponent from '@/components/dashboard/component'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 
@@ -12,5 +12,5 @@ export async function generateMetadata() {
 }
 
 export default async function DashboardPage() {
-  return <Dashboard />
+  return <DashboardComponent />
 }

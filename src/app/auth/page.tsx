@@ -1,4 +1,4 @@
-import AuthView from '@/components/auth/AuthView'
+import AuthComponent from '@/components/auth/component'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 
@@ -12,5 +12,5 @@ export async function generateMetadata() {
 }
 
 export default function AuthPage() {
-  return <AuthView />
+  return <AuthComponent />
 }
