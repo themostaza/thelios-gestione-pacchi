@@ -4,8 +4,8 @@ import { Menu } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 
-import MenuUserPanel from '@/components/menu/userPanel'
 import MenuButtons from '@/components/menu/buttons'
+import MenuUserPanel from '@/components/menu/userPanel'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 

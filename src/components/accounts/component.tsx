@@ -1,8 +1,8 @@
 'use client'
 
-import GenericCardView from '@/components/genericCardView'
+import AccountsTable from '@/components/accounts/list'
 import AccountForm from '@/components/accounts/form'
-import AccountsTable from '@/components/accounts/accountsTable'
+import GenericCardView from '@/components/genericCardView'
 import { UserProvider } from '@/context/userContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 

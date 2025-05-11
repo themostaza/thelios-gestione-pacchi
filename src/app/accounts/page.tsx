@@ -1,4 +1,4 @@
-import UserManagement from '@/components/accounts/accountManagement'
+import AccountComponent from '@/components/accounts/component'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 
@@ -12,5 +12,5 @@ export async function generateMetadata() {
 }
 
 export default async function AccountsPage() {
-  return <UserManagement />
+  return <AccountComponent />
 }
