@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form'
 
 import { saveDelivery } from '@/app/actions/deliveryActions'
 import { extractTextFromImage } from '@/app/actions/scanActions'
-import RecipientSelect from '@/components/delivery/recipientSelect'
-import GenericCardView from '@/components/GenericCardView'
+import RecipientSelector from '@/components/delivery/recipientSelector'
+import GenericCardView from '@/components/genericCardView'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -426,7 +426,7 @@ export default function DeliveryForm() {
                   <FormItem>
                     <FormLabel htmlFor='recipient'>{t('deliveries.recipient')}</FormLabel>
                     <FormControl>
-                      <RecipientSelect
+                      <RecipientSelector
                         {...field}
                         disabled={isSubmitting}
                       />

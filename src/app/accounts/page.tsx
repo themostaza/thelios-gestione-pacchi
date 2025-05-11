@@ -1,4 +1,4 @@
-import UserManagement from '@/components/user/accountManagement'
+import UserManagement from '@/components/accounts/accountManagement'
 import { staticLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/dictionaries'
 

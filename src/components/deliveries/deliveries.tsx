@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import DeliveryFilterPanel from '@/components/deliveries/deliveriesFilters'
 import DeliveriesTable from '@/components/deliveries/deliveriesTable'
 import DeliveryStatusFilter from '@/components/deliveries/deliveryStatusFilter'
-import GenericCardView from '@/components/GenericCardView'
+import GenericCardView from '@/components/genericCardView'
 import { DeliveriesProvider, useDeliveries } from '@/context/deliveriesContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 

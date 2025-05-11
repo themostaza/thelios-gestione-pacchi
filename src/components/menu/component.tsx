@@ -4,8 +4,8 @@ import { Menu } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 
-import AuthStatus from '@/components/authStatus'
-import NavigationButtons from '@/components/NavigationButtons'
+import MenuUserPanel from '@/components/menu/userPanel'
+import MenuButtons from '@/components/menu/buttons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 
@@ -44,8 +44,8 @@ export default function TopBar() {
             />
           </SheetTitle>
           <div className='flex flex-col justify-between gap-4 py-4'>
-            <NavigationButtons onNavigate={() => setIsOpen(false)} />
-            <AuthStatus />
+            <MenuButtons onNavigate={() => setIsOpen(false)} />
+            <MenuUserPanel />
           </div>
         </SheetContent>
       </Sheet>
@@ -62,9 +62,9 @@ export default function TopBar() {
               priority
             />
           </div>
-          <NavigationButtons />
+          <MenuButtons />
         </div>
-        <AuthStatus />
+        <MenuUserPanel />
       </div>
     </>
   )

@@ -1,124 +1,77 @@
-# Thelios Gestione
-
-A comprehensive management system built with Next.js 15 and React 19, designed for tracking packages and managing delivery workflows.
-
-## Tech Stack
-
-- **Framework**: [Next.js 15](https://nextjs.org/)
-- **UI Library**: [React 19](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
-- **Form Handling**: [React Hook Form](https://react-hook-form.com/) with [Zod](https://zod.dev/) validation
-- **Charts**: [Recharts](https://recharts.org/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Development Tools**:
-  - [ESLint](https://eslint.org/) for code linting
-  - [Prettier](https://prettier.io/) for code formatting
-  - [TypeScript](https://www.typescriptlang.org/) for type safety
-  - [DevContainer](https://code.visualstudio.com/docs/remote/containers) for containerized development
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 19+
-- npm
-
-### Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://your-repository-url.git
-   cd thelios-gestione
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install --force
-   ```
-   Note: The `--force` flag is needed due to React 19 compatibility.
-
-3. Start the development server
-   ```bash
-   npm run dev
-   ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## Project Structure
-
-```
-thelios-gestione/
-├── .devcontainer/         # DevContainer configuration
-├── public/                # Static assets
-├── src/
-│   ├── components/        # Reusable components
-│   │   └── ui/            # shadcn/ui components
-│   ├── hooks/             # Custom React hooks
-│   ├── lib/               # Utility functions and shared logic
-│   ├── app/               # Application routes and pages
-│   └── app/globals.css    # Global styles
-├── .eslintrc.json         # ESLint configuration
-├── .prettierrc.js         # Prettier configuration
-├── .prettierignore        # Files to be ignored by Prettier
-├── components.json        # shadcn/ui configuration
-├── next.config.ts         # Next.js configuration
-├── package.json           # Project dependencies and scripts
-├── postcss.config.mjs     # PostCSS configuration for Tailwind
-├── tailwind.config.ts     # Tailwind CSS configuration
-└── tsconfig.json          # TypeScript configuration
-```
-
-## Development Workflow
-
-### Code Formatting
-
-The project uses Prettier for code formatting. Format your code with:
-
-```bash
-npx prettier . --write
-```
-
-### Linting
-
-Run ESLint to check for code quality issues:
-
-```bash
-next lint --fix
-```
-
-### Building for Production
-
-```bash
-npm run build
-```
-
-This command runs Prettier, ESLint, and then builds the application for production.
-
-### Running in Production Mode
-
-```bash
-npm run start
-```
-
-## DevContainer Support
-
-This project includes DevContainer configuration for a consistent development environment across team members. To use it:
-
-1. Install [Docker](https://www.docker.com/products/docker-desktop)
-2. Install the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for VS Code
-3. Open the project in VS Code and select \"Reopen in Container\" when prompted
-
-## Known Issues and Workarounds
-
-### ESLint Configuration
-
-There are a few issues with the current ESLint configuration:
-
-1. **External Library Warnings**: The `use-toast` hook from the UI library triggers ESLint warnings. Currently, we're using inline ESLint directives to suppress these warnings:
-
-   ```tsx
-   // eslint-disable-next-line react-hooks/rules-of-hooks
-   import { toast } from '@/hooks/use-toast'
-   ```
-
+.devcontainer/Dockerfile
+.devcontainer/devcontainer.json
+.gitignore
+.prettierignore
+.prettierrc.cjs
+README.md
+components.json
+eslint.config.mjs
+next.config.ts
+package-lock.json
+package.json
+postcss.config.mjs
+public/logo.avif
+src/app/(delivery)/deliveries/page.tsx
+src/app/(delivery)/delivery/[id]/page.tsx
+src/app/(delivery)/delivery/new/page.tsx
+src/app/accounts/page.tsx
+src/app/actions/authActions.ts
+src/app/actions/dashboardActions.ts
+src/app/actions/deliveryActions.ts
+src/app/actions/recipientActions.ts
+src/app/actions/scanActions.ts
+src/app/auth/page.tsx
+src/app/dashboard/page.tsx
+src/app/favicon.ico
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+src/components/GenericCardView.tsx
+src/components/NavigationButtons.tsx
+src/components/auth/AuthTabs.tsx
+src/components/auth/AuthView.tsx
+src/components/auth/LoginForm.tsx
+src/components/auth/RegisterForm.tsx
+src/components/authStatus.tsx
+src/components/dashboard.tsx
+src/components/deliveries/ColumnSelectorDialog.tsx
+src/components/deliveries/deliveries.tsx
+src/components/deliveries/deliveriesFilters.tsx
+src/components/deliveries/deliveriesTable.tsx
+src/components/deliveries/deliveryStatusFilter.tsx
+src/components/deliveries/statusBadge.tsx
+src/components/delivery/DeliveryDetails.tsx
+src/components/delivery/DeliveryFooter.tsx
+src/components/delivery/DeliveryView.tsx
+src/components/delivery/deliveryForm.tsx
+src/components/delivery/recipientSelect.tsx
+src/components/delivery/setStatus.tsx
+src/components/menu.tsx
+src/components/registerForm.tsx
+src/components/user/accountForm.tsx
+src/components/user/accountManagement.tsx
+src/components/user/accountsTable.tsx
+src/context/authContext.tsx
+src/context/deliveriesContext.tsx
+src/context/deliveryContext.tsx
+src/context/userContext.tsx
+src/hooks/use-mobile.tsx
+src/hooks/use-toast.ts
+src/i18n/I18nProvider.tsx
+src/i18n/config.ts
+src/i18n/dictionaries.ts
+src/i18n/dictionaries/en.json
+src/i18n/dictionaries/it.json
+src/i18n/i18n.ts
+src/i18n/serverTranslation.ts
+src/lib/functions.ts
+src/lib/supabase/client.ts
+src/lib/supabase/server.ts
+src/lib/types/delivery.ts
+src/lib/types/user.ts
+src/lib/utils.ts
+src/lib/validations/delivery.ts
+src/lib/validations/user.ts
+src/middleware.ts
+tailwind.config.ts
+tsconfig.json

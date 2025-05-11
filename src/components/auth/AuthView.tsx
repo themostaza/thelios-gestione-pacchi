@@ -5,7 +5,7 @@ import { Loader2, LogIn } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import GenericCardView from '@/components/GenericCardView'
+import GenericCardView from '@/components/genericCardView'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'

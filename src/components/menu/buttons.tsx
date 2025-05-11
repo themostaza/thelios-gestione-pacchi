@@ -8,7 +8,7 @@ import { useAuth } from '@/context/authContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 import { cn } from '@/lib/utils'
 
-import { Separator } from './ui/separator'
+import { Separator } from '../ui/separator'
 
 export default function NavigationButtons({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()

@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import './globals.css'
-import Menu from '@/components/menu'
+import MenuComponent from '@/components/menu/component'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/authContext'
 import { staticLocale } from '@/i18n/config'
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen h-full lg:h-screen bg-primary/20 lg:flex`}>
         <I18nProvider>
           <AuthProvider>
-            <Menu />
+            <MenuComponent />
             <div className='mx-auto min-h-screen h-full flex max-w-screen-xl w-full p-1 lg:p-4'>{children}</div>
             <Toaster />
           </AuthProvider>
