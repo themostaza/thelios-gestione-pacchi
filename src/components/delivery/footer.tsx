@@ -9,7 +9,7 @@ import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function DeliveryFooter() {
   const { t } = useTranslation()
-  const { emailLogs, sendReminder } = useDelivery()
+  const { emailLogs, sendReminder, isPolling } = useDelivery()
   const [sendingReminder, setSendingReminder] = useState(false)
   const [logsDialogOpen, setLogsDialogOpen] = useState(false)
 
@@ -30,7 +30,9 @@ export default function DeliveryFooter() {
               size='sm'
               className='w-full mt-2 lg:w-auto lg:mt-0'
               onClick={() => setLogsDialogOpen(true)}
+              disabled={isPolling}
             >
+              {isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : null}
               {t('notifications.viewLogs')}
             </Button>
           </div>
@@ -60,10 +62,10 @@ export default function DeliveryFooter() {
             )}
             <Button
               onClick={handleSendReminder}
-              disabled={sendingReminder}
+              disabled={sendingReminder || isPolling}
               className='w-full lg:w-auto'
             >
-              {sendingReminder ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
+              {(sendingReminder || isPolling) ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
               {t('notifications.sendReminder')}
             </Button>
           </div>
@@ -81,8 +83,13 @@ export default function DeliveryFooter() {
             <DialogDescription>{t('notifications.logsDescription')}</DialogDescription>
           </DialogHeader>
 
-          <div className='max-h-[60vh] overflow-y-auto mt-4'>
-            <div className='space-y-3'>
+          <div className='max-h-[60vh] overflow-y-auto mt-4 relative'>
+            {isPolling && (
+              <div className='absolute inset-0 flex items-center justify-center bg-white/70 z-10'>
+                <Loader2 className='h-8 w-8 animate-spin text-primary' />
+              </div>
+            )}
+            <div className={`space-y-3 ${isPolling ? 'opacity-50 pointer-events-none' : ''}`}>
               {emailLogs.map((log, index) => (
                 <div
                   key={index}

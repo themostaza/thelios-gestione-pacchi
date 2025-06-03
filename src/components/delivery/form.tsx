@@ -266,7 +266,7 @@ export default function DeliveryForm() {
         {isSubmitting ? (
           <>
             <Loader2 className='h-4 w-4 animate-spin mr-2' />
-            Registering...
+            {t('deliveries.registeringAndSending') || 'Registering and sending notification...'}
           </>
         ) : (
           <>
@@ -274,7 +274,7 @@ export default function DeliveryForm() {
               size={20}
               className='mr-2'
             />
-            {t('deliveries.register')}
+            {t('deliveries.registerAndSend') || 'Register & Send Notification'}
           </>
         )}
       </Button>

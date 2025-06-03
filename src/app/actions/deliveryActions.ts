@@ -7,6 +7,97 @@ import { createClient } from '@/lib/supabase/server'
 import { DeliveryFormData, SuccessResponse, ErrorResponse, DeliveryFilters, PaginatedDeliveriesResponse, DeliveryData, StatusUpdateResponse, ReminderLog } from '@/lib/types/delivery'
 import { deliverySchema } from '@/lib/validations/delivery'
 
+async function sendEmailWithRetry(deliveryId: string, recipientEmail: string, senderEmail: string, place: string, notes: string, createdAt: string, maxRetries: number = 3): Promise<{ success: boolean; message: string; data?: ReminderLog }> {
+  let lastError: string | null = null;
+  const subject = `Thelios - gestione pacchi #${deliveryId}`;
+  // Compose the XML body as required
+  const xmlBody = `
+    <n0:Z_SEND_EMAIL_BCS xmlns:n0="urn:sap-com:document:sap:rfc:functions">
+      <IV_BODY>
+        <item><LINE><![CDATA[ID: ${deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data di creazione: ${new Date(createdAt).toLocaleString()}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Email destinatario: ${recipientEmail}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Email mittente: ${senderEmail}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Luogo: ${place}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Note: ${notes || 'Note opzionali'}]]></LINE></item>
+      </IV_BODY>
+      <IV_EMAIL>${recipientEmail}</IV_EMAIL>
+      <IV_SUBJECT>${subject}</IV_SUBJECT>
+    </n0:Z_SEND_EMAIL_BCS>
+  `;
+  const url = 'https://theliosdev.it-cpi026-rt.cfapps.eu10-002.hana.ondemand.com/http/api_send_mail';
+  const AUTH = process.env.THELIOS_API_KEY
+  const DISABLE_EMAIL_SEND = false; // just for testing
+
+  if (!AUTH) {
+    throw new Error('Thelios API key is not set');
+  }
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (DISABLE_EMAIL_SEND) {
+        console.log('[EMAIL MOCK] Subject:', subject);
+        console.log('[EMAIL MOCK] XML Body:', xmlBody);
+      } else {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/xml',
+            'Authorization': AUTH,
+          },
+          body: xmlBody,
+        });
+        if (!response.ok) throw new Error(`API response error: ${response.status}`);
+      }
+      // Optionally, parse response text if needed
+      const supabase = createClient(cookies());
+      const { data: reminder, error } = await supabase
+        .from('reminder')
+        .insert({
+          delivery_id: deliveryId,
+          ok: true,
+          message: `Initial notification sent to ${recipientEmail}`,
+          send_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return {
+        success: true,
+        message: `Initial notification sent to ${recipientEmail}`,
+        data: reminder as ReminderLog,
+      };
+    } catch (error) {
+      console.error('[EMAIL ERROR]', error);
+      lastError = error instanceof Error ? error.message : 'Unknown error occurred';
+      try {
+        const supabase = createClient(cookies());
+        await supabase
+          .from('reminder')
+          .insert({
+            delivery_id: deliveryId,
+            ok: false,
+            message: `Failed to send initial notification (attempt ${attempt}/${maxRetries}): ${lastError}`,
+            send_at: new Date().toISOString(),
+          });
+      } catch (logError) {
+        console.error('Failed to log email error:', logError);
+      }
+      if (attempt === maxRetries) {
+        return {
+          success: false,
+          message: lastError,
+        };
+      }
+      await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+    }
+  }
+  return {
+    success: false,
+    message: lastError || 'Failed to send email after all retries',
+  };
+}
+
 export async function saveDelivery(formData: FormData): Promise<SuccessResponse | ErrorResponse> {
   try {
     const validatedFields = deliverySchema.safeParse({
@@ -65,6 +156,16 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
       }
     }
 
+    // Send initial notification email with retry logic
+    const emailResult = await sendEmailWithRetry(
+      deliveryData.id.toString(),
+      data.recipient,
+      user.email || 'unknown',
+      data.place,
+      data.notes,
+      deliveryData.created_at
+    );
+
     const savedDelivery: DeliveryData = {
       id: deliveryData.id,
       recipientEmail: deliveryData.recipient_email,
@@ -79,7 +180,9 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
     }
 
     return {
-      message: 'Delivery registered successfully!',
+      message: emailResult.success 
+        ? 'Delivery registered and notification sent successfully!' 
+        : 'Delivery registered but notification failed. You can try sending it again later.',
       errors: null,
       success: true,
       data: savedDelivery,
@@ -438,35 +541,28 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
 
 export async function sendReminderEmail(deliveryId: string, recipientEmail: string) {
   try {
-    const supabase = createClient(cookies())
-
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    const { data: reminder, error } = await supabase
-      .from('reminder')
-      .insert({
-        delivery_id: deliveryId,
-        ok: true,
-        message: `Reminder sent to ${recipientEmail}`,
-        send_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return {
-      success: true,
-      data: reminder as ReminderLog,
+    // Recupera la delivery completa per ottenere tutti i dati necessari
+    const deliveryResult = await getDeliveryById(deliveryId);
+    if (!deliveryResult.success || !deliveryResult.data) {
+      throw new Error('Delivery not found');
     }
+    const delivery = deliveryResult.data;
+    // Usa la stessa funzione di invio email della creazione
+    return await sendEmailWithRetry(
+      delivery.id.toString(),
+      delivery.recipientEmail,
+      delivery.user.email,
+      delivery.place,
+      delivery.notes,
+      delivery.created_at
+    );
   } catch (error) {
-    let errorMessage = 'Unknown error occurred'
+    let errorMessage = 'Unknown error occurred';
     if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.message;
     }
-
     try {
-      const supabase = createClient(cookies())
+      const supabase = createClient(cookies());
       const { data: reminder, error: logError } = await supabase
         .from('reminder')
         .insert({
@@ -476,21 +572,19 @@ export async function sendReminderEmail(deliveryId: string, recipientEmail: stri
           send_at: new Date().toISOString(),
         })
         .select()
-        .single()
-
-      if (logError) throw logError
-
+        .single();
+      if (logError) throw logError;
       return {
         success: false,
         message: errorMessage,
         data: reminder as ReminderLog,
-      }
+      };
     } catch (dbError) {
-      console.error('Failed to log reminder error:', dbError)
+      console.error('Failed to log reminder error:', dbError);
       return {
         success: false,
         message: errorMessage,
-      }
+      };
     }
   }
 }
