@@ -73,9 +73,8 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
 
     try {
       const result = await sendReminderEmail(deliveryId, delivery.recipientEmail)
-      if (result.success && result.data) {
-        setEmailLogs((prev) => [result.data, ...prev])
-      } else {
+      await refreshDelivery()
+      if (!result.success) {
         setError(result.message || 'Failed to send reminder')
       }
     } catch (err) {
