@@ -19,18 +19,22 @@ async function sendEmailWithRetry(deliveryId: string, recipientEmail: string, se
         <item><LINE><![CDATA[Email destinatario: ${recipientEmail}<br>]]></LINE></item>
         <item><LINE><![CDATA[Email mittente: ${senderEmail}<br>]]></LINE></item>
         <item><LINE><![CDATA[Luogo: ${place}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Note: ${notes || 'Note opzionali'}]]></LINE></item>
+        <item><LINE><![CDATA[Note: ${notes || '/'}]]></LINE></item>
       </IV_BODY>
       <IV_EMAIL>${recipientEmail}</IV_EMAIL>
       <IV_SUBJECT>${subject}</IV_SUBJECT>
     </n0:Z_SEND_EMAIL_BCS>
   `;
-  const url = 'https://theliosdev.it-cpi026-rt.cfapps.eu10-002.hana.ondemand.com/http/api_send_mail';
-  const AUTH = process.env.THELIOS_API_KEY
+  const url = process.env.THELIOS_API_URL;
+  const AUTH = process.env.THELIOS_API_KEY;
   const DISABLE_EMAIL_SEND = false; // just for testing
 
   if (!AUTH) {
     throw new Error('Thelios API key is not set');
+  }
+
+  if (!url) {
+    throw new Error('Thelios API URL is not set');
   }
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -40,7 +44,7 @@ async function sendEmailWithRetry(deliveryId: string, recipientEmail: string, se
         console.log('[EMAIL MOCK] XML Body:', xmlBody);
       } else {
         const response = await fetch(url, {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/xml',
             'Authorization': AUTH,
