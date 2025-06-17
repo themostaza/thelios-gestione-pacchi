@@ -11,6 +11,7 @@ type DeliveryContextType = {
   loading: boolean
   error: string | null
   emailLogs: ReminderLog[]
+  isPolling: boolean
   changeStatus: (newStatus: StatusType) => Promise<void>
   sendReminder: () => Promise<void>
   refreshDelivery: () => Promise<void>
@@ -72,7 +73,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     if (!delivery) return
 
     try {
-      const result = await sendReminderEmail(deliveryId, delivery.recipientEmail)
+      const result = await sendReminderEmail(deliveryId)
       await refreshDelivery()
       if (!result.success) {
         setError(result.message || 'Failed to send reminder')
@@ -83,7 +84,7 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     }
   }
 
-  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, changeStatus, sendReminder, refreshDelivery }}>{children}</DeliveryContext.Provider>
+  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, isPolling: loading, changeStatus, sendReminder, refreshDelivery }}>{children}</DeliveryContext.Provider>
 }
 
 export const useDelivery = () => {

@@ -65,7 +65,7 @@ export default function DeliveryFooter() {
               disabled={sendingReminder || isPolling}
               className='w-full lg:w-auto'
             >
-              {(sendingReminder || isPolling) ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
+              {sendingReminder || isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
               {t('notifications.sendReminder')}
             </Button>
           </div>

@@ -177,6 +177,7 @@
     "lastReminderFailed": "Last reminder failed",
     "noEmailsSent": "No email notifications have been sent yet.",
     "sendReminder": "Send Reminder to Recipient",
+    "initialNotificationSent": "Initial notification sent to {recipientEmail}",
     "logs": "Email Notification Logs",
     "logsDescription": "History of all email notifications sent for this delivery",
     "emailLogs": "Email Logs",

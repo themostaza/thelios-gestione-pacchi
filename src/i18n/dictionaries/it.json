@@ -177,6 +177,7 @@
     "lastReminderFailed": "Ultimo promemoria fallito",
     "noEmailsSent": "Nessuna notifica email è stata ancora inviata.",
     "sendReminder": "Invia Promemoria",
+    "initialNotificationSent": "Notifica iniziale inviata a {recipientEmail}",
     "logs": "Log delle Notifiche Email",
     "logsDescription": "Cronologia di tutte le notifiche email inviate per questa consegna",
     "emailLogs": "Log Email",
