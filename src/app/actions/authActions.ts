@@ -1,11 +1,11 @@
 'use server'
 
 import { cookies } from 'next/headers'
+
+import { currentUserIsAdmin as isAdmin } from '@/lib/functions'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { LoginData, LoginResult, LogoutResult, RegisterResult, CreateUserResult, GetProfilesResult, ProfileUser } from '@/lib/types/user'
-import { currentUserIsAdmin as isAdmin } from '@/lib/functions'
-import { z } from 'zod'
 
 export async function currentUserIsAdmin(): Promise<boolean> {
   return await isAdmin()
@@ -51,13 +51,7 @@ export async function registerUser(email: string, password: string): Promise<Reg
     const adminClient = createAdminClient()
 
     // First, check if there's already a registered user with this email
-    const { data: existingUser, error: existingError } = await supabase
-      .from('profile')
-      .select('*')
-      .eq('email', email)
-      .eq('status', 'registered')
-      .not('user_id', 'is', null)
-      .maybeSingle()
+    const { data: existingUser, error: existingError } = await supabase.from('profile').select('*').eq('email', email).eq('status', 'registered').not('user_id', 'is', null).maybeSingle()
 
     if (existingError) {
       return {
@@ -74,12 +68,7 @@ export async function registerUser(email: string, password: string): Promise<Reg
     }
 
     // Check for profiles that can be registered (pending or reset_password)
-    const { data: profileData, error: profileError } = await supabase
-      .from('profile')
-      .select('*')
-      .eq('email', email)
-      .in('status', ['pending', 'reset_password'])
-      .maybeSingle()
+    const { data: profileData, error: profileError } = await supabase.from('profile').select('*').eq('email', email).in('status', ['pending', 'reset_password']).maybeSingle()
 
     if (profileError) {
       return {
@@ -107,10 +96,7 @@ export async function registerUser(email: string, password: string): Promise<Reg
       }
 
       // Update the existing user's password using admin API
-      const { error: updateError } = await adminClient.auth.admin.updateUserById(
-        profileData.user_id,
-        { password }
-      )
+      const { error: updateError } = await adminClient.auth.admin.updateUserById(profileData.user_id, { password })
 
       if (updateError) {
         return {
@@ -120,10 +106,7 @@ export async function registerUser(email: string, password: string): Promise<Reg
       }
 
       // Update profile status back to registered
-      const { error: statusError } = await supabase
-        .from('profile')
-        .update({ status: 'registered' })
-        .eq('id', profileData.id)
+      const { error: statusError } = await supabase.from('profile').update({ status: 'registered' }).eq('id', profileData.id)
 
       if (statusError) {
         console.error('[SERVER] Error updating profile status:', statusError)
@@ -273,10 +256,7 @@ export async function getProfiles(): Promise<GetProfilesResult> {
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    const { data, error } = await supabase
-      .from('profile')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('profile').select('*').order('created_at', { ascending: false })
 
     if (error) {
       console.error('[SERVER] Error fetching profiles:', error)
@@ -420,11 +400,7 @@ export async function getUserProfile(userId: string): Promise<ProfileUser | null
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    const { data, error } = await supabase
-      .from('profile')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle()
+    const { data, error } = await supabase.from('profile').select('*').eq('user_id', userId).maybeSingle()
 
     if (error) {
       console.error('[SERVER] Error fetching user profile:', error)
@@ -456,11 +432,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       }
     }
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profile')
-      .select('is_admin')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    const { data: profileData, error: profileError } = await supabase.from('profile').select('is_admin').eq('user_id', user.id).maybeSingle()
 
     if (profileError || !profileData?.is_admin) {
       return {
@@ -470,10 +442,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       }
     }
 
-    const { data: allProfiles, error: fetchError } = await supabase
-      .from('profile')
-      .select('id, email, created_at, user_id, is_admin, status')
-      .order('created_at', { ascending: false })
+    const { data: allProfiles, error: fetchError } = await supabase.from('profile').select('id, email, created_at, user_id, is_admin, status').order('created_at', { ascending: false })
 
     if (fetchError) {
       console.error('[SERVER] Error fetching profiles:', fetchError)
