@@ -114,10 +114,12 @@
       "pending": "In attesa",
       "approved": "Approvato",
       "rejected": "Rifiutato",
+      "resetPassword": "Reset Password",
       "status": "Stato"
     },
     "createUser": "Crea Utente",
     "deleteUser": "Elimina Utente",
+    "resetPassword": "Reset Password",
     "isAdmin": "Amministratore",
     "email": "Email",
     "creationDate": "Data di creazione"

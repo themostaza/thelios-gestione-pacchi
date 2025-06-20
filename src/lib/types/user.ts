@@ -8,13 +8,13 @@ export type ProfileUser = {
   created_at: string
   user_id: string | null
   is_admin: boolean
-  status: 'pending' | 'approved' | 'rejected' | 'registered'
+  status: 'pending' | 'approved' | 'rejected' | 'registered' | 'reset_password'
 }
 
 export type CreateUserData = {
   email: string
   isAdmin: boolean
-  status?: 'pending' | 'approved' | 'rejected'
+  status?: 'pending' | 'approved' | 'rejected' | 'reset_password'
 }
 
 export type CreateUserFormData = {

@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, UserPlus } from 'lucide-react'
+import { Loader2, UserPlus, Key } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -21,6 +21,7 @@ import { registerSchema } from '@/lib/validations/user'
 export default function RegisterForm() {
   const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isResetMode, setIsResetMode] = useState(false)
   const router = useRouter()
 
   const form = useForm<RegisterFormData>({
@@ -40,18 +41,24 @@ export default function RegisterForm() {
 
       if (result.success) {
         toast({
-          title: 'Registration completed',
+          title: isResetMode ? 'Password reset completed' : 'Registration completed',
           description: result.message,
         })
         form.reset()
+        setIsResetMode(false)
 
         setTimeout(() => {
           router.refresh()
           router.push('/auth')
         }, 2000)
       } else {
+        // Check if this is a reset password case
+        if (result.message.includes('reset_password')) {
+          setIsResetMode(true)
+        }
+
         toast({
-          title: 'Registration error',
+          title: isResetMode ? 'Password reset error' : 'Registration error',
           description: result.message,
           variant: 'destructive',
         })
@@ -74,8 +81,8 @@ export default function RegisterForm() {
       <CardHeader>
         <div className='flex justify-between items-center'>
           <div>
-            <CardTitle className='text-2xl font-bold'>{t('auth.newUserRegistration')}</CardTitle>
-            <CardDescription className='mt-2'>{t('auth.createNewAccountDescription')}</CardDescription>
+            <CardTitle className='text-2xl font-bold'>{isResetMode ? t('user.resetPassword') : t('auth.newUserRegistration')}</CardTitle>
+            <CardDescription className='mt-2'>{isResetMode ? 'Enter your email and new password to reset your account' : t('auth.createNewAccountDescription')}</CardDescription>
           </div>
         </div>
         <Separator className='mt-4' />
@@ -113,14 +120,14 @@ export default function RegisterForm() {
               name='password'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='password'>Password</FormLabel>
+                  <FormLabel htmlFor='password'>{isResetMode ? 'New Password' : 'Password'}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id='password'
                       type='password'
                       placeholder='••••••••'
-                      autoComplete='new-password'
+                      autoComplete={isResetMode ? 'new-password' : 'new-password'}
                       disabled={isSubmitting}
                     />
                   </FormControl>
@@ -134,14 +141,14 @@ export default function RegisterForm() {
               name='confirmPassword'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor='confirmPassword'>Confirm password</FormLabel>
+                  <FormLabel htmlFor='confirmPassword'>{isResetMode ? 'Confirm New Password' : 'Confirm password'}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id='confirmPassword'
                       type='password'
                       placeholder='••••••••'
-                      autoComplete='new-password'
+                      autoComplete={isResetMode ? 'new-password' : 'new-password'}
                       disabled={isSubmitting}
                     />
                   </FormControl>
@@ -159,13 +166,18 @@ export default function RegisterForm() {
             >
               {isSubmitting ? (
                 <Loader2 className='h-4 w-4 animate-spin mr-2' />
+              ) : isResetMode ? (
+                <Key
+                  size={20}
+                  className='mr-2'
+                />
               ) : (
                 <UserPlus
                   size={20}
                   className='mr-2'
                 />
               )}
-              Register
+              {isResetMode ? 'Reset Password' : 'Register'}
             </Button>
           </CardFooter>
         </form>

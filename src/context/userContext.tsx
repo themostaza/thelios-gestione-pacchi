@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-import { getAllProfiles, createUser, deleteProfileUser } from '@/app/actions/authActions'
+import { getAllProfiles, createUser, deleteProfileUser, resetUserPassword } from '@/app/actions/authActions'
 
 type ProfileUser = {
   id: string
@@ -10,12 +10,13 @@ type ProfileUser = {
   created_at: string
   user_id: string | null
   is_admin: boolean
-  status: 'pending' | 'approved' | 'rejected' | 'registered'
+  status: 'pending' | 'approved' | 'rejected' | 'registered' | 'reset_password'
 }
 
 type CreateUserData = {
   email: string
   isAdmin: boolean
+  status?: 'pending' | 'approved' | 'rejected' | 'reset_password'
 }
 
 type UserContextType = {
@@ -25,6 +26,7 @@ type UserContextType = {
   refreshUsers: () => Promise<void>
   addUser: (userData: CreateUserData) => Promise<{ success: boolean; message: string }>
   deleteUser: (id: string, userId: string | null) => Promise<{ success: boolean; message: string }>
+  resetPassword: (id: string) => Promise<{ success: boolean; message: string }>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -86,14 +88,45 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const resetPassword = async (id: string) => {
+    try {
+      const result = await resetUserPassword(id)
+      if (result.success) {
+        refreshUsers()
+      }
+      return result
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error resetting password: ' + error
+      console.error('Error resetting password:', errorMessage)
+      return {
+        success: false,
+        message: errorMessage,
+      }
+    }
+  }
+
   useEffect(() => {
     refreshUsers()
   }, [])
 
-  return <UserContext.Provider value={{ users, loading, error, refreshUsers, addUser, deleteUser }}>{children}</UserContext.Provider>
+  return (
+    <UserContext.Provider
+      value={{
+        users,
+        loading,
+        error,
+        refreshUsers,
+        addUser,
+        deleteUser,
+        resetPassword,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  )
 }
 
-export const useUser = () => {
+export function useUser() {
   const context = useContext(UserContext)
   if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider')

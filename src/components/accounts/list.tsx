@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2, Trash } from 'lucide-react'
+import { Loader2, Trash, Key } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -28,10 +28,10 @@ function AdminBadge({ isAdmin }: { isAdmin: boolean }) {
   )
 }
 
-function StatusBadgeComponent({ status }: { status: 'pending' | 'approved' | 'rejected' | 'registered' }) {
+function StatusBadgeComponent({ status }: { status: 'pending' | 'approved' | 'rejected' | 'registered' | 'reset_password' }) {
   return (
     <StatusBadge
-      status={status}
+      status={status === 'reset_password' ? 'reset-password' : status}
       variant='outline'
     />
   )
@@ -39,8 +39,9 @@ function StatusBadgeComponent({ status }: { status: 'pending' | 'approved' | 're
 
 export default function AccountsTable() {
   const { t } = useTranslation()
-  const { users, loading, error, deleteUser } = useUser()
+  const { users, loading, error, deleteUser, resetPassword } = useUser()
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [resettingId, setResettingId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<{ id: string; userId: string | null } | null>(null)
 
@@ -56,6 +57,12 @@ export default function AccountsTable() {
     await deleteUser(selectedUser.id, selectedUser.userId)
     setDeletingId(null)
     setSelectedUser(null)
+  }
+
+  const handleResetPassword = async (id: string) => {
+    setResettingId(id)
+    await resetPassword(id)
+    setResettingId(null)
   }
 
   if (loading)
@@ -104,7 +111,7 @@ export default function AccountsTable() {
             <TableHead>{t('user.status.status')}</TableHead>
             <TableHead>{t('user.status.registered')}</TableHead>
             <TableHead>{t('user.isAdmin')}</TableHead>
-            <TableHead className='text-right'>{t('common.delete')}</TableHead>
+            <TableHead className='text-right'>Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -122,15 +129,26 @@ export default function AccountsTable() {
                   <AdminBadge isAdmin={user.is_admin} />
                 </TableCell>
                 <TableCell className='text-right'>
-                  <Button
-                    onClick={() => openDeleteDialog(user.id, user.user_id)}
-                    variant='destructive'
-                    size='sm'
-                    disabled={deletingId === user.id}
-                  >
-                    {deletingId === user.id ? <Loader2 className='h-4 w-4 animate-spin' /> : <Trash className='h-4 w-4 mr-1' />}
-                    <span>{t('common.delete')}</span>
-                  </Button>
+                  <div className='flex justify-end gap-2'>
+                    <Button
+                      onClick={() => handleResetPassword(user.id)}
+                      variant='outline'
+                      size='sm'
+                      disabled={resettingId === user.id || user.status === 'reset_password'}
+                    >
+                      {resettingId === user.id ? <Loader2 className='h-4 w-4 animate-spin' /> : <Key className='h-4 w-4 mr-1' />}
+                      <span>{t('user.resetPassword')}</span>
+                    </Button>
+                    <Button
+                      onClick={() => openDeleteDialog(user.id, user.user_id)}
+                      variant='destructive'
+                      size='sm'
+                      disabled={deletingId === user.id}
+                    >
+                      {deletingId === user.id ? <Loader2 className='h-4 w-4 animate-spin' /> : <Trash className='h-4 w-4 mr-1' />}
+                      <span>{t('common.delete')}</span>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
