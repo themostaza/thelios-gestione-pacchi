@@ -28,6 +28,15 @@ function AdminBadge({ isAdmin }: { isAdmin: boolean }) {
   )
 }
 
+function StatusBadgeComponent({ status }: { status: 'pending' | 'approved' | 'rejected' | 'registered' }) {
+  return (
+    <StatusBadge
+      status={status}
+      variant='outline'
+    />
+  )
+}
+
 export default function AccountsTable() {
   const { t } = useTranslation()
   const { users, loading, error, deleteUser } = useUser()
@@ -92,7 +101,7 @@ export default function AccountsTable() {
         <TableHeader>
           <TableRow>
             <TableHead>Email</TableHead>
-            {/* <TableHead>Creation Date</TableHead> */}
+            <TableHead>{t('user.status.status')}</TableHead>
             <TableHead>{t('user.status.registered')}</TableHead>
             <TableHead>{t('user.isAdmin')}</TableHead>
             <TableHead className='text-right'>{t('common.delete')}</TableHead>
@@ -103,7 +112,9 @@ export default function AccountsTable() {
             [...users].reverse().map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.email}</TableCell>
-                {/* <TableCell>{new Date(user.created_at).toLocaleDateString('it-IT')}</TableCell> */}
+                <TableCell>
+                  <StatusBadgeComponent status={user.status} />
+                </TableCell>
                 <TableCell>
                   <UserStatusBadge registered={!!user.user_id} />
                 </TableCell>

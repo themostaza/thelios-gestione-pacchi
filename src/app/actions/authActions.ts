@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers'
 
 import { currentUserIsAdmin as isAdmin } from '@/lib/functions'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { LoginData, LoginResult, LogoutResult, RegisterResult, CreateUserResult, GetProfilesResult } from '@/lib/types/user'
 
 export async function currentUserIsAdmin(): Promise<boolean> {
@@ -47,8 +47,9 @@ export async function registerUser(email: string, password: string): Promise<Reg
   try {
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
+    const adminClient = createAdminClient()
 
-    const { data: profileData, error: profileError } = await supabase.from('profile').select('*').eq('email', email).is('user_id', null)
+    const { data: profileData, error: profileError } = await supabase.from('profile').select('*').eq('email', email).eq('status', 'pending').is('user_id', null).single()
 
     if (profileError) {
       return {
@@ -57,19 +58,18 @@ export async function registerUser(email: string, password: string): Promise<Reg
       }
     }
 
-    if (!profileData || profileData.length === 0) {
+    if (!profileData) {
       return {
         success: false,
-        message: 'Email not pre-authorized. Please contact administrator.',
+        message: 'Email not pre-authorized or already registered. Please contact administrator.',
       }
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
       email,
       password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth`,
-      },
+      email_confirm: true,
+      user_metadata: { email_confirmed: true },
     })
 
     if (authError) {
@@ -80,17 +80,22 @@ export async function registerUser(email: string, password: string): Promise<Reg
     }
 
     if (authData?.user?.id) {
-      const { error: updateError } = await supabase.from('profile').update({ user_id: authData.user.id }).eq('email', email)
+      const { error: updateError } = await supabase
+        .from('profile')
+        .update({
+          user_id: authData.user.id,
+          status: 'registered',
+        })
+        .eq('email', email)
 
       if (updateError) {
         console.error('[SERVER] Error updating profile with user_id:', updateError)
-      } else {
       }
     }
 
     return {
       success: true,
-      message: "Registration complete. We've sent you a confirmation email.",
+      message: 'Registration complete. You can now log in.',
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
@@ -160,6 +165,7 @@ export async function createUser({ email, isAdmin }: { email: string; isAdmin: b
         email,
         is_admin: isAdmin,
         user_id: null,
+        status: 'pending',
       })
       .select()
       .single()
@@ -218,7 +224,7 @@ export async function getAllProfiles(): Promise<GetProfilesResult> {
       }
     }
 
-    const { data: allProfiles, error: fetchError } = await supabase.from('profile').select('id, email, created_at, user_id, is_admin').order('created_at', { ascending: false })
+    const { data: allProfiles, error: fetchError } = await supabase.from('profile').select('id, email, created_at, user_id, is_admin, status').order('created_at', { ascending: false })
 
     if (fetchError) {
       console.error('[SERVER] Error fetching profiles:', fetchError)

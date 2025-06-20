@@ -110,7 +110,11 @@
       "registered": "Registrato",
       "notRegistered": "Non registrato",
       "admin": "Amministratore",
-      "notAdmin": "Utente"
+      "notAdmin": "Utente",
+      "pending": "In attesa",
+      "approved": "Approvato",
+      "rejected": "Rifiutato",
+      "status": "Stato"
     },
     "createUser": "Crea Utente",
     "deleteUser": "Elimina Utente",

@@ -16,6 +16,8 @@ export type StatusType =
   | 'not-registered'
   | 'admin'
   | 'not-admin'
+  | 'approved'
+  | 'rejected'
   // Generic statuses
   | 'default'
   | 'success'
@@ -69,6 +71,8 @@ function getDefaultLabel(status: StatusType, t: (key: string) => string): string
     case 'not-registered': return t('user.status.notRegistered')
     case 'admin': return t('user.status.admin')
     case 'not-admin': return t('user.status.notAdmin')
+    case 'approved': return t('user.status.approved')
+    case 'rejected': return t('user.status.rejected')
     case 'success': return t('common.success')
     case 'warning': return t('common.warning')
     case 'error': return t('common.error')
@@ -95,6 +99,10 @@ function getStatusStyle(status: StatusType, variant: StatusVariant): string {
         return 'bg-black hover:bg-black text-white font-medium'
       case 'not-admin':
         return 'bg-white hover:bg-white text-gray-800 border border-gray-200 font-medium'
+      case 'approved':
+        return 'bg-green-100 hover:bg-green-100 text-green-800 font-medium'
+      case 'rejected':
+        return 'bg-red-100 hover:bg-red-100 text-red-800 font-medium'
       case 'success':
         return 'bg-green-100 hover:bg-green-100 text-green-800 font-medium'
       case 'warning':
@@ -123,6 +131,10 @@ function getStatusStyle(status: StatusType, variant: StatusVariant): string {
         return 'bg-black hover:bg-black text-white font-medium'
       case 'not-admin':
         return 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium'
+      case 'approved':
+        return 'bg-green-500 hover:bg-green-600 text-white font-medium'
+      case 'rejected':
+        return 'bg-red-500 hover:bg-red-600 text-white font-medium'
       case 'success':
         return 'bg-green-500 hover:bg-green-600 text-white font-medium'
       case 'warning':

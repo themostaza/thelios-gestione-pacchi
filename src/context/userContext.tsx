@@ -10,6 +10,7 @@ type ProfileUser = {
   created_at: string
   user_id: string | null
   is_admin: boolean
+  status: 'pending' | 'approved' | 'rejected' | 'registered'
 }
 
 type CreateUserData = {
