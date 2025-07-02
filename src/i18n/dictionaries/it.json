@@ -99,7 +99,16 @@
     "refreshList": "Aggiorna lista",
     "confirmRefresh": "Conferma aggiornamento",
     "confirmRefreshDescription": "Questa operazione aggiornerà l'elenco dei destinatari dal sistema aziendale. Potrebbe richiedere alcuni istanti.",
-    "completed_at": "Data di completamento"
+    "completed_at": "Data di completamento",
+    "statusFinalized": "Consegna finalizzata",
+    "statusFinalizedDescription": "Solo gli admin possono modificare lo stato di una consegna finalizzata.",
+    "confirmCancellation": "Conferma Annullamento",
+    "confirmCancellationDescription": "Sei sicuro di voler annullare questa consegna? Questa azione non può essere annullata.",
+    "confirmCompletion": "Conferma Completamento",
+    "confirmCompletionDescription": "Sei sicuro di voler completare questa consegna? Questa azione non può essere annullata.",
+    "notOwner": "Non proprietario",
+    "notOwnerDescription": "Solo gli admin possono modificare le consegne create da altri utenti.",
+    "adminModifyingOther": "Modificando consegna di altro utente"
   },
   "user": {
     "description": "Gestione degli utenti",
@@ -192,7 +201,9 @@
     "details": "Dettagli",
     "sentBy": "Inviata da",
     "subject": "Oggetto",
-    "recipientEmail": "Email destinatario"
+    "recipientEmail": "Email destinatario",
+    "deliveryFinalized": "Consegna finalizzata",
+    "deliveryFinalizedDescription": "Solo gli admin possono inviare promemoria per una consegna finalizzata."
   },
   "dialog": {
     "confirmDeletion": "Conferma Eliminazione",

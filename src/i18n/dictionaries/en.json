@@ -99,7 +99,16 @@
     "refreshList": "Refresh list",
     "confirmRefresh": "Confirm refresh",
     "confirmRefreshDescription": "This operation will update the recipients list from the company system. It might take a moment.",
-    "completed_at": "Completed At"
+    "completed_at": "Completed At",
+    "statusFinalized": "Delivery finalized",
+    "statusFinalizedDescription": "Only admins can modify the status of a finalized delivery.",
+    "confirmCancellation": "Confirm Cancellation",
+    "confirmCancellationDescription": "Are you sure you want to cancel this delivery? This action cannot be undone.",
+    "confirmCompletion": "Confirm Completion",
+    "confirmCompletionDescription": "Are you sure you want to complete this delivery? This action cannot be undone.",
+    "notOwner": "Not Owner",
+    "notOwnerDescription": "Only admins can modify deliveries created by other users.",
+    "adminModifyingOther": "Modifying other user's delivery"
   },
   "user": {
     "description": "User management",
@@ -192,7 +201,9 @@
     "details": "Details",
     "sentBy": "Sent by",
     "subject": "Subject",
-    "recipientEmail": "Recipient email"
+    "recipientEmail": "Recipient email",
+    "deliveryFinalized": "Delivery finalized",
+    "deliveryFinalizedDescription": "Only admins can send reminders for a finalized delivery."
   },
   "dialog": {
     "confirmDeletion": "Confirm Deletion",

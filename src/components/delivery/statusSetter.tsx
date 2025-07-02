@@ -3,20 +3,31 @@
 import { MoreVertical } from 'lucide-react'
 import { Check } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { StatusType } from '@/components/ui/statusBadge'
+import { useAuth } from '@/context/authContext'
 import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function SetStatus() {
   const { delivery, changeStatus, refreshDelivery } = useDelivery()
+  const { isAdmin, user } = useAuth()
   const [changingStatus, setChangingStatus] = useState(false)
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const { t } = useTranslation()
 
   if (!delivery) return null
+
+  // Check if delivery is completed or cancelled and user is not admin
+  const isDeliveryFinalized = delivery.status === 'completed' || delivery.status === 'cancelled'
+  const isOwner = user?.email === delivery.user?.email
 
   const handleStatusChange = async (newStatus: StatusType) => {
     setChangingStatus(true)
@@ -26,40 +37,186 @@ export default function SetStatus() {
     setChangingStatus(false)
   }
 
+  const handleCompleteClick = () => {
+    setShowCompleteDialog(true)
+  }
+
+  const handleCompleteConfirm = async () => {
+    setShowCompleteDialog(false)
+    await handleStatusChange('completed')
+  }
+
+  const handleCancelClick = () => {
+    setShowCancelDialog(true)
+  }
+
+  const handleCancelConfirm = async () => {
+    setShowCancelDialog(false)
+    await handleStatusChange('cancelled')
+  }
+
   return (
-    <div className='flex gap-2'>
-      <Button
-        size='sm'
-        onClick={() => handleStatusChange('completed')}
-        disabled={delivery.status === 'completed' || changingStatus}
+    <div className='flex flex-col gap-2'>
+      {/* Info messages for different permission scenarios */}
+      {!isAdmin && isOwner && isDeliveryFinalized && (
+        <div className='flex items-center'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-auto p-1 text-amber-600 hover:text-amber-700'
+              >
+                <Info className='h-4 w-4' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-80'>
+              <div className='space-y-2'>
+                <h4 className='font-medium leading-none'>{t('deliveries.statusFinalized') || 'Consegna finalizzata'}</h4>
+                <p className='text-sm text-muted-foreground'>{t('deliveries.statusFinalizedDescription') || 'Solo gli admin possono modificare lo stato di una consegna finalizzata.'}</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+
+      {!isAdmin && !isOwner && (
+        <div className='flex items-center'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-auto p-1 text-blue-600 hover:text-blue-700'
+              >
+                <Info className='h-4 w-4' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-80'>
+              <div className='space-y-2'>
+                <h4 className='font-medium leading-none'>{t('deliveries.notOwner') || 'Non proprietario'}</h4>
+                <p className='text-sm text-muted-foreground'>{t('deliveries.notOwnerDescription') || 'Solo gli admin possono modificare le consegne create da altri utenti.'}</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+
+      {/* Show buttons for admins (always) or for owners of non-finalized deliveries */}
+      {(isAdmin || (isOwner && !isDeliveryFinalized)) && (
+        <div className='flex flex-col gap-2'>
+          <div className='flex gap-2'>
+            <Button
+              size='sm'
+              onClick={handleCompleteClick}
+              disabled={changingStatus}
+            >
+              {changingStatus ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Check className='h-4 w-4 mr-2' />}
+              {t('deliveries.statusText.completed')}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  disabled={changingStatus}
+                >
+                  <MoreVertical className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange('pending')}
+                  disabled={changingStatus}
+                >
+                  {t('deliveries.statusText.pending')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleCancelClick}
+                  disabled={changingStatus}
+                >
+                  {t('deliveries.statusText.cancelled')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      )}
+
+      {/* Complete confirmation dialog */}
+      <Dialog
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
       >
-        {changingStatus ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Check className='h-4 w-4 mr-2' />}
-        {t('deliveries.statusText.completed')}
-      </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='outline'
-            size='sm'
-          >
-            <MoreVertical className='h-4 w-4' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuItem
-            onClick={() => handleStatusChange('pending')}
-            disabled={delivery.status === 'pending' || changingStatus}
-          >
-            {t('deliveries.statusText.pending')}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleStatusChange('cancelled')}
-            disabled={delivery.status === 'cancelled' || changingStatus}
-          >
-            {t('deliveries.statusText.cancelled')}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('deliveries.confirmCompletion') || 'Conferma Completamento'}</DialogTitle>
+            <DialogDescription>
+              {t('deliveries.confirmCompletionDescription') || `Sei sicuro di voler completare la consegna #${delivery.id}? Questa azione non può essere annullata.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => setShowCompleteDialog(false)}
+              disabled={changingStatus}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={handleCompleteConfirm}
+              disabled={changingStatus}
+            >
+              {changingStatus ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  {t('common.loading')}
+                </>
+              ) : (
+                t('deliveries.statusText.completed')
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel confirmation dialog */}
+      <Dialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('deliveries.confirmCancellation') || 'Conferma Annullamento'}</DialogTitle>
+            <DialogDescription>
+              {t('deliveries.confirmCancellationDescription') || `Sei sicuro di voler annullare la consegna #${delivery.id}? Questa azione non può essere annullata.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => setShowCancelDialog(false)}
+              disabled={changingStatus}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={handleCancelConfirm}
+              disabled={changingStatus}
+            >
+              {changingStatus ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  {t('common.loading')}
+                </>
+              ) : (
+                t('deliveries.statusText.cancelled')
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

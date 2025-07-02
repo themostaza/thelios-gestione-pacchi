@@ -2,9 +2,8 @@
 
 import { cookies } from 'next/headers'
 
-import { currentUserIsAdmin } from '@/app/actions/authActions'
 import { getServerTranslation } from '@/i18n/serverTranslation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { DeliveryFormData, SuccessResponse, ErrorResponse, DeliveryFilters, PaginatedDeliveriesResponse, DeliveryData, StatusUpdateResponse, ReminderLog } from '@/lib/types/delivery'
 import { deliverySchema } from '@/lib/validations/delivery'
 
@@ -232,17 +231,9 @@ export async function getDeliveriesPaginated(page: number = 1, pageSize: number 
 
     let query = supabase.from('delivery').select('*', { count: 'exact' })
 
-    const isAdmin = await currentUserIsAdmin()
+    // All users can see all deliveries
 
-    if (!isAdmin) {
-      query = query.eq('user_id', user.id)
-
-      if (filters.userEmail) {
-        delete filters.userEmail
-      }
-    }
-
-    if (filters.userEmail && isAdmin) {
+    if (filters.userEmail) {
       const { data: userData } = await supabase.from('users').select('id').eq('email', filters.userEmail).single()
 
       if (userData) {
@@ -377,13 +368,9 @@ export async function getDeliveryById(id: string) {
       }
     }
 
-    const isAdmin = await currentUserIsAdmin()
-
     const query = supabase.from('delivery').select('*')
 
-    if (!isAdmin) {
-      query.eq('user_id', user.id)
-    }
+    // All users can see all deliveries
 
     const { data: delivery, error } = await query.eq('id', id).single()
 
@@ -463,7 +450,24 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
-    const isAdmin = await currentUserIsAdmin()
+    // Check if user is admin directly - handle multiple rows gracefully
+    let isAdmin = false
+    try {
+      console.log('Checking admin status for user:', user.id, user.email)
+
+      const { data: profileData, error: profileError } = await supabase.from('profile').select('is_admin').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
+
+      console.log('Profile data:', profileData, 'Error:', profileError)
+
+      if (!profileError && profileData) {
+        isAdmin = profileData.is_admin || false
+      }
+
+      console.log('Final isAdmin value:', isAdmin)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+      isAdmin = false
+    }
 
     const { data: delivery, error: fetchError } = await supabase.from('delivery').select('*').eq('id', id).single()
 
@@ -475,13 +479,29 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
-    if (!isAdmin && delivery.user_id !== user.id) {
+    // Check permissions: admins can modify any delivery, users can only modify their own non-finalized deliveries
+    const isDeliveryFinalized = delivery.status === 'completed' || delivery.status === 'cancelled'
+    const isOwner = delivery.user_id === user.id
+
+    console.log('Permission check:', {
+      isAdmin,
+      isOwner,
+      isDeliveryFinalized,
+      deliveryUserId: delivery.user_id,
+      currentUserId: user.id,
+      deliveryStatus: delivery.status,
+    })
+
+    if (!isAdmin && (!isOwner || isDeliveryFinalized)) {
+      console.log('Permission denied')
       return {
         success: false,
-        message: 'You do not have permission to update this delivery',
+        message: isDeliveryFinalized ? 'Only admins can modify finalized deliveries' : 'You do not have permission to update this delivery',
         data: null,
       }
     }
+
+    console.log('Permission granted, proceeding with update')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = { status }
@@ -492,12 +512,77 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       updateData.completed_at = null
     }
 
-    const { data: updatedDelivery, error: updateError } = await supabase.from('delivery').update(updateData).eq('id', id).select().single()
+    console.log('Update data:', updateData, 'Delivery ID:', id)
+
+    // First, verify the delivery exists
+    const { data: existingDelivery, error: verifyError } = await supabase.from('delivery').select('*').eq('id', id).single()
+
+    if (verifyError || !existingDelivery) {
+      console.log('Delivery not found:', verifyError)
+      return {
+        success: false,
+        message: 'Delivery not found',
+        data: null,
+      }
+    }
+
+    console.log('Existing delivery found:', existingDelivery)
+
+    // Perform the update - convert id to number if needed
+    const deliveryId = parseInt(id, 10)
+    console.log('Converting delivery ID:', id, 'to:', deliveryId)
+
+    // Test if we can update this delivery by trying a simple update first
+    const { data: testUpdate, error: testError } = await supabase
+      .from('delivery')
+      .update({ notes: existingDelivery.notes }) // Update with same value
+      .eq('id', deliveryId)
+      .select('id')
+
+    console.log('Test update result:', testUpdate, 'Test error:', testError)
+
+    // First try update without select to see if it works
+    let updateResult, updateError
+
+    if (isAdmin) {
+      // For admins, use service role to bypass RLS
+      const serviceSupabase = createAdminClient()
+
+      const { data, error } = await serviceSupabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
+
+      updateResult = data
+      updateError = error
+
+      console.log('Admin update with service role:', { updateResult, updateError })
+    } else {
+      // For regular users, use normal client
+      const { data, error } = await supabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
+
+      updateResult = data
+      updateError = error
+    }
+
+    console.log('Update result:', updateResult, 'Update error (without select):', updateError)
 
     if (updateError) {
+      console.log('Update error:', updateError)
       return {
         success: false,
         message: updateError.message || 'Failed to update delivery status',
+        data: null,
+      }
+    }
+
+    // Now fetch the updated delivery
+    const { data: updatedDelivery, error: fetchUpdatedError } = await supabase.from('delivery').select('*').eq('id', deliveryId).single()
+
+    console.log('Fetch updated delivery result:', { updatedDelivery, fetchUpdatedError })
+
+    if (fetchUpdatedError) {
+      console.log('Fetch error:', fetchUpdatedError)
+      return {
+        success: false,
+        message: 'Update successful but failed to fetch updated data',
         data: null,
       }
     }

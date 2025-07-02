@@ -11,17 +11,13 @@ import { useTranslation } from '@/i18n/I18nProvider'
 
 import DeliveryColumnPicker from './columnPicker'
 
-interface DeliveriesProps {
-  isAdmin: boolean
-}
-
-function DeliveriesContent({ isAdmin }: DeliveriesProps) {
+function DeliveriesContent() {
   const { error } = useDeliveries()
   const { t } = useTranslation()
   const headerRight = (
     <div className='w-full flex flex-col lg:flex-row gap-2 justify-stretch lg:justify-end items-stretch lg:items-center'>
       <DeliveryStatusFilter />
-      <DeliveriesFilters isAdmin={isAdmin} />
+      <DeliveriesFilters />
       <DeliveryColumnPicker />
     </div>
   )
@@ -58,7 +54,7 @@ function DeliveriesContent({ isAdmin }: DeliveriesProps) {
   )
 }
 
-export default function Deliveries({ isAdmin }: DeliveriesProps) {
+export default function Deliveries() {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -72,7 +68,7 @@ export default function Deliveries({ isAdmin }: DeliveriesProps) {
 
   return (
     <DeliveriesProvider>
-      <DeliveriesContent isAdmin={isAdmin} />
+      <DeliveriesContent />
     </DeliveriesProvider>
   )
 }

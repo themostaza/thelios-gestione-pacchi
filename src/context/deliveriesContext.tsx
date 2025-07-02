@@ -23,7 +23,7 @@ export function DeliveriesProvider({ children }: { children: ReactNode }) {
   const [columnVisibility, setColumnVisibility] = useState({
     id: true,
     recipient: true,
-    sender: false,
+    sender: true,
     status: true,
     created: false,
     completed_at: false,

@@ -36,15 +36,15 @@ export default function NavigationButtons({ onNavigate }: { onNavigate?: () => v
       icon: <PlusCircle className='h-4 w-4 mr-2' />,
       isDisabled: false,
     },
-  ]
-
-  const adminButtons = [
     {
       href: '/dashboard',
       text: t('navigation.dashboard'),
       icon: <LayoutDashboard className='h-4 w-4 mr-2' />,
       isDisabled: pathname === '/dashboard',
     },
+  ]
+
+  const adminButtons = [
     {
       href: '/accounts',
       text: t('navigation.userManagement'),
@@ -85,27 +85,30 @@ export default function NavigationButtons({ onNavigate }: { onNavigate?: () => v
           </li>
         ))}
 
-        <Separator />
-
-        {adminButtons.map((button, index) => (
-          <li
-            key={`admin-${index}`}
-            className='w-full'
-          >
-            <Link
-              href={button.href}
-              className={cn(
-                'flex items-center p-2 rounded-md w-full',
-                pathname === button.href ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' : 'bg-background hover:bg-accent',
-                (!isLoggedIn || !isAdmin) && 'opacity-50 pointer-events-none'
-              )}
-              onClick={(e) => handleNavigate(button.href, e)}
-            >
-              {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
-              <span>{button.text}</span>
-            </Link>
-          </li>
-        ))}
+        {adminButtons.length > 0 && isAdmin && (
+          <>
+            <Separator />
+            {adminButtons.map((button, index) => (
+              <li
+                key={`admin-${index}`}
+                className='w-full'
+              >
+                <Link
+                  href={button.href}
+                  className={cn(
+                    'flex items-center p-2 rounded-md w-full',
+                    pathname === button.href ? 'bg-primary text-primary-foreground hover:bg-primary/60 cursor-default' : 'bg-background hover:bg-accent',
+                    !isLoggedIn && 'opacity-50 pointer-events-none'
+                  )}
+                  onClick={(e) => handleNavigate(button.href, e)}
+                >
+                  {loadingButton === button.href ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : button.icon}
+                  <span>{button.text}</span>
+                </Link>
+              </li>
+            ))}
+          </>
+        )}
       </ul>
     </div>
   )

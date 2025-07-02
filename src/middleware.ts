@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     })
   }
 
-  const adminRequiredPaths = ['/dashboard', '/accounts']
+  const adminRequiredPaths = ['/accounts']
 
   if (isAuthenticated && path.startsWith('/auth')) {
     return NextResponse.redirect(new URL('/deliveries', request.url))

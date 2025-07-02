@@ -13,11 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useDeliveries } from '@/context/deliveriesContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
-interface DeliveryFilterPanelProps {
-  isAdmin: boolean
-}
-
-export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProps) {
+export default function DeliveryFilterPanel() {
   const { t } = useTranslation()
   const { form, applyFilters, resetFilters } = useDeliveries()
   const [showFilterDialog, setShowFilterDialog] = useState(false)
@@ -132,24 +128,22 @@ export default function DeliveryFilterPanel({ isAdmin }: DeliveryFilterPanelProp
                 )}
               />
 
-              {isAdmin && (
-                <FormField
-                  control={form.control}
-                  name='sender'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('deliveries.sender')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={`${t('common.filters')} ${t('deliveries.sender').toLowerCase()}`}
-                          {...field}
-                          className='bg-white'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name='sender'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('deliveries.sender')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={`${t('common.filters')} ${t('deliveries.sender').toLowerCase()}`}
+                        {...field}
+                        className='bg-white'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className='flex gap-2 justify-end'>

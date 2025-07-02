@@ -1,17 +1,26 @@
 import { Mail } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useAuth } from '@/context/authContext'
 import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function DeliveryFooter() {
   const { t } = useTranslation()
-  const { emailLogs, sendReminder, isPolling } = useDelivery()
+  const { emailLogs, sendReminder, isPolling, delivery } = useDelivery()
+  const { isAdmin, user } = useAuth()
   const [sendingReminder, setSendingReminder] = useState(false)
   const [logsDialogOpen, setLogsDialogOpen] = useState(false)
+
+  // Check if delivery is completed or cancelled and user is not admin
+  const isDeliveryFinalized = delivery?.status === 'completed' || delivery?.status === 'cancelled'
+  const isOwner = user?.email === delivery?.user?.email
+  const canSendReminder = isAdmin || (isOwner && !isDeliveryFinalized)
 
   const handleSendReminder = async () => {
     setSendingReminder(true)
@@ -21,56 +30,81 @@ export default function DeliveryFooter() {
 
   return (
     <>
-      <div className='w-full bg-primary/10 rounded-lg p-4'>
-        <div className='flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center'>
-          <div className='flex flex-col gap-2 lg:flex-row lg:items-center'>
-            <h3 className='text-lg font-medium'>{t('notifications.emailNotifications')}</h3>
-            <Button
-              variant='outline'
-              size='sm'
-              className='w-full mt-2 lg:w-auto lg:mt-0'
-              onClick={() => setLogsDialogOpen(true)}
-              disabled={isPolling}
-            >
-              {isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : null}
-              {t('notifications.viewLogs')}
-            </Button>
-          </div>
-          <div className='flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:w-auto'>
-            {emailLogs.length > 0 ? (
-              <div className='flex items-center text-sm'>
-                {emailLogs[0].ok ? (
-                  <div className='flex items-center text-green-600'>
-                    <span className='inline-block w-2 h-2 rounded-full bg-green-600 mr-1.5'></span>
-                    <span className='mr-2'>
-                      {t('notifications.lastReminderSent')} • {new Date(emailLogs[0].send_at).toLocaleString()}
-                    </span>
-                  </div>
-                ) : (
-                  <div className='flex items-center text-red-600'>
-                    <span className='inline-block w-2 h-2 rounded-full bg-red-600 mr-1.5'></span>
-                    <span className='mr-2'>
-                      {t('notifications.lastReminderFailed')} • {new Date(emailLogs[0].send_at).toLocaleString()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className='flex items-center text-sm text-muted-foreground'>
-                <span className='mr-2'>{t('notifications.noEmailsSent')}</span>
-              </div>
-            )}
-            <Button
-              onClick={handleSendReminder}
-              disabled={sendingReminder || isPolling}
-              className='w-full lg:w-auto'
-            >
-              {sendingReminder || isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
-              {t('notifications.sendReminder')}
-            </Button>
+      {(isAdmin || isOwner) && (
+        <div className='w-full bg-primary/10 rounded-lg p-4'>
+          <div className='flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center'>
+            <div className='flex flex-col gap-2 lg:flex-row lg:items-center'>
+              <h3 className='text-lg font-medium'>{t('notifications.emailNotifications')}</h3>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full mt-2 lg:w-auto lg:mt-0'
+                onClick={() => setLogsDialogOpen(true)}
+                disabled={isPolling}
+              >
+                {isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : null}
+                {t('notifications.viewLogs')}
+              </Button>
+            </div>
+            <div className='flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:w-auto'>
+              {!isAdmin && isOwner && isDeliveryFinalized && (
+                <div className='flex items-center'>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        className='h-auto p-1 text-amber-600 hover:text-amber-700'
+                      >
+                        <Info className='h-4 w-4' />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-80'>
+                      <div className='space-y-2'>
+                        <h4 className='font-medium leading-none'>{t('notifications.deliveryFinalized') || 'Consegna finalizzata'}</h4>
+                        <p className='text-sm text-muted-foreground'>{t('notifications.deliveryFinalizedDescription') || 'Solo gli admin possono inviare promemoria per una consegna finalizzata.'}</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+              {emailLogs.length > 0 ? (
+                <div className='flex items-center text-sm'>
+                  {emailLogs[0].ok ? (
+                    <div className='flex items-center text-green-600'>
+                      <span className='inline-block w-2 h-2 rounded-full bg-green-600 mr-1.5'></span>
+                      <span className='mr-2'>
+                        {t('notifications.lastReminderSent')} • {new Date(emailLogs[0].send_at).toLocaleString()}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className='flex items-center text-red-600'>
+                      <span className='inline-block w-2 h-2 rounded-full bg-red-600 mr-1.5'></span>
+                      <span className='mr-2'>
+                        {t('notifications.lastReminderFailed')} • {new Date(emailLogs[0].send_at).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className='flex items-center text-sm text-muted-foreground'>
+                  <span className='mr-2'>{t('notifications.noEmailsSent')}</span>
+                </div>
+              )}
+              {canSendReminder && (
+                <Button
+                  onClick={handleSendReminder}
+                  disabled={sendingReminder || isPolling}
+                  className='w-full lg:w-auto'
+                >
+                  {sendingReminder || isPolling ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Mail className='h-4 w-4 mr-2' />}
+                  {t('notifications.sendReminder')}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Logs dialog */}
       <Dialog
