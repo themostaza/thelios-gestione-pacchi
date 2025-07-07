@@ -203,7 +203,11 @@
     "subject": "Oggetto",
     "recipientEmail": "Email destinatario",
     "deliveryFinalized": "Consegna finalizzata",
-    "deliveryFinalizedDescription": "Solo gli admin possono inviare promemoria per una consegna finalizzata."
+    "deliveryFinalizedDescription": "Solo gli admin possono inviare promemoria per una consegna finalizzata.",
+    "sendEmailConfirmation": "Invia notifica email",
+    "sendEmailConfirmationDescription": "Vuoi inviare una notifica email al destinatario {recipientEmail}?",
+    "sendEmail": "Invia Email",
+    "skipEmail": "Salta Email"
   },
   "dialog": {
     "confirmDeletion": "Conferma Eliminazione",

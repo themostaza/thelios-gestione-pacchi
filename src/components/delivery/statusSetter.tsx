@@ -16,11 +16,13 @@ import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function SetStatus() {
-  const { delivery, changeStatus, refreshDelivery } = useDelivery()
+  const { delivery, changeStatus, refreshDelivery, sendReminder } = useDelivery()
   const { isAdmin, user } = useAuth()
   const [changingStatus, setChangingStatus] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
+  const [sendingEmail, setSendingEmail] = useState(false)
   const { t } = useTranslation()
 
   if (!delivery) return null
@@ -43,7 +45,13 @@ export default function SetStatus() {
 
   const handleCompleteConfirm = async () => {
     setShowCompleteDialog(false)
-    await handleStatusChange('completed')
+    setChangingStatus(true)
+    try {
+      await handleStatusChange('completed')
+      setShowEmailDialog(true)
+    } finally {
+      setChangingStatus(false)
+    }
   }
 
   const handleCancelClick = () => {
@@ -52,7 +60,29 @@ export default function SetStatus() {
 
   const handleCancelConfirm = async () => {
     setShowCancelDialog(false)
-    await handleStatusChange('cancelled')
+    setChangingStatus(true)
+    try {
+      await handleStatusChange('cancelled')
+      setShowEmailDialog(true)
+    } finally {
+      setChangingStatus(false)
+    }
+  }
+
+  const handleEmailConfirm = async () => {
+    setSendingEmail(true)
+    try {
+      await sendReminder()
+    } catch (error) {
+      console.error('Error sending email:', error)
+    } finally {
+      setSendingEmail(false)
+      setShowEmailDialog(false)
+    }
+  }
+
+  const handleEmailSkip = () => {
+    setShowEmailDialog(false)
   }
 
   return (
@@ -212,6 +242,43 @@ export default function SetStatus() {
                 </>
               ) : (
                 t('deliveries.statusText.cancelled')
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email confirmation dialog */}
+      <Dialog
+        open={showEmailDialog}
+        onOpenChange={setShowEmailDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('notifications.sendEmailConfirmation') || 'Invia notifica email'}</DialogTitle>
+            <DialogDescription>
+              {(t('notifications.sendEmailConfirmationDescription') || `Vuoi inviare una notifica email al destinatario {recipientEmail}?`).replace('{recipientEmail}', delivery.recipientEmail)}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={handleEmailSkip}
+              disabled={sendingEmail}
+            >
+              {t('notifications.skipEmail') || 'Salta Email'}
+            </Button>
+            <Button
+              onClick={handleEmailConfirm}
+              disabled={sendingEmail}
+            >
+              {sendingEmail ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  {t('common.loading') || 'Caricamento...'}
+                </>
+              ) : (
+                t('notifications.sendEmail') || 'Invia Email'
               )}
             </Button>
           </DialogFooter>

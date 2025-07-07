@@ -203,7 +203,11 @@
     "subject": "Subject",
     "recipientEmail": "Recipient email",
     "deliveryFinalized": "Delivery finalized",
-    "deliveryFinalizedDescription": "Only admins can send reminders for a finalized delivery."
+    "deliveryFinalizedDescription": "Only admins can send reminders for a finalized delivery.",
+    "sendEmailConfirmation": "Send email notification",
+    "sendEmailConfirmationDescription": "Do you want to send an email notification to {recipientEmail}?",
+    "sendEmail": "Send Email",
+    "skipEmail": "Skip Email"
   },
   "dialog": {
     "confirmDeletion": "Confirm Deletion",

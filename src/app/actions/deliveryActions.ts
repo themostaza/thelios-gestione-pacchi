@@ -14,7 +14,7 @@ async function sendEmailWithRetry(
   place: string,
   notes: string,
   createdAt: string,
-  maxRetries: number = 3
+  maxRetries: number = 1
 ): Promise<{ success: boolean; message: string; data?: ReminderLog }> {
   let lastError: string | null = null
   const subject = `Thelios - gestione pacchi #${deliveryId}`
