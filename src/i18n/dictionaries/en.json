@@ -109,7 +109,11 @@
 
     "notOwner": "Not Owner",
     "notOwnerDescription": "Only admins can modify deliveries created by other users.",
-    "adminModifyingOther": "Modifying other user's delivery"
+    "adminModifyingOther": "Modifying other user's delivery",
+    "manualMode": "Manual Entry",
+    "searchMode": "Search Mode",
+    "enterEmailManually": "Enter email manually",
+    "manualEmailDescription": "Enter the recipient's email address directly"
   },
   "user": {
     "description": "User management",

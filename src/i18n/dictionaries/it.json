@@ -109,7 +109,11 @@
 
     "notOwner": "Non proprietario",
     "notOwnerDescription": "Solo gli admin possono modificare le consegne create da altri utenti.",
-    "adminModifyingOther": "Modificando consegna di altro utente"
+    "adminModifyingOther": "Modificando consegna di altro utente",
+    "manualMode": "Inserimento Manuale",
+    "searchMode": "Modalità Ricerca",
+    "enterEmailManually": "Inserisci email manualmente",
+    "manualEmailDescription": "Inserisci direttamente l'indirizzo email del destinatario"
   },
   "user": {
     "description": "Gestione degli utenti",
