@@ -7,29 +7,131 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { DeliveryFormData, SuccessResponse, ErrorResponse, DeliveryFilters, PaginatedDeliveriesResponse, DeliveryData, StatusUpdateResponse, ReminderLog } from '@/lib/types/delivery'
 import { deliverySchema } from '@/lib/validations/delivery'
 
-async function sendEmailWithRetry(
-  deliveryId: string,
-  recipientEmail: string,
-  senderEmail: string,
-  place: string,
-  notes: string,
-  createdAt: string,
-  maxRetries: number = 1
-): Promise<{ success: boolean; message: string; data?: ReminderLog }> {
+type EmailType = 'initial' | 'completion' | 'cancellation' | 'reminder'
+
+interface EmailTemplateData {
+  deliveryId: string
+  recipientEmail: string
+  senderEmail: string
+  place: string
+  notes: string
+  createdAt: string
+  completedAt?: string
+  recipientName?: string
+  timeSlot?: string
+}
+
+function generateEmailSubject(emailType: EmailType, deliveryId: string): string {
+  switch (emailType) {
+    case 'initial':
+      return `Nuova consegna - Tracking ${deliveryId}`
+    case 'completion':
+      return `Consegna completata - Tracking ${deliveryId}`
+    case 'cancellation':
+      return `Consegna annullata - Tracking ${deliveryId}`
+    case 'reminder':
+      return `Promemoria ritiro - Tracking ${deliveryId}`
+    default:
+      return `Thelios - gestione pacchi #${deliveryId}`
+  }
+}
+
+function generateEmailBody(emailType: EmailType, data: EmailTemplateData): string {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const formatDateOnly = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+  }
+
+  switch (emailType) {
+    case 'initial':
+      return `
+        <item><LINE><![CDATA[La tua consegna è pronta per il ritiro.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti preghiamo di effettuare il ritiro al più presto per agevolare le operazioni di smistamento.<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data prevista: ${formatDateOnly(data.createdAt)}<br>]]></LINE></item>
+        ${data.timeSlot ? `<item><LINE><![CDATA[Fascia oraria: ${data.timeSlot}<br>]]></LINE></item>` : ''}
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
+        <item><LINE><![CDATA[________________________<br>]]></LINE></item>
+        <item><LINE><![CDATA[Questa è una mail automatica. Non rispondere a questo messaggio.]]></LINE></item>
+      `
+
+    case 'completion':
+      return `
+        <item><LINE><![CDATA[La presente per confermarti il completamento della consegna.<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data: ${formatDate(data.completedAt || new Date().toISOString())}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Consegnato a: ${data.recipientName || 'Destinatario'}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
+        <item><LINE><![CDATA[________________________<br>]]></LINE></item>
+        <item><LINE><![CDATA[Questa è una mail automatica. Non rispondere a questo messaggio.]]></LINE></item>
+      `
+
+    case 'cancellation':
+      return `
+        <item><LINE><![CDATA[La consegna del tuo pacco è stata annullata.<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data annullamento: ${formatDate(data.completedAt || new Date().toISOString())}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
+        <item><LINE><![CDATA[________________________<br>]]></LINE></item>
+        <item><LINE><![CDATA[Questa è una mail automatica. Non rispondere a questo messaggio.]]></LINE></item>
+      `
+
+    case 'reminder':
+      return `
+        <item><LINE><![CDATA[Ti ricordiamo che la tua consegna è pronta per il ritiro.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti preghiamo di effettuare il ritiro al più presto per agevolare le operazioni di smistamento.<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data prevista: ${formatDateOnly(data.createdAt)}<br>]]></LINE></item>
+        ${data.timeSlot ? `<item><LINE><![CDATA[Fascia oraria: ${data.timeSlot}<br>]]></LINE></item>` : ''}
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
+        <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
+        <item><LINE><![CDATA[________________________<br>]]></LINE></item>
+        <item><LINE><![CDATA[Questa è una mail automatica. Non rispondere a questo messaggio.]]></LINE></item>
+      `
+
+    default:
+      return `
+        <item><LINE><![CDATA[ID: ${data.deliveryId}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Data di creazione: ${formatDate(data.createdAt)}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Email destinatario: ${data.recipientEmail}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Email mittente: ${data.senderEmail}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Luogo: ${data.place}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Note: ${data.notes || '/'}]]></LINE></item>
+      `
+  }
+}
+
+async function sendEmailWithRetry(emailType: EmailType, data: EmailTemplateData, maxRetries: number = 1): Promise<{ success: boolean; message: string; data?: ReminderLog }> {
   let lastError: string | null = null
-  const subject = `Thelios - gestione pacchi #${deliveryId}`
+  const subject = generateEmailSubject(emailType, data.deliveryId)
+  const emailBody = generateEmailBody(emailType, data)
+
   // Compose the XML body as required
   const xmlBody = `
     <n0:Z_SEND_EMAIL_BCS xmlns:n0="urn:sap-com:document:sap:rfc:functions">
       <IV_BODY>
-        <item><LINE><![CDATA[ID: ${deliveryId}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Data di creazione: ${new Date(createdAt).toLocaleString()}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Email destinatario: ${recipientEmail}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Email mittente: ${senderEmail}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Luogo: ${place}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Note: ${notes || '/'}]]></LINE></item>
+        ${emailBody}
       </IV_BODY>
-      <IV_EMAIL>${recipientEmail}</IV_EMAIL>
+      <IV_EMAIL>${data.recipientEmail}</IV_EMAIL>
       <IV_SUBJECT>${subject}</IV_SUBJECT>
     </n0:Z_SEND_EMAIL_BCS>
   `
@@ -63,12 +165,27 @@ async function sendEmailWithRetry(
       }
       // Optionally, parse response text if needed
       const supabase = createClient(cookies())
-      const translatedMessage = await getServerTranslation('notifications.initialNotificationSent')
-      const message = translatedMessage.replace('{recipientEmail}', recipientEmail)
+
+      let translatedMessage: string
+      switch (emailType) {
+        case 'initial':
+          translatedMessage = await getServerTranslation('notifications.initialNotificationSent')
+          break
+        case 'completion':
+          translatedMessage = await getServerTranslation('notifications.completionNotificationSent')
+          break
+        case 'cancellation':
+          translatedMessage = await getServerTranslation('notifications.cancellationNotificationSent')
+          break
+        default:
+          translatedMessage = await getServerTranslation('notifications.initialNotificationSent')
+      }
+
+      const message = translatedMessage.replace('{recipientEmail}', data.recipientEmail)
       const { data: reminder, error } = await supabase
         .from('reminder')
         .insert({
-          delivery_id: deliveryId,
+          delivery_id: data.deliveryId,
           ok: true,
           message: message,
           send_at: new Date().toISOString(),
@@ -87,9 +204,9 @@ async function sendEmailWithRetry(
       try {
         const supabase = createClient(cookies())
         await supabase.from('reminder').insert({
-          delivery_id: deliveryId,
+          delivery_id: data.deliveryId,
           ok: false,
-          message: `Failed to send initial notification (attempt ${attempt}/${maxRetries}): ${lastError}`,
+          message: `Failed to send ${emailType} notification (attempt ${attempt}/${maxRetries}): ${lastError}`,
           send_at: new Date().toISOString(),
         })
       } catch (logError) {
@@ -169,7 +286,14 @@ export async function saveDelivery(formData: FormData): Promise<SuccessResponse 
     }
 
     // Send initial notification email with retry logic
-    const emailResult = await sendEmailWithRetry(deliveryData.id.toString(), data.recipient, user.email || 'unknown', data.place, data.notes, deliveryData.created_at)
+    const emailResult = await sendEmailWithRetry('initial', {
+      deliveryId: deliveryData.id.toString(),
+      recipientEmail: data.recipient,
+      senderEmail: user.email || 'unknown',
+      place: data.place,
+      notes: data.notes,
+      createdAt: deliveryData.created_at,
+    })
 
     const savedDelivery: DeliveryData = {
       id: deliveryData.id,
@@ -453,17 +577,11 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     // Check if user is admin directly - handle multiple rows gracefully
     let isAdmin = false
     try {
-      console.log('Checking admin status for user:', user.id, user.email)
-
       const { data: profileData, error: profileError } = await supabase.from('profile').select('is_admin').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
-
-      console.log('Profile data:', profileData, 'Error:', profileError)
 
       if (!profileError && profileData) {
         isAdmin = profileData.is_admin || false
       }
-
-      console.log('Final isAdmin value:', isAdmin)
     } catch (error) {
       console.error('Error checking admin status:', error)
       isAdmin = false
@@ -483,25 +601,13 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     const isDeliveryFinalized = delivery.status === 'completed' || delivery.status === 'cancelled'
     const isOwner = delivery.user_id === user.id
 
-    console.log('Permission check:', {
-      isAdmin,
-      isOwner,
-      isDeliveryFinalized,
-      deliveryUserId: delivery.user_id,
-      currentUserId: user.id,
-      deliveryStatus: delivery.status,
-    })
-
     if (!isAdmin && (!isOwner || isDeliveryFinalized)) {
-      console.log('Permission denied')
       return {
         success: false,
         message: isDeliveryFinalized ? 'Only admins can modify finalized deliveries' : 'You do not have permission to update this delivery',
         data: null,
       }
     }
-
-    console.log('Permission granted, proceeding with update')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = { status }
@@ -512,13 +618,10 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       updateData.completed_at = null
     }
 
-    console.log('Update data:', updateData, 'Delivery ID:', id)
-
     // First, verify the delivery exists
     const { data: existingDelivery, error: verifyError } = await supabase.from('delivery').select('*').eq('id', id).single()
 
     if (verifyError || !existingDelivery) {
-      console.log('Delivery not found:', verifyError)
       return {
         success: false,
         message: 'Delivery not found',
@@ -526,11 +629,8 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       }
     }
 
-    console.log('Existing delivery found:', existingDelivery)
-
     // Perform the update - convert id to number if needed
     const deliveryId = parseInt(id, 10)
-    console.log('Converting delivery ID:', id, 'to:', deliveryId)
 
     // Test if we can update this delivery by trying a simple update first
     const { data: testUpdate, error: testError } = await supabase
@@ -538,8 +638,6 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       .update({ notes: existingDelivery.notes }) // Update with same value
       .eq('id', deliveryId)
       .select('id')
-
-    console.log('Test update result:', testUpdate, 'Test error:', testError)
 
     // First try update without select to see if it works
     let updateResult, updateError
@@ -552,8 +650,6 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
 
       updateResult = data
       updateError = error
-
-      console.log('Admin update with service role:', { updateResult, updateError })
     } else {
       // For regular users, use normal client
       const { data, error } = await supabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
@@ -562,10 +658,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
       updateError = error
     }
 
-    console.log('Update result:', updateResult, 'Update error (without select):', updateError)
-
     if (updateError) {
-      console.log('Update error:', updateError)
       return {
         success: false,
         message: updateError.message || 'Failed to update delivery status',
@@ -576,10 +669,7 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     // Now fetch the updated delivery
     const { data: updatedDelivery, error: fetchUpdatedError } = await supabase.from('delivery').select('*').eq('id', deliveryId).single()
 
-    console.log('Fetch updated delivery result:', { updatedDelivery, fetchUpdatedError })
-
     if (fetchUpdatedError) {
-      console.log('Fetch error:', fetchUpdatedError)
       return {
         success: false,
         message: 'Update successful but failed to fetch updated data',
@@ -628,6 +718,74 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
   }
 }
 
+export async function sendStatusEmail(deliveryId: string, emailType: 'completion' | 'cancellation') {
+  try {
+    // Recupera la delivery completa per ottenere tutti i dati necessari
+    const deliveryResult = await getDeliveryById(deliveryId)
+    if (!deliveryResult.success || !deliveryResult.data) {
+      throw new Error('Delivery not found')
+    }
+    const delivery = deliveryResult.data
+
+    // Get user email
+    const supabase = createClient(cookies())
+    let userEmail = 'Unknown'
+    try {
+      // Get the delivery with user_id from database
+      const { data: deliveryWithUser, error: fetchError } = await supabase.from('delivery').select('user_id').eq('id', deliveryId).single()
+
+      if (!fetchError && deliveryWithUser) {
+        const { data: profileData } = await supabase.from('profile').select('email').eq('user_id', deliveryWithUser.user_id).single()
+        if (profileData) {
+          userEmail = profileData.email || 'Unknown'
+        }
+      }
+    } catch (profileError) {
+      console.error('Error fetching user profile:', profileError)
+    }
+
+    return await sendEmailWithRetry(emailType, {
+      deliveryId: delivery.id.toString(),
+      recipientEmail: delivery.recipientEmail,
+      senderEmail: userEmail,
+      place: delivery.place,
+      notes: delivery.notes,
+      createdAt: delivery.created_at,
+      completedAt: delivery.completed_at || undefined,
+    })
+  } catch (error) {
+    let errorMessage = 'Unknown error occurred'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    try {
+      const supabase = createClient(cookies())
+      const { data: reminder, error: logError } = await supabase
+        .from('reminder')
+        .insert({
+          delivery_id: deliveryId,
+          ok: false,
+          message: `Failed to send ${emailType} notification: ${errorMessage}`,
+          send_at: new Date().toISOString(),
+        })
+        .select()
+        .single()
+      if (logError) throw logError
+      return {
+        success: false,
+        message: errorMessage,
+        data: reminder as ReminderLog,
+      }
+    } catch (dbError) {
+      console.error('Failed to log status email error:', dbError)
+      return {
+        success: false,
+        message: errorMessage,
+      }
+    }
+  }
+}
+
 export async function sendReminderEmail(deliveryId: string) {
   try {
     // Recupera la delivery completa per ottenere tutti i dati necessari
@@ -637,7 +795,14 @@ export async function sendReminderEmail(deliveryId: string) {
     }
     const delivery = deliveryResult.data
     // Usa la stessa funzione di invio email della creazione
-    return await sendEmailWithRetry(delivery.id.toString(), delivery.recipientEmail, delivery.user.email, delivery.place, delivery.notes, delivery.created_at)
+    return await sendEmailWithRetry('reminder', {
+      deliveryId: delivery.id.toString(),
+      recipientEmail: delivery.recipientEmail,
+      senderEmail: delivery.user.email,
+      place: delivery.place,
+      notes: delivery.notes,
+      createdAt: delivery.created_at,
+    })
   } catch (error) {
     let errorMessage = 'Unknown error occurred'
     if (error instanceof Error) {
@@ -688,6 +853,135 @@ export async function getDeliveryReminders(deliveryId: string) {
       success: false,
       message: 'Failed to load reminder history',
       data: [],
+    }
+  }
+}
+
+export async function sendAutomaticReminders() {
+  try {
+    const supabase = createClient(cookies())
+
+    // Get all pending deliveries that haven't received a reminder in the last 3 days
+    const threeDaysAgo = new Date()
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+
+    const { data: pendingDeliveries, error: fetchError } = await supabase
+      .from('delivery')
+      .select(
+        `
+        id,
+        recipient_email,
+        place,
+        notes,
+        created_at,
+        status,
+        user_id
+      `
+      )
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+
+    if (fetchError) {
+      console.error('Error fetching pending deliveries:', fetchError)
+      return {
+        success: false,
+        message: 'Failed to fetch pending deliveries',
+        data: null,
+      }
+    }
+
+    if (!pendingDeliveries || pendingDeliveries.length === 0) {
+      return {
+        success: true,
+        message: 'No pending deliveries found',
+        data: { sent: 0, total: 0 },
+      }
+    }
+
+    let sentCount = 0
+    const results = []
+
+    for (const delivery of pendingDeliveries) {
+      try {
+        // Check if a reminder was sent in the last 3 days
+        const { data: recentReminders, error: reminderError } = await supabase
+          .from('reminder')
+          .select('send_at')
+          .eq('delivery_id', delivery.id)
+          .gte('send_at', threeDaysAgo.toISOString())
+          .order('send_at', { ascending: false })
+          .limit(1)
+
+        if (reminderError) {
+          console.error(`Error checking reminders for delivery ${delivery.id}:`, reminderError)
+          continue
+        }
+
+        // If no recent reminders, send one
+        if (!recentReminders || recentReminders.length === 0) {
+          // Get user email
+          let userEmail = 'Unknown'
+          try {
+            const { data: profileData } = await supabase.from('profile').select('email').eq('user_id', delivery.user_id).single()
+            if (profileData) {
+              userEmail = profileData.email || 'Unknown'
+            }
+          } catch (profileError) {
+            console.error('Error fetching user profile:', profileError)
+          }
+
+          const emailResult = await sendEmailWithRetry('reminder', {
+            deliveryId: delivery.id.toString(),
+            recipientEmail: delivery.recipient_email,
+            senderEmail: userEmail,
+            place: delivery.place,
+            notes: delivery.notes,
+            createdAt: delivery.created_at,
+          })
+
+          if (emailResult.success) {
+            sentCount++
+            results.push({
+              deliveryId: delivery.id,
+              recipientEmail: delivery.recipient_email,
+              success: true,
+              message: emailResult.message,
+            })
+          } else {
+            results.push({
+              deliveryId: delivery.id,
+              recipientEmail: delivery.recipient_email,
+              success: false,
+              message: emailResult.message,
+            })
+          }
+        }
+      } catch (error) {
+        console.error(`Error processing delivery ${delivery.id}:`, error)
+        results.push({
+          deliveryId: delivery.id,
+          recipientEmail: delivery.recipient_email,
+          success: false,
+          message: error instanceof Error ? error.message : 'Unknown error',
+        })
+      }
+    }
+
+    return {
+      success: true,
+      message: `Automatic reminders sent: ${sentCount}/${pendingDeliveries.length}`,
+      data: {
+        sent: sentCount,
+        total: pendingDeliveries.length,
+        results,
+      },
+    }
+  } catch (error) {
+    console.error('Error sending automatic reminders:', error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+      data: null,
     }
   }
 }

@@ -40,7 +40,6 @@ function DeliveriesTable() {
 
   const loadNextPage = useCallback(() => {
     if (hasMore && !loading && !initialLoading) {
-      console.log('Loading more items, page increment triggered')
       try {
         setPage((prevPage) => prevPage + 1)
       } catch (err) {

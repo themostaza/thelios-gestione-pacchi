@@ -183,8 +183,6 @@ function aggregateChartData(
       let fullMonthName = month
       if (monthKey) {
         fullMonthName = t(`dashboard.months.${monthKey}`)
-        // Debug to see what we're getting
-        console.log(`Month ${month} maps to key ${monthKey}, translated as: ${fullMonthName}`)
       }
 
       aggregatedLabels.push(fullMonthName)
@@ -337,17 +335,13 @@ export default function Dashboard() {
           data = await getDashboardMetrics(effectiveTimePeriod, undefined, undefined, selectedYear)
         }
 
-        console.log(`Loading data for year: ${selectedYear}, period: ${isCurrentYear ? timePeriod : 'all'}`)
 
-        // Log the data received for debugging
-        console.log('Dashboard metrics received:', data)
 
         // Check if we have actual data for the period
         const hasData = hasPackageData(data)
 
         // If no data, set consistent zero values for ALL metrics
         if (!hasData) {
-          console.log('No data detected for this period, showing empty state')
           setMetrics({
             totalPackages: 0,
             avgProcessingTime: 0,
@@ -487,7 +481,7 @@ export default function Dashboard() {
           // Use the memoized function
           const aggregated = processChartData(allDates, receivedValues, completedValues, cancelledValues)
 
-          console.log('Month labels after aggregation:', aggregated.labels)
+
 
           // Aggiorna con i dati aggregati
           setPackagesData({

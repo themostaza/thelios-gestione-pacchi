@@ -10,19 +10,20 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { StatusType } from '@/components/ui/statusBadge'
 import { useAuth } from '@/context/authContext'
 import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function SetStatus() {
-  const { delivery, changeStatus, refreshDelivery, sendReminder } = useDelivery()
+  const { delivery, changeStatus, refreshDelivery, sendReminder, sendStatusEmail } = useDelivery()
   const { isAdmin, user } = useAuth()
   const [changingStatus, setChangingStatus] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [showEmailDialog, setShowEmailDialog] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'complete' | 'cancel' | null>(null)
+
   const { t } = useTranslation()
 
   if (!delivery) return null
@@ -31,27 +32,14 @@ export default function SetStatus() {
   const isDeliveryFinalized = delivery.status === 'completed' || delivery.status === 'cancelled'
   const isOwner = user?.email === delivery.user?.email
 
-  const handleStatusChange = async (newStatus: StatusType) => {
-    setChangingStatus(true)
-    await changeStatus(newStatus)
-    // Refresh delivery data after status change
-    await refreshDelivery()
-    setChangingStatus(false)
-  }
-
   const handleCompleteClick = () => {
     setShowCompleteDialog(true)
   }
 
   const handleCompleteConfirm = async () => {
     setShowCompleteDialog(false)
-    setChangingStatus(true)
-    try {
-      await handleStatusChange('completed')
-      setShowEmailDialog(true)
-    } finally {
-      setChangingStatus(false)
-    }
+    setPendingAction('complete')
+    setShowEmailDialog(true)
   }
 
   const handleCancelClick = () => {
@@ -60,29 +48,57 @@ export default function SetStatus() {
 
   const handleCancelConfirm = async () => {
     setShowCancelDialog(false)
-    setChangingStatus(true)
-    try {
-      await handleStatusChange('cancelled')
-      setShowEmailDialog(true)
-    } finally {
-      setChangingStatus(false)
-    }
+    setPendingAction('cancel')
+    setShowEmailDialog(true)
   }
 
   const handleEmailConfirm = async () => {
     setSendingEmail(true)
+    setChangingStatus(true)
     try {
-      await sendReminder()
+      // First change the status
+      if (pendingAction === 'complete') {
+        await changeStatus('completed')
+      } else if (pendingAction === 'cancel') {
+        await changeStatus('cancelled')
+      }
+      
+      await refreshDelivery()
+      
+      // Then send the email
+      if (pendingAction === 'complete') {
+        await sendStatusEmail('completion')
+      } else if (pendingAction === 'cancel') {
+        await sendStatusEmail('cancellation')
+      }
     } catch (error) {
-      console.error('Error sending email:', error)
+      console.error('Error processing action:', error)
     } finally {
       setSendingEmail(false)
+      setChangingStatus(false)
       setShowEmailDialog(false)
+      setPendingAction(null)
     }
   }
 
-  const handleEmailSkip = () => {
-    setShowEmailDialog(false)
+  const handleEmailSkip = async () => {
+    setChangingStatus(true)
+    try {
+      // Change the status without sending email
+      if (pendingAction === 'complete') {
+        await changeStatus('completed')
+      } else if (pendingAction === 'cancel') {
+        await changeStatus('cancelled')
+      }
+      
+      await refreshDelivery()
+    } catch (error) {
+      console.error('Error processing action:', error)
+    } finally {
+      setChangingStatus(false)
+      setShowEmailDialog(false)
+      setPendingAction(null)
+    }
   }
 
   return (
@@ -139,9 +155,9 @@ export default function SetStatus() {
             <Button
               size='sm'
               onClick={handleCompleteClick}
-              disabled={changingStatus}
+              disabled={changingStatus || sendingEmail}
             >
-              {changingStatus ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Check className='h-4 w-4 mr-2' />}
+              {changingStatus || sendingEmail ? <Loader2 className='h-4 w-4 mr-2 animate-spin' /> : <Check className='h-4 w-4 mr-2' />}
               {t('deliveries.statusText.completed')}
             </Button>
             <DropdownMenu>
@@ -149,21 +165,29 @@ export default function SetStatus() {
                 <Button
                   variant='outline'
                   size='sm'
-                  disabled={changingStatus}
+                  disabled={changingStatus || sendingEmail}
                 >
                   <MoreVertical className='h-4 w-4' />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
                 <DropdownMenuItem
-                  onClick={() => handleStatusChange('pending')}
-                  disabled={changingStatus}
+                  onClick={async () => {
+                    setChangingStatus(true)
+                    try {
+                      await changeStatus('pending')
+                      await refreshDelivery()
+                    } finally {
+                      setChangingStatus(false)
+                    }
+                  }}
+                  disabled={changingStatus || sendingEmail}
                 >
                   {t('deliveries.statusText.pending')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleCancelClick}
-                  disabled={changingStatus}
+                  disabled={changingStatus || sendingEmail}
                 >
                   {t('deliveries.statusText.cancelled')}
                 </DropdownMenuItem>
@@ -189,7 +213,7 @@ export default function SetStatus() {
             <Button
               variant='outline'
               onClick={() => setShowCompleteDialog(false)}
-              disabled={changingStatus}
+              disabled={changingStatus || sendingEmail}
             >
               {t('common.cancel')}
             </Button>
@@ -197,14 +221,7 @@ export default function SetStatus() {
               onClick={handleCompleteConfirm}
               disabled={changingStatus}
             >
-              {changingStatus ? (
-                <>
-                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                  {t('common.loading')}
-                </>
-              ) : (
-                t('deliveries.statusText.completed')
-              )}
+              {t('deliveries.statusText.completed')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -222,11 +239,12 @@ export default function SetStatus() {
               {t('deliveries.confirmCancellationDescription') || `Sei sicuro di voler annullare la consegna #${delivery.id}? Questa azione non può essere annullata.`}
             </DialogDescription>
           </DialogHeader>
+
           <DialogFooter>
             <Button
               variant='outline'
               onClick={() => setShowCancelDialog(false)}
-              disabled={changingStatus}
+              disabled={changingStatus || sendingEmail}
             >
               {t('common.cancel')}
             </Button>
@@ -235,14 +253,7 @@ export default function SetStatus() {
               onClick={handleCancelConfirm}
               disabled={changingStatus}
             >
-              {changingStatus ? (
-                <>
-                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                  {t('common.loading')}
-                </>
-              ) : (
-                t('deliveries.statusText.cancelled')
-              )}
+              {t('deliveries.statusText.cancelled')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -264,15 +275,22 @@ export default function SetStatus() {
             <Button
               variant='outline'
               onClick={handleEmailSkip}
-              disabled={sendingEmail}
+              disabled={sendingEmail || changingStatus}
             >
-              {t('notifications.skipEmail') || 'Salta Email'}
+              {changingStatus ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  {t('common.loading') || 'Caricamento...'}
+                </>
+              ) : (
+                t('notifications.skipEmail') || 'Salta Email'
+              )}
             </Button>
             <Button
               onClick={handleEmailConfirm}
-              disabled={sendingEmail}
+              disabled={sendingEmail || changingStatus}
             >
-              {sendingEmail ? (
+              {sendingEmail || changingStatus ? (
                 <>
                   <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                   {t('common.loading') || 'Caricamento...'}
@@ -287,3 +305,4 @@ export default function SetStatus() {
     </div>
   )
 }
+

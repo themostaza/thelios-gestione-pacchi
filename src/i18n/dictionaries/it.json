@@ -106,6 +106,7 @@
     "confirmCancellationDescription": "Sei sicuro di voler annullare questa consegna? Questa azione non può essere annullata.",
     "confirmCompletion": "Conferma Completamento",
     "confirmCompletionDescription": "Sei sicuro di voler completare questa consegna? Questa azione non può essere annullata.",
+
     "notOwner": "Non proprietario",
     "notOwnerDescription": "Solo gli admin possono modificare le consegne create da altri utenti.",
     "adminModifyingOther": "Modificando consegna di altro utente"
@@ -193,6 +194,8 @@
     "noEmailsSent": "Nessuna notifica email è stata ancora inviata.",
     "sendReminder": "Invia Promemoria",
     "initialNotificationSent": "Notifica iniziale inviata a {recipientEmail}",
+    "completionNotificationSent": "Notifica di completamento inviata a {recipientEmail}",
+    "cancellationNotificationSent": "Notifica di annullamento inviata a {recipientEmail}",
     "logs": "Log delle Notifiche Email",
     "logsDescription": "Cronologia di tutte le notifiche email inviate per questa consegna",
     "emailLogs": "Log Email",

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 
-import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail } from '@/app/actions/deliveryActions'
+import { getDeliveryById, getDeliveryReminders, updateDeliveryStatus, sendReminderEmail, sendStatusEmail } from '@/app/actions/deliveryActions'
 import { StatusType } from '@/components/ui/statusBadge'
 import { DeliveryData, ReminderLog } from '@/lib/types/delivery'
 
@@ -14,6 +14,7 @@ type DeliveryContextType = {
   isPolling: boolean
   changeStatus: (newStatus: StatusType) => Promise<void>
   sendReminder: () => Promise<void>
+  sendStatusEmail: (emailType: 'completion' | 'cancellation') => Promise<void>
   refreshDelivery: () => Promise<void>
 }
 
@@ -84,7 +85,26 @@ export function DeliveryProvider({ children, deliveryId }: { children: ReactNode
     }
   }
 
-  return <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, isPolling: loading, changeStatus, sendReminder, refreshDelivery }}>{children}</DeliveryContext.Provider>
+  const sendStatusEmailContext = async (emailType: 'completion' | 'cancellation') => {
+    if (!delivery) return
+
+    try {
+      const result = await sendStatusEmail(deliveryId, emailType)
+      await refreshDelivery()
+      if (!result.success) {
+        setError(result.message || 'Failed to send status email')
+      }
+    } catch (err) {
+      console.error(err)
+      setError('An error occurred while sending the status email')
+    }
+  }
+
+  return (
+    <DeliveryContext.Provider value={{ delivery, loading, error, emailLogs, isPolling: loading, changeStatus, sendReminder, sendStatusEmail: sendStatusEmailContext, refreshDelivery }}>
+      {children}
+    </DeliveryContext.Provider>
+  )
 }
 
 export const useDelivery = () => {
