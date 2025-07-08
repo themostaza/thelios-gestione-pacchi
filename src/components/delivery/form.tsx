@@ -383,16 +383,13 @@ export default function DeliveryForm() {
                           {t('deliveries.takePhoto') || 'Fotocamera'}
                         </Button>
 
-                        <label
-                          htmlFor='label-image'
-                          className='w-full sm:w-auto'
-                          tabIndex={0}
-                        >
+                        <div className='w-full sm:w-auto'>
                           <Button
                             type='button'
                             variant='outline'
                             disabled={isSubmitting || isScanning}
                             className='w-full sm:w-auto'
+                            onClick={() => document.getElementById('label-image')?.click()}
                           >
                             <Upload className='h-4 w-4 mr-2' />
                             {t('deliveries.uploadFile') || 'Carica file'}
@@ -405,7 +402,7 @@ export default function DeliveryForm() {
                             onChange={handleImageUpload}
                             disabled={isSubmitting || isScanning}
                           />
-                        </label>
+                        </div>
                       </div>
 
                       {isScanning && (

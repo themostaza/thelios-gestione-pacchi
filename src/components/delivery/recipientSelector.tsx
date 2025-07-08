@@ -116,8 +116,13 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     try {
       const data = await searchRecipients(query)
       setSearchResults(data.recipients)
-      // When search results come back and we have results, keep dropdown open
-      if (data.recipients.length > 0) {
+      
+      // Auto-select if there's exactly one result
+      if (data.recipients.length === 1) {
+        const singleRecipient = data.recipients[0]
+        selectRecipient(singleRecipient)
+      } else if (data.recipients.length > 0) {
+        // When search results come back and we have multiple results, keep dropdown open
         setShowResults(true)
       }
     } catch (error) {

@@ -42,6 +42,9 @@ export async function extractTextFromImage(formData: FormData): Promise<ScanResu
     // Convert to base64 for API requests
     const base64Image = buffer.toString('base64')
 
+    // Determine the correct media type
+    const mediaType = image.type || 'image/jpeg'
+
     // Call Anthropic API to process the image
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -61,19 +64,27 @@ export async function extractTextFromImage(formData: FormData): Promise<ScanResu
                 type: 'image',
                 source: {
                   type: 'base64',
-                  media_type: 'image/jpeg',
+                  media_type: mediaType,
                   data: base64Image,
                 },
               },
               {
                 type: 'text',
-                text: 'READ AND TRANSCRIBE ALL TEXT FROM THIS IMAGE EXACTLY AS WRITTEN. DO NOT ADD ANY ADDITIONAL TEXT, COMMENTARY, DESCRIPTIONS, EXPLANATIONS, OR FORMATTING. RETURN ONLY THE RAW TEXT CONTENT FOUND IN THE IMAGE, NOTHING ELSE.',
+                text: `Analizza questa immagine e cerca:
+1. Un indirizzo email (completo o parziale - se trovi una mail parziale considerala valida a meno che non ci siano altre mail complete)
+2. Un nome e cognome (il cognome sarà probabilmente vicino al nome)
+
+Se trovi un'email (completa o parziale), restituisci SOLO l'email.
+Se non trovi un'email ma trovi un nome e cognome, restituisci "nome cognome".
+Se trovi solo un nome (senza cognome), restituisci solo il nome.
+
+Restituisci SOLO la stringa richiesta, senza spiegazioni, commenti o formattazione aggiuntiva.`,
               },
             ],
           },
         ],
         system:
-          'You are a pure text extraction tool. Your ONLY function is to output the exact text visible in images. Never add explanations, descriptions, commentary, or formatting instructions. Never preface or conclude with any remarks. Output ONLY the text visible in the image, exactly as it appears, nothing more and nothing less.',
+          'Sei un tool di estrazione di informazioni specifiche. La tua unica funzione è restituire l\'email se presente, altrimenti "nome cognome" o solo il nome. Non aggiungere mai spiegazioni, descrizioni, commenti o formattazione. Restituisci SOLO la stringa richiesta.',
       }),
     })
 
@@ -103,7 +114,7 @@ export async function extractTextFromImage(formData: FormData): Promise<ScanResu
 
     return {
       success: true,
-      text: extractedText,
+      text: extractedText.trim(),
     }
   } catch (error) {
     console.error('Error processing image:', error)
