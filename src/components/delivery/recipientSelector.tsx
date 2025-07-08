@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns'
 import { RefreshCw, Search, X, Edit3 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import { searchRecipients, forceRefreshRecipients } from '@/app/actions/recipientActions'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -88,6 +88,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
       setSearchResults([])
       setIsLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, isManualMode])
 
   // Fetch the last updated date on component mount
@@ -106,7 +107,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     fetchLastUpdate()
   }, [])
 
-  const handleRecipientSearch = async (query: string) => {
+  const handleRecipientSearch = useCallback(async (query: string) => {
     if (!query) {
       setSearchResults([])
       return
@@ -116,7 +117,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     try {
       const data = await searchRecipients(query)
       setSearchResults(data.recipients)
-      
+
       // Auto-select if there's exactly one result
       if (data.recipients.length === 1) {
         const singleRecipient = data.recipients[0]
@@ -131,7 +132,8 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
     } finally {
       setIsLoading(false)
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleRefresh = async () => {
     setShowRefreshDialog(false)
@@ -209,7 +211,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
 
   return (
     <div className='space-y-2'>
-      <div className='flex items-center justify-between mb-1'>
+      <div className='flex flex-wrap gap-2 items-center justify-between mb-1'>
         {lastFetchDate && !isManualMode && (
           <div className='text-xs text-muted-foreground'>
             {t('deliveries.lastUpdate')}: {format(new Date(lastFetchDate), 'dd/MM/yyyy HH:mm')}
@@ -258,9 +260,7 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
             disabled={disabled}
             autoComplete='off'
           />
-          <div className='text-xs text-muted-foreground'>
-            {t('deliveries.manualEmailDescription') || 'Inserisci direttamente l\'indirizzo email del destinatario'}
-          </div>
+          <div className='text-xs text-muted-foreground'>{t('deliveries.manualEmailDescription') || "Inserisci direttamente l'indirizzo email del destinatario"}</div>
         </div>
       ) : (
         // Search mode (existing functionality)
@@ -327,9 +327,9 @@ export default function RecipientSelect({ value, onChange, id = 'recipient', nam
             )}
           </div>
 
-          <div className={`flex items-center justify-between gap-3 p-2 border rounded-md h-9 ${!selectedRecipientInfo ? 'hidden' : ''} ${disabled ? 'opacity-70' : ''}`}>
+          <div className={`flex items-center justify-between gap-3 p-2 border rounded-md h-12 md:h-9 ${!selectedRecipientInfo ? 'hidden' : ''} ${disabled ? 'opacity-70' : ''}`}>
             <div className='flex items-center gap-3'>
-              <div className='flex items-baseline gap-2'>
+              <div className='flex flex-wrap items-baseline md:gap-2'>
                 {selectedRecipientInfo?.name ? (
                   <>
                     <div className='font-medium'>

@@ -66,7 +66,7 @@ export default function CronTestPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold'>Test Cron - Promemoria Automatici</h1>
-          <p className='text-muted-foreground mt-2'>Simula l'invio automatico di promemoria per le consegne in attesa</p>
+          <p className='text-muted-foreground mt-2'>Simula l&apos;invio automatico di promemoria per le consegne in attesa</p>
         </div>
         <Button
           onClick={handleRunCron}
@@ -99,7 +99,7 @@ export default function CronTestPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div className='p-4 bg-blue-50 rounded-lg'>
               <h3 className='font-semibold text-blue-900'>Consegne Target</h3>
-              <p className='text-blue-700'>Solo consegne con status "pending"</p>
+              <p className='text-blue-700'>Solo consegne con status &quot;pending&quot;</p>
             </div>
             <div className='p-4 bg-green-50 rounded-lg'>
               <h3 className='font-semibold text-green-900'>Frequenza</h3>
@@ -107,7 +107,7 @@ export default function CronTestPage() {
             </div>
             <div className='p-4 bg-purple-50 rounded-lg'>
               <h3 className='font-semibold text-purple-900'>Tipo Email</h3>
-              <p className='text-purple-700'>Promemoria iniziale (template "initial")</p>
+              <p className='text-purple-700'>Promemoria iniziale (template &quot;initial&quot;)</p>
             </div>
           </div>
         </CardContent>
@@ -202,7 +202,7 @@ export default function CronTestPage() {
         <CardContent className='space-y-3'>
           <div className='space-y-2'>
             <h4 className='font-semibold'>1. Selezione Consegne</h4>
-            <p className='text-sm text-muted-foreground'>Il sistema cerca tutte le consegne con status "pending" (in attesa).</p>
+            <p className='text-sm text-muted-foreground'>Il sistema cerca tutte le consegne con status &quot;pending&quot; (in attesa).</p>
           </div>
           <div className='space-y-2'>
             <h4 className='font-semibold'>2. Controllo Frequenza</h4>
@@ -214,7 +214,7 @@ export default function CronTestPage() {
           </div>
           <div className='space-y-2'>
             <h4 className='font-semibold'>4. Logging</h4>
-            <p className='text-sm text-muted-foreground'>Tutti gli invii vengono registrati nella tabella "reminder" per il controllo della frequenza.</p>
+            <p className='text-sm text-muted-foreground'>Tutti gli invii vengono registrati nella tabella &quot;reminder&quot; per il controllo della frequenza.</p>
           </div>
         </CardContent>
       </Card>

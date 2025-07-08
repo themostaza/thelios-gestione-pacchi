@@ -17,63 +17,62 @@ export async function searchRecipients(query: string) {
 
   // Then filter them
   const normalizedQuery = query.toLowerCase().trim()
-  const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0)
-  
+  const queryWords = normalizedQuery.split(/\s+/).filter((word) => word.length > 0)
+
   console.log(' Search Debug:', {
     originalQuery: query,
     normalizedQuery,
     queryWords,
-    totalRecipients: recipients.length
+    totalRecipients: recipients.length,
   })
-  
+
   const filteredRecipients = !normalizedQuery
     ? []
-    : recipients.filter(
-        (recipient) => {
-          const fullName = `${recipient.name} ${recipient.surname}`.toLowerCase()
-          
-          // Se la query ha più parole, tutte devono essere trovate
-          if (queryWords.length > 1) {
-            const allWordsFound = queryWords.every(word => 
+    : recipients.filter((recipient) => {
+        const fullName = `${recipient.name} ${recipient.surname}`.toLowerCase()
+
+        // Se la query ha più parole, tutte devono essere trovate
+        if (queryWords.length > 1) {
+          const allWordsFound = queryWords.every(
+            (word) =>
               recipient.name.toLowerCase().includes(word) ||
               recipient.surname.toLowerCase().includes(word) ||
               fullName.includes(word) ||
               (recipient.email ? recipient.email.toLowerCase().includes(word) : false)
-            )
-            
-            console.log('🔍 Multi-word search:', {
-              recipient: `${recipient.name} ${recipient.surname}`,
-              queryWords,
-              allWordsFound,
-              nameMatch: queryWords.some(word => recipient.name.toLowerCase().includes(word)),
-              surnameMatch: queryWords.some(word => recipient.surname.toLowerCase().includes(word)),
-              fullNameMatch: queryWords.some(word => fullName.includes(word))
-            })
-            
-            return allWordsFound
-          }
-          
-          // Se la query è una singola parola, cerca normalmente
-          const singleWordMatch = 
-            recipient.name.toLowerCase().includes(normalizedQuery) ||
-            recipient.surname.toLowerCase().includes(normalizedQuery) ||
-            fullName.includes(normalizedQuery) ||
-            (recipient.email ? recipient.email.toLowerCase().includes(normalizedQuery) : false)
-          
-          console.log(' Single-word search:', {
+          )
+
+          console.log('🔍 Multi-word search:', {
             recipient: `${recipient.name} ${recipient.surname}`,
-            query: normalizedQuery,
-            match: singleWordMatch
+            queryWords,
+            allWordsFound,
+            nameMatch: queryWords.some((word) => recipient.name.toLowerCase().includes(word)),
+            surnameMatch: queryWords.some((word) => recipient.surname.toLowerCase().includes(word)),
+            fullNameMatch: queryWords.some((word) => fullName.includes(word)),
           })
-          
-          return singleWordMatch
+
+          return allWordsFound
         }
-      )
+
+        // Se la query è una singola parola, cerca normalmente
+        const singleWordMatch =
+          recipient.name.toLowerCase().includes(normalizedQuery) ||
+          recipient.surname.toLowerCase().includes(normalizedQuery) ||
+          fullName.includes(normalizedQuery) ||
+          (recipient.email ? recipient.email.toLowerCase().includes(normalizedQuery) : false)
+
+        console.log(' Single-word search:', {
+          recipient: `${recipient.name} ${recipient.surname}`,
+          query: normalizedQuery,
+          match: singleWordMatch,
+        })
+
+        return singleWordMatch
+      })
 
   console.log('🔍 Final results:', {
     query,
     foundCount: filteredRecipients.length,
-    results: filteredRecipients.map(r => `${r.name} ${r.surname}`)
+    results: filteredRecipients.map((r) => `${r.name} ${r.surname}`),
   })
 
   return {

@@ -335,8 +335,6 @@ export default function Dashboard() {
           data = await getDashboardMetrics(effectiveTimePeriod, undefined, undefined, selectedYear)
         }
 
-
-
         // Check if we have actual data for the period
         const hasData = hasPackageData(data)
 
@@ -480,8 +478,6 @@ export default function Dashboard() {
 
           // Use the memoized function
           const aggregated = processChartData(allDates, receivedValues, completedValues, cancelledValues)
-
-
 
           // Aggiorna con i dati aggregati
           setPackagesData({

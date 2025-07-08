@@ -15,7 +15,7 @@ import { useDelivery } from '@/context/deliveryContext'
 import { useTranslation } from '@/i18n/I18nProvider'
 
 export default function SetStatus() {
-  const { delivery, changeStatus, refreshDelivery, sendReminder, sendStatusEmail } = useDelivery()
+  const { delivery, changeStatus, refreshDelivery, sendStatusEmail } = useDelivery()
   const { isAdmin, user } = useAuth()
   const [changingStatus, setChangingStatus] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
@@ -62,9 +62,9 @@ export default function SetStatus() {
       } else if (pendingAction === 'cancel') {
         await changeStatus('cancelled')
       }
-      
+
       await refreshDelivery()
-      
+
       // Then send the email
       if (pendingAction === 'complete') {
         await sendStatusEmail('completion')
@@ -90,7 +90,7 @@ export default function SetStatus() {
       } else if (pendingAction === 'cancel') {
         await changeStatus('cancelled')
       }
-      
+
       await refreshDelivery()
     } catch (error) {
       console.error('Error processing action:', error)
@@ -305,4 +305,3 @@ export default function SetStatus() {
     </div>
   )
 }
-

@@ -12,6 +12,7 @@ import { extractTextFromImage } from '@/app/actions/scanActions'
 import RecipientSelector from '@/components/delivery/recipientSelector'
 import GenericCardView from '@/components/genericCardView'
 import { Button } from '@/components/ui/button'
+import DecryptedText from '@/components/ui/DecryptedText'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,6 +27,7 @@ export default function DeliveryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userEmail, setUserEmail] = useState(t('common.loading'))
   const [isScanning, setIsScanning] = useState(false)
+  const [scanResult, setScanResult] = useState<string>('')
   const [showCamera, setShowCamera] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -124,6 +126,8 @@ export default function DeliveryForm() {
     setPreviewImage(previewUrl)
 
     setIsScanning(true)
+    setScanResult('')
+
     try {
       const formData = new FormData()
       formData.append('image', file)
@@ -131,8 +135,10 @@ export default function DeliveryForm() {
       const result = await extractTextFromImage(formData)
 
       if (result.success && result.text) {
+        setScanResult(result.text)
         form.setValue('recipient', result.text)
       } else {
+        setScanResult(result.message || "Errore nell'estrazione del testo")
         toast({
           title: 'Error',
           description: result.message || 'Failed to extract text from image',
@@ -141,6 +147,7 @@ export default function DeliveryForm() {
       }
     } catch (error) {
       console.error('Error processing image:', error)
+      setScanResult("Errore imprevisto durante l'elaborazione")
       toast({
         title: 'Error',
         description: 'An unexpected error occurred while processing the image',
@@ -193,6 +200,7 @@ export default function DeliveryForm() {
         async (blob) => {
           if (blob) {
             setIsScanning(true)
+            setScanResult('')
 
             const stream = video.srcObject as MediaStream
             stream.getTracks().forEach((track) => track.stop())
@@ -205,8 +213,10 @@ export default function DeliveryForm() {
               const result = await extractTextFromImage(formData)
 
               if (result.success && result.text) {
+                setScanResult(result.text)
                 form.setValue('recipient', result.text)
               } else {
+                setScanResult(result.message || "Errore nell'estrazione del testo")
                 toast({
                   title: 'Error',
                   description: result.message || 'Failed to extract text from image',
@@ -215,6 +225,7 @@ export default function DeliveryForm() {
               }
             } catch (error) {
               console.error('Error processing image:', error)
+              setScanResult("Errore imprevisto durante l'elaborazione")
               toast({
                 title: 'Error',
                 description: 'An unexpected error occurred while processing the image',
@@ -317,6 +328,65 @@ export default function DeliveryForm() {
         </div>
       )}
 
+      {/* Loading overlay */}
+      {isScanning && (
+        <div className='fixed inset-0 z-50 bg-black bg-opacity-75 flex flex-col items-center justify-center p-4'>
+          <div className='text-center space-y-4 max-w-sm w-full'>
+            <DecryptedText
+              text='ANALIZZANDO IMMAGINE...'
+              speed={80}
+              maxIterations={20}
+              characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'
+              className='text-lg sm:text-xl font-bold text-white'
+              isProcessing={isScanning}
+            />
+
+            <DecryptedText
+              text='CERCANDO NOME E COGNOME...'
+              speed={70}
+              maxIterations={20}
+              characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'
+              className='text-base sm:text-lg font-medium text-white'
+              isProcessing={isScanning}
+            />
+
+            <DecryptedText
+              text='ESTRAENDO EMAIL...'
+              speed={60}
+              maxIterations={20}
+              characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'
+              className='text-sm sm:text-base text-white'
+              isProcessing={isScanning}
+            />
+
+            {!isScanning && scanResult && (
+              <div className='mt-6 p-3 bg-white bg-opacity-10 rounded-md'>
+                <DecryptedText
+                  text={scanResult}
+                  speed={50}
+                  maxIterations={15}
+                  characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'
+                  className='text-base sm:text-lg font-mono text-white'
+                  isProcessing={false}
+                />
+              </div>
+            )}
+
+            <Button
+              type='button'
+              onClick={() => {
+                setIsScanning(false)
+                setScanResult('')
+              }}
+              variant='outline'
+              className='border-white hover:bg-white hover:text-black mt-6'
+            >
+              Annulla
+            </Button>
+          </div>
+        </div>
+      )}
+
       <GenericCardView
         title={t('deliveries.newDelivery')}
         description={t('deliveries.newDelivery')}
@@ -333,7 +403,7 @@ export default function DeliveryForm() {
               <div className='border rounded-md p-4 space-y-4'>
                 <h3 className='text-sm font-medium'>{t('deliveries.scanLabel') || 'Scansione Etichetta'}</h3>
 
-                <div className='flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-md'>
+                <div className='flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-md relative'>
                   {previewImage ? (
                     <div className='space-y-4 w-full'>
                       <div className='relative'>
@@ -354,13 +424,6 @@ export default function DeliveryForm() {
                           ×
                         </Button>
                       </div>
-
-                      {isScanning && (
-                        <div className='flex items-center justify-center mt-4'>
-                          <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                          <span className='text-sm'>{t('deliveries.scanning') || 'Elaborazione...'}</span>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className='space-y-2 text-center'>
@@ -404,13 +467,6 @@ export default function DeliveryForm() {
                           />
                         </div>
                       </div>
-
-                      {isScanning && (
-                        <div className='flex items-center justify-center mt-4'>
-                          <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                          <span className='text-sm'>{t('deliveries.scanning') || 'Elaborazione...'}</span>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

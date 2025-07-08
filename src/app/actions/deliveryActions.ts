@@ -633,28 +633,26 @@ export async function updateDeliveryStatus(id: string, status: string): Promise<
     const deliveryId = parseInt(id, 10)
 
     // Test if we can update this delivery by trying a simple update first
-    const { data: testUpdate, error: testError } = await supabase
+    await supabase
       .from('delivery')
       .update({ notes: existingDelivery.notes }) // Update with same value
       .eq('id', deliveryId)
       .select('id')
 
     // First try update without select to see if it works
-    let updateResult, updateError
+    let updateError
 
     if (isAdmin) {
       // For admins, use service role to bypass RLS
       const serviceSupabase = createAdminClient()
 
-      const { data, error } = await serviceSupabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
+      const { error } = await serviceSupabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
 
-      updateResult = data
       updateError = error
     } else {
       // For regular users, use normal client
-      const { data, error } = await supabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
+      const { error } = await supabase.from('delivery').update(updateData).eq('id', deliveryId).select('id')
 
-      updateResult = data
       updateError = error
     }
 
