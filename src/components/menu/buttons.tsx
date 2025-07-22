@@ -1,5 +1,5 @@
 'use client'
-import { Clipboard, PlusCircle, LayoutDashboard, Users, Loader2, Clock } from 'lucide-react'
+import { Clipboard, PlusCircle, LayoutDashboard, Users, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -49,12 +49,6 @@ export default function NavigationButtons({ onNavigate }: { onNavigate?: () => v
       text: t('navigation.userManagement'),
       icon: <Users className='h-4 w-4 mr-2' />,
       isDisabled: pathname === '/accounts',
-    },
-    {
-      href: '/cron-test',
-      text: 'Test Cron',
-      icon: <Clock className='h-4 w-4 mr-2' />,
-      isDisabled: pathname === '/cron-test',
     },
   ]
 

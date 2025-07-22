@@ -206,7 +206,10 @@ export default function SetStatus() {
           <DialogHeader>
             <DialogTitle>{t('deliveries.confirmCompletion') || 'Conferma Completamento'}</DialogTitle>
             <DialogDescription>
-              {t('deliveries.confirmCompletionDescription') || `Sei sicuro di voler completare la consegna #${delivery.id}? Questa azione non può essere annullata.`}
+              {isAdmin 
+                ? (t('deliveries.confirmCompletionDescriptionAdmin') || `Sei sicuro di voler completare la consegna #${delivery.id}?`)
+                : (t('deliveries.confirmCompletionDescription') || `Sei sicuro di voler completare la consegna #${delivery.id}? Questa azione non può essere annullata.`)
+              }
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -236,7 +239,10 @@ export default function SetStatus() {
           <DialogHeader>
             <DialogTitle>{t('deliveries.confirmCancellation') || 'Conferma Annullamento'}</DialogTitle>
             <DialogDescription>
-              {t('deliveries.confirmCancellationDescription') || `Sei sicuro di voler annullare la consegna #${delivery.id}? Questa azione non può essere annullata.`}
+              {isAdmin 
+                ? (t('deliveries.confirmCancellationDescriptionAdmin') || `Sei sicuro di voler annullare la consegna #${delivery.id}?`)
+                : (t('deliveries.confirmCancellationDescription') || `Sei sicuro di voler annullare la consegna #${delivery.id}? Questa azione non può essere annullata.`)
+              }
             </DialogDescription>
           </DialogHeader>
 

@@ -63,7 +63,9 @@ function generateEmailBody(emailType: EmailType, data: EmailTemplateData): strin
         <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
         <item><LINE><![CDATA[Data prevista: ${formatDateOnly(data.createdAt)}<br>]]></LINE></item>
         ${data.timeSlot ? `<item><LINE><![CDATA[Fascia oraria: ${data.timeSlot}<br>]]></LINE></item>` : ''}
-        <item><LINE><![CDATA[Indirizzo: ${data.place}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br>]]></LINE></item>
+        ${data.notes ? `<item><LINE><![CDATA[Note: ${data.notes}<br>]]></LINE></item>` : ''}
+        <item><LINE><![CDATA[<br>]]></LINE></item>
         <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
         <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
         <item><LINE><![CDATA[________________________<br>]]></LINE></item>
@@ -76,6 +78,7 @@ function generateEmailBody(emailType: EmailType, data: EmailTemplateData): strin
         <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
         <item><LINE><![CDATA[Data: ${formatDate(data.completedAt || new Date().toISOString())}<br>]]></LINE></item>
         <item><LINE><![CDATA[Indirizzo: ${data.place}<br>]]></LINE></item>
+        ${data.notes ? `<item><LINE><![CDATA[Note: ${data.notes}<br>]]></LINE></item>` : ''}
         <item><LINE><![CDATA[Consegnato a: ${data.recipientName || 'Destinatario'}<br><br>]]></LINE></item>
         <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
         <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
@@ -87,7 +90,9 @@ function generateEmailBody(emailType: EmailType, data: EmailTemplateData): strin
       return `
         <item><LINE><![CDATA[La consegna del tuo pacco è stata annullata.<br><br>]]></LINE></item>
         <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
-        <item><LINE><![CDATA[Data annullamento: ${formatDate(data.completedAt || new Date().toISOString())}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Data annullamento: ${formatDate(data.completedAt || new Date().toISOString())}<br>]]></LINE></item>
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br>]]></LINE></item>
+        ${data.notes ? `<item><LINE><![CDATA[Note: ${data.notes}<br><br>]]></LINE></item>` : ''}
         <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
         <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
         <item><LINE><![CDATA[________________________<br>]]></LINE></item>
@@ -101,7 +106,9 @@ function generateEmailBody(emailType: EmailType, data: EmailTemplateData): strin
         <item><LINE><![CDATA[Tracking: ${data.deliveryId}<br>]]></LINE></item>
         <item><LINE><![CDATA[Data prevista: ${formatDateOnly(data.createdAt)}<br>]]></LINE></item>
         ${data.timeSlot ? `<item><LINE><![CDATA[Fascia oraria: ${data.timeSlot}<br>]]></LINE></item>` : ''}
-        <item><LINE><![CDATA[Indirizzo: ${data.place}<br><br>]]></LINE></item>
+        <item><LINE><![CDATA[Indirizzo: ${data.place}<br>]]></LINE></item>
+        ${data.notes ? `<item><LINE><![CDATA[Note: ${data.notes}<br>]]></LINE></item>` : ''}
+        <item><LINE><![CDATA[<br>]]></LINE></item>
         <item><LINE><![CDATA[Per segnalazioni, rivolgiti all'ufficio competente.<br>]]></LINE></item>
         <item><LINE><![CDATA[Ti auguriamo buona giornata.<br>]]></LINE></item>
         <item><LINE><![CDATA[________________________<br>]]></LINE></item>

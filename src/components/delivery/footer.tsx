@@ -17,10 +17,10 @@ export default function DeliveryFooter() {
   const [sendingReminder, setSendingReminder] = useState(false)
   const [logsDialogOpen, setLogsDialogOpen] = useState(false)
 
-  // Check if delivery is completed or cancelled and user is not admin
+  // Check if delivery is completed or cancelled - no one can send reminders for finalized deliveries
   const isDeliveryFinalized = delivery?.status === 'completed' || delivery?.status === 'cancelled'
   const isOwner = user?.email === delivery?.user?.email
-  const canSendReminder = isAdmin || (isOwner && !isDeliveryFinalized)
+  const canSendReminder = !isDeliveryFinalized
 
   const handleSendReminder = async () => {
     setSendingReminder(true)
@@ -47,7 +47,7 @@ export default function DeliveryFooter() {
               </Button>
             </div>
             <div className='flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:w-auto'>
-              {!isAdmin && isOwner && isDeliveryFinalized && (
+              {isDeliveryFinalized && (
                 <div className='flex items-center'>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -62,7 +62,7 @@ export default function DeliveryFooter() {
                     <PopoverContent className='w-80'>
                       <div className='space-y-2'>
                         <h4 className='font-medium leading-none'>{t('notifications.deliveryFinalized') || 'Consegna finalizzata'}</h4>
-                        <p className='text-sm text-muted-foreground'>{t('notifications.deliveryFinalizedDescription') || 'Solo gli admin possono inviare promemoria per una consegna finalizzata.'}</p>
+                        <p className='text-sm text-muted-foreground'>{t('notifications.deliveryFinalizedDescription') || 'Non è possibile inviare promemoria per una consegna finalizzata.'}</p>
                       </div>
                     </PopoverContent>
                   </Popover>
