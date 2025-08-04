@@ -142,7 +142,7 @@ async function sendEmailWithRetry(emailType: EmailType, data: EmailTemplateData,
       <IV_SUBJECT>${subject}</IV_SUBJECT>
     </n0:Z_SEND_EMAIL_BCS>
   `
-  const url = process.env.THELIOS_API_URL
+  const url = process.env.THELIOS_API_SEND_MAIL_URL
   const AUTH = process.env.THELIOS_API_KEY
   const DISABLE_EMAIL_SEND = false // just for testing
 

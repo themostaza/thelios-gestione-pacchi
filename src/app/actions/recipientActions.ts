@@ -99,7 +99,7 @@ export async function getRecipients(forceRefresh = false): Promise<{ recipients:
 
     if (needsFetch) {
       // Fetch new data from the API
-      const response = await fetch('https://theliosdev.it-cpi026-rt.cfapps.eu10-002.hana.ondemand.com/http/api_mail_list', {
+      const response = await fetch(process.env.THELIOS_API_MAIL_LIST_URL || '', {
         headers: {
           Authorization: process.env.THELIOS_API_KEY || '',
         },
