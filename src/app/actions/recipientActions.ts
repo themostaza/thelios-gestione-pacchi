@@ -162,5 +162,5 @@ export async function getRecipients(forceRefresh = false): Promise<{ recipients:
 }
 
 export async function forceRefreshRecipients() {
-  return getRecipients(true)
+  return await getRecipients(true)
 }
