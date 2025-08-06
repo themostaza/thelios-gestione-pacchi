@@ -106,7 +106,7 @@ export async function getRecipients(forceRefresh = false): Promise<{ recipients:
       })
 
       if (!response.ok) {
-        console.error('API response error:', response)
+        console.error('API response error:', await response.text())
         throw new Error(`API response error: ${response.status}`)
       }
 
